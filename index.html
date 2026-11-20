@@ -513,6 +513,13 @@ function activeCount(p){return stats(p).games}
 function matchBrackets(m){
  return Array.isArray(m.brackets)&&m.brackets.length?m.brackets:[m.bracket];
 }
+// Beginner players may be grouped with Beginner through Novice, but never
+// with Lower intermediate or any higher bracket.
+function skillCompatibleGroup(players){
+ let hasBeginner=players.some(p=>p&&p.bracket==="Beginner");
+ let hasLowerIntermediateOrAbove=players.some(p=>p&&BRACKETS.indexOf(p.bracket)>=BRACKETS.indexOf("Lower intermediate"));
+ return !(hasBeginner&&hasLowerIntermediateOrAbove);
+}
 function generateMatches(){
  let busy=busyIds(),made=0;
  let target=generationSlots(),bracketMade=Object.fromEntries(BRACKETS.map(b=>[b,0]));
@@ -546,7 +553,7 @@ function generateMatches(){
   }));
   let candidates=[];
   function addCandidate(group,brackets,mixed,distance=0){
-   if(group.length!==4||new Set(group.map(p=>p.id)).size!==4)return;
+   if(group.length!==4||new Set(group.map(p=>p.id)).size!==4||!skillCompatibleGroup(group))return;
    let games=group.map(p=>activeCount(p)),waits=group.map(p=>idle(p));
    candidates.push({brackets,bracket:brackets.join(" + "),group,mixed,distance,
     avgGames:games.reduce((a,b)=>a+b,0)/4,maxGames:Math.max(...games),
@@ -627,7 +634,7 @@ function generateMatches(){
  save();
 }
 function clearUpcoming(){if(!confirm("Remove all upcoming matches?"))return;state.matches=state.matches.filter(m=>m.status!=="upcoming");save()}
-function startMatch(id){let m=state.matches.find(x=>x.id===id);if(!m||m.status!=="upcoming")return;let ids=[...m.teamA,...m.teamB];if(ids.length!==4||new Set(ids).size!==4||ids.some(pid=>!player(pid)||!player(pid).available)){alert("This match needs four different available players. Replace or add the missing player before starting.");return;}let courts=configuredCourts(),occupied=new Set(state.matches.filter(x=>x.status==="playing").map(x=>Number(x.court)).filter(n=>Number.isInteger(n)&&n>0));if(occupied.size>=courts){alert("All "+courts+" courts are currently in use. Finish an active match before starting another match.");return;}let freeCourt=Array.from({length:courts},(_,i)=>i+1).find(n=>!occupied.has(n));if(!freeCourt){alert("No court is currently available.");return;}m.status="playing";m.court=freeCourt;m.startedAt=Date.now();save()}
+function startMatch(id){let m=state.matches.find(x=>x.id===id);if(!m||m.status!=="upcoming")return;let ids=[...m.teamA,...m.teamB],members=ids.map(player);if(ids.length!==4||new Set(ids).size!==4||members.some(p=>!p||!p.available)){alert("This match needs four different available players. Replace or add the missing player before starting.");return;}if(!skillCompatibleGroup(members)){alert("Skill mismatch: Beginner players cannot be matched with Lower intermediate or higher players. Adjust the player brackets or regenerate this match.");return;}let courts=configuredCourts(),occupied=new Set(state.matches.filter(x=>x.status==="playing").map(x=>Number(x.court)).filter(n=>Number.isInteger(n)&&n>0));if(occupied.size>=courts){alert("All "+courts+" courts are currently in use. Finish an active match before starting another match.");return;}let freeCourt=Array.from({length:courts},(_,i)=>i+1).find(n=>!occupied.has(n));if(!freeCourt){alert("No court is currently available.");return;}m.status="playing";m.court=freeCourt;m.startedAt=Date.now();save()}
 function eligibleReplacements(m,oldId){
  if(!m||m.status!=="upcoming")return [];
  // Players in other active/upcoming matches are busy. Players in this match
@@ -635,7 +642,8 @@ function eligibleReplacements(m,oldId){
  let busy=new Set(state.matches.filter(x=>x.id!==m.id&&(x.status==="playing"||x.status==="upcoming")).flatMap(x=>[...x.teamA,...x.teamB]));
  let alreadyInThisMatch=new Set([...m.teamA,...m.teamB].filter(id=>id!==oldId));
  let allowedBrackets=new Set(matchBrackets(m));
- return state.players.filter(p=>p.available&&!busy.has(p.id)&&!alreadyInThisMatch.has(p.id)&&p.id!==oldId&&allowedBrackets.has(p.bracket))
+ let currentMembers=[...m.teamA,...m.teamB].filter(id=>id!==oldId).map(player).filter(Boolean);
+ return state.players.filter(p=>p.available&&!busy.has(p.id)&&!alreadyInThisMatch.has(p.id)&&p.id!==oldId&&allowedBrackets.has(p.bracket)&&skillCompatibleGroup([...currentMembers,p]))
   .sort((a,b)=>stats(a).games-stats(b).games||idle(b)-idle(a)||a.name.localeCompare(b.name));
 }
 function removeMatchPlayer(matchId,playerId){let m=state.matches.find(x=>x.id===matchId);if(!m||m.status!=="upcoming")return;let arr=m.teamA.includes(playerId)?m.teamA:m.teamB,idx=arr.indexOf(playerId);if(idx<0)return;arr.splice(idx,1);save()}
