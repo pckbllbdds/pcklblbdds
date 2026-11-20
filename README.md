@@ -10,6 +10,7 @@ This is the GitHub-ready Cloudflare Pages version of the Match Center. It follow
 - The Organizer and Players tabs require one shared organizer password.
 - Writes include a revision number. If another organizer saves first, the later save is rejected and the browser loads the latest shared state instead of silently overwriting it.
 - The existing match generation, player management, leaderboard, court status and match scoring logic is retained.
+- The interface has been refined for phones: the header actions and navigation use consistent touch-friendly layouts, court cards reflow into a grid, player and leaderboard tables scroll within their own containers, and score-entry and organizer controls stack cleanly on narrow screens. The wider desktop layout is retained.
 
 ## Files
 
