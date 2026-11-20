@@ -1,3 +1,5 @@
+import { isOrganizerAuthorized } from "../_shared/auth.js";
+
 function json(data, status = 200) {
   return Response.json(data, {
     status,
@@ -33,8 +35,7 @@ export async function onRequestPost({ request, env }) {
   if (!env.DB) return json({ error: "D1 binding DB is not configured." }, 500);
   if (!env.ADMIN_PASSWORD) return json({ error: "ADMIN_PASSWORD secret is not configured. Writes are disabled." }, 503);
 
-  const suppliedPassword = request.headers.get("X-Admin-Password") || "";
-  if (suppliedPassword !== env.ADMIN_PASSWORD) {
+  if (!(await isOrganizerAuthorized(request, env))) {
     const row = await latestState(env.DB);
     return json({
       error: "Organizer password was not accepted.",

@@ -7,13 +7,17 @@ This is the GitHub-ready Cloudflare Pages version of the Match Center. It follow
 - The old browser-only `localStorage` persistence has been removed.
 - Shared match data is loaded from and saved to Cloudflare D1 through Pages Functions.
 - The public match board refreshes from D1 every 10 seconds.
-- The Organizer and Players tabs require one shared organizer password.
+- The Organizer and Players tabs require one shared organizer password. After a successful sign-in, this browser receives a secure, HttpOnly device session cookie that survives page refreshes for up to one year. Other devices must sign in separately; the Logout button clears the current browser's session.
 - Writes include a revision number. If another organizer saves first, the later save is rejected and the browser loads the latest shared state instead of silently overwriting it.
 - The existing match generation, player management, leaderboard, court status and match scoring logic is retained.
 - The header now shows only the Organizer action; the redundant Player view button has been removed because the public match board is the default landing view.
 - A minimal “Join us on Facebook” text link appears in the public sidebar and opens the club Facebook page.
-- The Reset session action has been moved into a separate, full-width Danger zone card at the bottom of the Organizer view, away from routine session controls. Its existing confirmation prompt and reset behavior are preserved.
+- The Reset Session action remains separated at the bottom of the Organizer view, away from routine session controls. Its existing confirmation prompt and reset behavior are preserved.
 - The interface has been refined for phones: the header actions and navigation use consistent touch-friendly layouts, court cards reflow into a grid, player and leaderboard tables scroll within their own containers, and score-entry and organizer controls stack cleanly on narrow screens. The wider desktop layout is retained.
+
+## Organizer device sign-in
+
+A successful password check creates a browser-specific, signed session cookie. The cookie is `HttpOnly`, `Secure`, and `SameSite=Strict`; it is not exposed to page JavaScript or stored in local storage. Refreshing the page keeps the device signed in. The Logout button calls `DELETE /api/auth` to clear that browser's cookie. Changing the Cloudflare `ADMIN_PASSWORD` invalidates previously issued device cookies. No D1 migration is required for this feature.
 
 ## Files
 
@@ -24,6 +28,8 @@ functions/
   api/
     auth.js
     state.js
+  _shared/
+    auth.js
 ```
 
 The app expects a D1 binding named `DB` (`env.DB` in the Pages Functions). The existing app state is stored as one JSON document in the D1 table `app_state`; this preserves the current app state model and match logic instead of requiring a rewrite into separate player and match tables. The revision check helps prevent silent concurrent overwrites, but this is designed for one organizer making changes at a time, not heavy simultaneous multi-organizer editing.
