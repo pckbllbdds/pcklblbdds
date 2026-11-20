@@ -54,6 +54,7 @@ table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px}th,td{
 hr{border:0;border-top:1px solid var(--line);margin:14px 0}
 .actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.actions button{font-size:12px;padding:8px 10px}
 #publicUrl{font-size:12px;word-break:break-all}.hide{display:none!important}
+.danger-zone-card{background:#fffafa;border:1px solid #efc7c4;margin-top:10px}.danger-zone-card h2{color:#9b1c13;margin-bottom:6px}.danger-zone-card .actions{margin-top:14px}.danger-zone-card button{min-width:130px}
 @media(max-width:700px){.span8,.span6,.span4{grid-column:span 12}.statrow{grid-template-columns:repeat(2,1fr)}header{padding:16px}.teams{font-size:13px}}
 .club-footer{text-align:center;padding:18px 12px 24px;color:#7b163e;font-size:10px;font-weight:850;letter-spacing:.12em}@media(max-width:520px){.brand-logo{width:60px;height:60px}header h1{font-size:18px}.brand-tagline{font-size:8px}}
 
@@ -287,12 +288,13 @@ button.primary{background:#198754;color:#fff}button.primary:hover{background:#14
 <label>Match generation limit</label><div class="stat"><b>Total courts + 3 matches</b><span class="small">This is the combined limit for active and upcoming matches. Example: 4 courts = 7 total matches, including games in progress.</span></div>
 <label>Attendance</label><div class="small">Mark players present/available in the Players tab. Only available players are selected.</div>
 <div class="actions"><button class="primary" onclick="generateMatches()">Generate upcoming matches</button><button onclick="clearUpcoming()">Clear upcoming</button></div>
-<div class="actions"><button class="danger" onclick="resetSession()">Reset session</button></div><div class="small">Reset removes all players, match results, active and upcoming games, and session entries for everyone using this shared club database. This cannot be undone.</div>
+
 
 <hr><h3>Public page link</h3><div class="small">After hosting this HTML file, share its URL or create a QR code for that URL.</div><input id="siteUrl" placeholder="Paste your hosted website URL"><div class="actions"><button onclick="makeQR()">Create QR code</button></div><div id="qrBox"></div><div id="publicUrl"></div>
 </div>
 <div class="card span8"><h2>Current and upcoming matches</h2><div id="adminMatches"></div></div>
 <div class="card span12"><h2>Record a completed match</h2><div class="small">Enter the score for each team. A completed match updates both partners' win/loss records and total points scored.</div><div id="scoreEntry"></div></div>
+<div class="card span12 danger-zone-card"><div class="danger-zone-copy"><h2>Danger zone</h2><div class="small">Reset the entire shared session only when you are ready to clear the club database. This removes all players, match results, active and upcoming games, rankings and session entries for everyone. This cannot be undone.</div></div><div class="actions"><button class="danger" onclick="resetSession()">Reset session</button></div></div>
 </div>
 </section>
 

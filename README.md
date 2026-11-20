@@ -11,7 +11,8 @@ This is the GitHub-ready Cloudflare Pages version of the Match Center. It follow
 - Writes include a revision number. If another organizer saves first, the later save is rejected and the browser loads the latest shared state instead of silently overwriting it.
 - The existing match generation, player management, leaderboard, court status and match scoring logic is retained.
 - The header now shows only the Organizer action; the redundant Player view button has been removed because the public match board is the default landing view.
-- A minimal Facebook link appears in the public sidebar with only “Join us on Facebook” and the Facebook logo; both open the club Facebook page.
+- A minimal “Join us on Facebook” text link appears in the public sidebar and opens the club Facebook page.
+- The Reset session action has been moved into a separate, full-width Danger zone card at the bottom of the Organizer view, away from routine session controls. Its existing confirmation prompt and reset behavior are preserved.
 - The interface has been refined for phones: the header actions and navigation use consistent touch-friendly layouts, court cards reflow into a grid, player and leaderboard tables scroll within their own containers, and score-entry and organizer controls stack cleanly on narrow screens. The wider desktop layout is retained.
 
 ## Files
