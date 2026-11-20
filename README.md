@@ -136,3 +136,5 @@ Completed match scores are restricted to whole numbers: each team may score up t
 ### Mobile player search
 
 The Find a Player card is placed directly after court availability and stays within easy reach while scrolling on mobile. Search results appear only after a name is entered, and the results area has its own scroll limit to keep the page compact. This is a frontend-only change; no D1 migration is required.
+
+- Public Find a Player search is available as its own top-level tab, keeping the Live & upcoming Match Board compact on mobile.

@@ -137,12 +137,12 @@ button.primary{background:#198754;color:#fff}button.primary:hover{background:#14
 .db-loading main{pointer-events:none;opacity:.65}
 
 
-.player-finder-card{align-self:start;min-width:0}
-.player-search-results{max-height:220px;overflow-y:auto;overscroll-behavior:contain}
+.player-finder-card{align-self:start;min-width:0;max-width:100%}
+.player-finder-card input{width:100%;box-sizing:border-box}
+.player-search-results{max-height:320px;overflow-y:auto;overscroll-behavior:contain}
 @media(max-width:700px){
-  .player-finder-card{position:sticky;top:8px;z-index:8;box-shadow:0 7px 18px rgba(20,36,58,.12)}
   .player-finder-card h2{margin-bottom:7px}
-  .player-search-results{max-height:190px;-webkit-overflow-scrolling:touch}
+  .player-search-results{max-height:55vh;-webkit-overflow-scrolling:touch}
 }
 
 /* Mobile-first refinements: preserve the desktop composition, but make touch layouts intentional. */
@@ -236,6 +236,7 @@ button.primary{background:#198754;color:#fff}button.primary:hover{background:#14
 <div id="databaseStatus" class="database-status" role="status" aria-live="polite">Connecting to the shared club database…</div>
 <div class="tabs">
 <button class="tab active" data-tab="public" onclick="showTab('public')">Live & upcoming</button>
+<button class="tab" data-tab="find-player" onclick="showTab('find-player')">Find a player</button>
 <button class="tab" data-tab="leaderboard" onclick="showTab('leaderboard')">Leaderboards</button>
 <button class="tab" data-tab="admin" onclick="showTab('admin')">Manage session</button>
 <button class="tab" data-tab="players" onclick="showTab('players')">Players</button>
@@ -246,8 +247,7 @@ button.primary{background:#198754;color:#fff}button.primary:hover{background:#14
  <div class="public-main-column">
   <div class="grid">
    <div class="card span12"><h2>Court availability</h2><div id="publicCourts"></div></div>
-   <div class="card span6 player-finder-card"><h2>Find a player</h2><input id="playerSearch" type="search" placeholder="Search player name…" aria-label="Search player name" autocomplete="off" enterkeyhint="search" oninput="renderPublic()"><div id="playerSearchResults" class="player-search-results"></div></div>
-   <div class="card span6"><h2>Waiting players</h2><div id="waitingList"></div></div>
+   <div class="card span12"><h2>Waiting players</h2><div id="waitingList"></div></div>
    <div class="card span12"><div class="row"><div><h2>Match board</h2><div class="muted small">Public view: current matches, upcoming games and waiting players.</div></div><div class="fit"><span class="badge" id="liveBadge">Ready</span></div></div><div id="publicMatches"></div></div>
   </div>
  </div>
@@ -281,6 +281,15 @@ button.primary{background:#198754;color:#fff}button.primary:hover{background:#14
   </div>
  </aside>
 </div>
+</section>
+
+<section id="find-player" class="panel">
+ <div class="card player-finder-card">
+  <h2>Find a player</h2>
+  <p class="small muted">Search player names across all skill brackets.</p>
+  <input id="playerSearch" type="search" placeholder="Search player name…" aria-label="Search player name" autocomplete="off" enterkeyhint="search" oninput="renderPublic()">
+  <div id="playerSearchResults" class="player-search-results"></div>
+ </div>
 </section>
 
 <section id="leaderboard" class="panel">
