@@ -123,3 +123,7 @@ If the status strip reports a D1 problem, verify that the D1 binding is named `D
 - The organizer password is a shared password, not individual accounts or role-based access. Anyone who knows it can manage the roster, results and reset the session.
 - This version stores the entire app state as one JSON document. A revision check protects against silent concurrent overwrites, but simultaneous edits by multiple organizers may cause one save to be rejected. The affected browser will load the newest data and ask the organizer to re-apply the change.
 - D1 starts with a clean session. Data previously stored by the old browser-only version is not automatically uploaded to the new database.
+
+
+## Leaderboard update
+- Leaderboards include an overall ranking across all skill brackets, individual bracket views, and completed games played alongside wins and losses.
