@@ -132,3 +132,7 @@ If the status strip reports a D1 problem, verify that the D1 binding is named `D
 ### Match score limits
 
 Completed match scores are restricted to whole numbers: each team may score up to 11 points, and the combined score for one match may not exceed 21 points. This is checked in the organizer interface and again by the Pages state API. No D1 schema migration is required.
+
+### Mobile player search
+
+The Find a Player card is placed directly after court availability and stays within easy reach while scrolling on mobile. Search results appear only after a name is entered, and the results area has its own scroll limit to keep the page compact. This is a frontend-only change; no D1 migration is required.
