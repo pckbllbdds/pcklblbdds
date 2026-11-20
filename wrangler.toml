@@ -5,5 +5,5 @@ pages_build_output_dir = "./"
 [[d1_databases]]
 binding = "DB"
 database_name = "pickleball-buddies-qatar"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_id = "6126f705-fd80-4f34-8957-4198f5f1271c"
 migrations_dir = "migrations"
