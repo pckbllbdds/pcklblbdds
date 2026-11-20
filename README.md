@@ -127,3 +127,8 @@ If the status strip reports a D1 problem, verify that the D1 binding is named `D
 
 ## Leaderboard update
 - Leaderboards include an overall ranking across all skill brackets, individual bracket views, and completed games played alongside wins and losses.
+
+
+### Match score limits
+
+Completed match scores are restricted to whole numbers: each team may score up to 11 points, and the combined score for one match may not exceed 21 points. This is checked in the organizer interface and again by the Pages state API. No D1 schema migration is required.

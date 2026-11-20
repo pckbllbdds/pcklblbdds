@@ -61,6 +61,40 @@ export async function onRequestPost({ request, env }) {
     return json({ error: "The submitted match state or revision is invalid." }, 400);
   }
 
+  // Validate only results that are newly completed or whose score has changed.
+  // This protects new match entries without blocking unrelated saves because of legacy results.
+  let previousState;
+  try {
+    const previousRow = await latestState(env.DB);
+    previousState = previousRow ? JSON.parse(previousRow.state_json) : null;
+  } catch (error) {
+    console.error("D1 current-state validation read error:", error);
+    return json({ error: "Could not verify the current match state." }, 500);
+  }
+  const previousMatches = new Map((previousState?.matches || []).map((match) => [String(match.id), match]));
+  for (const match of state.matches) {
+    if (!match || match.status !== "done") continue;
+    const previous = previousMatches.get(String(match.id));
+    const isNewOrChangedResult = !previous || previous.status !== "done" ||
+      Number(previous.scoreA) !== Number(match.scoreA) || Number(previous.scoreB) !== Number(match.scoreB);
+    if (!isNewOrChangedResult) continue;
+
+    const scoreA = match.scoreA;
+    const scoreB = match.scoreB;
+    if (!Number.isInteger(scoreA) || !Number.isInteger(scoreB) || scoreA < 0 || scoreB < 0) {
+      return json({ error: "Match scores must be whole numbers of 0 or higher." }, 400);
+    }
+    if (scoreA > 11 || scoreB > 11) {
+      return json({ error: "Each team can score a maximum of 11 points." }, 400);
+    }
+    if (scoreA + scoreB > 21) {
+      return json({ error: "The combined score for a match cannot exceed 21 points." }, 400);
+    }
+    if (scoreA === scoreB) {
+      return json({ error: "Completed match scores cannot be tied." }, 400);
+    }
+  }
+
   const serialized = JSON.stringify(state);
   if (new TextEncoder().encode(serialized).byteLength > 900_000) {
     return json({ error: "The session data is too large to save." }, 413);
