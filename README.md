@@ -138,3 +138,8 @@ Completed match scores are restricted to whole numbers: each team may score up t
 The Find a Player card is placed directly after court availability and stays within easy reach while scrolling on mobile. Search results appear only after a name is entered, and the results area has its own scroll limit to keep the page compact. This is a frontend-only change; no D1 migration is required.
 
 - Public Find a Player search is available as its own top-level tab, keeping the Live & upcoming Match Board compact on mobile.
+
+### Public navigation update
+- Match Board is now the first/default public tab, with Court Availability directly below it.
+- Waiting Players has been moved into the Find a Player tab, alongside the player search, so the live match view stays focused and compact.
+- This is a presentation-only update; the existing waiting-list and player-search data/rendering remain unchanged.

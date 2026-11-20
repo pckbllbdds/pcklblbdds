@@ -235,7 +235,7 @@ button.primary{background:#198754;color:#fff}button.primary:hover{background:#14
 <main>
 <div id="databaseStatus" class="database-status" role="status" aria-live="polite">Connecting to the shared club database…</div>
 <div class="tabs">
-<button class="tab active" data-tab="public" onclick="showTab('public')">Live & upcoming</button>
+<button class="tab active" data-tab="public" onclick="showTab('public')">Match board</button>
 <button class="tab" data-tab="find-player" onclick="showTab('find-player')">Find a player</button>
 <button class="tab" data-tab="leaderboard" onclick="showTab('leaderboard')">Leaderboards</button>
 <button class="tab" data-tab="admin" onclick="showTab('admin')">Manage session</button>
@@ -246,9 +246,8 @@ button.primary{background:#198754;color:#fff}button.primary:hover{background:#14
 <div class="public-layout">
  <div class="public-main-column">
   <div class="grid">
+   <div class="card span12"><div class="row"><div><h2>Match board</h2><div class="muted small">Current matches, upcoming games and recent results.</div></div><div class="fit"><span class="badge" id="liveBadge">Ready</span></div></div><div id="publicMatches"></div></div>
    <div class="card span12"><h2>Court availability</h2><div id="publicCourts"></div></div>
-   <div class="card span12"><h2>Waiting players</h2><div id="waitingList"></div></div>
-   <div class="card span12"><div class="row"><div><h2>Match board</h2><div class="muted small">Public view: current matches, upcoming games and waiting players.</div></div><div class="fit"><span class="badge" id="liveBadge">Ready</span></div></div><div id="publicMatches"></div></div>
   </div>
  </div>
  <aside class="sponsor-sidebar" aria-label="Featured sponsor">
@@ -289,6 +288,11 @@ button.primary{background:#198754;color:#fff}button.primary:hover{background:#14
   <p class="small muted">Search player names across all skill brackets.</p>
   <input id="playerSearch" type="search" placeholder="Search player name…" aria-label="Search player name" autocomplete="off" enterkeyhint="search" oninput="renderPublic()">
   <div id="playerSearchResults" class="player-search-results"></div>
+  <div class="player-waiting-section">
+   <hr>
+   <div class="row" style="align-items:baseline"><div><h3 style="margin:0">Waiting players</h3><p class="small muted" style="margin:4px 0 0">Available players who are not currently in a match.</p></div></div>
+   <div id="waitingList"></div>
+  </div>
  </div>
 </section>
 
