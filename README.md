@@ -140,6 +140,10 @@ The Find a Player card is placed directly after court availability and stays wit
 - Public Find a Player search is available as its own top-level tab, keeping the Live & upcoming Match Board compact on mobile.
 
 ### Public navigation update
-- Match Board is now the first/default public tab, with Court Availability directly below it.
+- The Live & Upcoming tab shows Court Availability first, followed by the Match Board.
 - Waiting Players has been moved into the Find a Player tab, alongside the player search, so the live match view stays focused and compact.
 - This is a presentation-only update; the existing waiting-list and player-search data/rendering remain unchanged.
+
+
+### Match status card shades
+- Ongoing matches use a soft green shade, Upcoming matches use a soft blue shade, and Recent Results use a subtle neutral sage shade. The status badges follow the same restrained color cues. Existing match data, timing, scoring, and winner/loser styling are unchanged.
