@@ -114,6 +114,13 @@ export async function onRequestPost({ request, env }) {
             return json({ error: "A tournament fixture references a club that is not registered." }, 400);
           }
         }
+        if (match.status === "in-progress" && (match.scoreA != null || match.scoreB != null)) {
+          const a = match.scoreA, b = match.scoreB;
+          if (!match.clubAId || !match.clubBId || !Number.isInteger(a) || !Number.isInteger(b) ||
+              a < 0 || b < 0 || a > 11 || b > 11 || a + b > 21 || match.winnerClubId != null) {
+            return json({ error: "Live tournament scores must be whole numbers, no higher than 11 per club or 21 combined, and cannot declare a winner before completion." }, 400);
+          }
+        }
         if (match.status === "complete") {
           const a = match.scoreA, b = match.scoreB;
           if (!match.clubAId || !match.clubBId || ![match.clubAId, match.clubBId].includes(match.winnerClubId) ||

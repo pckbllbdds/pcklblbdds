@@ -169,3 +169,8 @@ Public Find a Player search is available as its own top-level tab alongside the 
 - The bracket is visible to visitors; fixture editing and result entry require Organizer access.
 - Interclub Tournament Mode is separate from normal Open Play match generation. Disabling the mode hides the tab but preserves the saved bracket.
 - Tournament bracket data is stored in the existing `app_state.state_json` record; no D1 schema migration is required.
+
+
+### Public interclub tournament bracket
+
+When Tournament Mode is enabled, the Interclub Tournament tab is visible to all visitors. The public bracket displays scheduled and in-progress fixtures, saved live scores, completed results, winners advancing, and the champion. Organizer-only controls manage fixtures and results. Visitors read the shared state through the public GET endpoint; updates appear through the existing 10-second refresh cycle. During a live fixture, the organizer can save a live score without completing the match; recording the final non-tied score advances the winner.
