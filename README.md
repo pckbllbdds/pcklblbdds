@@ -152,8 +152,20 @@ Public Find a Player search is available as its own top-level tab alongside the 
 - Organizer player registration supports Female, Male or Not set, plus an optional fixed partner selection. Existing players can be assigned or unpaired in the Players directory. Pair links are stored reciprocally in the shared D1 state JSON.
 - Match generation keeps fixed partners on the same doubles team. Players with an unavailable or busy fixed partner are held out of new match generation until both partners are available. Manual substitutions/removals cannot split a fixed duo.
 - The Organizer can select Open, Girls only, Boys only, or Girls vs Boys. Girls vs Boys means one all-female doubles team against one all-male doubles team. Gender-specific formats require each participating player to have a matching gender value.
-- Tournament Mode is an Organizer toggle. When enabled, new generated matches are made only from two registered fixed duos, with one duo on each side. It is intended for interclub tournament preparation. Existing queued and active matches keep their original format.
-- The browser and Pages state API both check duo integrity, skill compatibility, gender matchup rules, and tournament team composition. No D1 schema migration is required because the settings and player fields are stored in the existing JSON state row.
+- Tournament Mode is an Organizer toggle that opens a dedicated public Interclub Tournament tab. It manages club-vs-club single-elimination brackets independently of everyday Open Play matchmaking.
+- The browser and Pages state API check duo integrity, skill compatibility and gender matchup rules for Open Play. Interclub fixture results are validated separately by the Pages state API. No D1 schema migration is required because the settings and bracket are stored in the existing JSON state row.
 
 
-- Organizer mode now supports registered fixed doubles partners, player gender identifiers, gender-specific matchmaking formats, and Tournament Mode. These settings are saved in the existing app-state JSON row; no D1 schema migration is required.
+- Organizer mode supports registered fixed doubles partners, player gender identifiers, and gender-specific Open Play matchmaking. Interclub brackets are stored separately in the same app-state JSON row; no D1 schema migration is required.
+
+
+## Interclub Tournament tab
+
+- Enabling Tournament Mode opens a dedicated public Interclub Tournament tab.
+- Organizers can configure the tournament name and register 2–16 participating clubs, including Pickleball Buddies Qatar.
+- Build a single-elimination bracket with automatic first-round byes for non-power-of-two club counts.
+- Each club fixture supports fixture type, scheduled date/time, court, venue, notes, status, and score entry.
+- Recording a valid result automatically advances the winning club to the next round. Completed tournament scores follow the same limits as club matches: 11 points maximum per side, 21 combined maximum, and no ties.
+- The bracket is visible to visitors; fixture editing and result entry require Organizer access.
+- Interclub Tournament Mode is separate from normal Open Play match generation. Disabling the mode hides the tab but preserves the saved bracket.
+- Tournament bracket data is stored in the existing `app_state.state_json` record; no D1 schema migration is required.

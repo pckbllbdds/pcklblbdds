@@ -79,6 +79,63 @@ export async function onRequestPost({ request, env }) {
   if (state.tournamentMode != null && typeof state.tournamentMode !== "boolean") {
     return json({ error: "Tournament Mode must be enabled or disabled." }, 400);
   }
+  // Interclub tournament bracket validation. Tournament data is stored inside the
+  // existing shared JSON state, so this does not require a D1 schema migration.
+  if (state.interclubTournament != null) {
+    const tournament = state.interclubTournament;
+    if (!tournament || typeof tournament !== "object" || typeof tournament.name !== "string" || tournament.name.length > 80 ||
+        !Array.isArray(tournament.clubs) || !Array.isArray(tournament.rounds) ||
+        tournament.clubs.length < 1 || tournament.clubs.length > 16 || tournament.rounds.length > 4) {
+      return json({ error: "The interclub tournament setup is invalid. Use between 1 and 16 clubs." }, 400);
+    }
+    const clubIds = new Set();
+    for (const club of tournament.clubs) {
+      if (!club || typeof club.id !== "string" || !club.id || typeof club.name !== "string" || !club.name.trim() || club.name.length > 60 || clubIds.has(club.id)) {
+        return json({ error: "Each tournament club needs a unique ID and a valid name." }, 400);
+      }
+      clubIds.add(club.id);
+    }
+    const tournamentMatchIds = new Set();
+    for (const round of tournament.rounds) {
+      if (!Array.isArray(round) || round.length > 8) {
+        return json({ error: "The tournament bracket rounds are invalid." }, 400);
+      }
+      for (const match of round) {
+        if (!match || typeof match.id !== "string" || !match.id || tournamentMatchIds.has(match.id) ||
+            !["waiting", "scheduled", "in-progress", "complete", "bye"].includes(match.status)) {
+          return json({ error: "A tournament fixture has an invalid ID or status." }, 400);
+        }
+        tournamentMatchIds.add(match.id);
+        if (match.clubAId != null && match.clubBId != null && String(match.clubAId) === String(match.clubBId)) {
+          return json({ error: "A tournament fixture cannot match a club against itself." }, 400);
+        }
+        for (const clubId of [match.clubAId, match.clubBId, match.winnerClubId]) {
+          if (clubId != null && !clubIds.has(String(clubId))) {
+            return json({ error: "A tournament fixture references a club that is not registered." }, 400);
+          }
+        }
+        if (match.status === "complete") {
+          const a = match.scoreA, b = match.scoreB;
+          if (!match.clubAId || !match.clubBId || ![match.clubAId, match.clubBId].includes(match.winnerClubId) ||
+              !Number.isInteger(a) || !Number.isInteger(b) || a < 0 || b < 0 || a > 11 || b > 11 || a + b > 21 || a === b ||
+              match.winnerClubId !== (a > b ? match.clubAId : match.clubBId)) {
+            return json({ error: "Completed tournament results need a valid score and matching winner." }, 400);
+          }
+        }
+        if (match.status === "bye" && !(match.round === 1 && match.winnerClubId && [match.clubAId, match.clubBId].filter(Boolean).length === 1 && match.winnerClubId === (match.clubAId || match.clubBId))) {
+          return json({ error: "Only a first-round bye may automatically advance its sole participating club." }, 400);
+        }
+        if (match.scheduledAt != null && (typeof match.scheduledAt !== "string" || match.scheduledAt.length > 100)) {
+          return json({ error: "A tournament fixture date/time value is invalid." }, 400);
+        }
+        for (const field of ["court", "venue", "fixtureType", "notes"]) {
+          if (match[field] != null && (typeof match[field] !== "string" || match[field].length > (field === "notes" ? 500 : 100))) {
+            return json({ error: "A tournament fixture detail is too long or invalid." }, 400);
+          }
+        }
+      }
+    }
+  }
   for (const player of state.players) {
     if (player.gender != null && !["female", "male", "unspecified"].includes(player.gender)) {
       return json({ error: "A player's gender value is invalid." }, 400);
