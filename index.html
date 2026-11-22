@@ -49,7 +49,7 @@ table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px}th,td{
 .gold .podium-label{background:#f5df9b;color:#704d00}.silver .podium-label{background:#dbe3ec;color:#405166}.bronze .podium-label{background:#f2c8a9;color:#7b3e1a}
 @media(max-width:520px){.leaderboard-table-wrap{overflow-x:auto}.leaderboard-table-wrap table{min-width:560px}}
 .badge{display:inline-block;padding:3px 8px;border-radius:20px;background:#f8e9ef;color:#741536;font-size:11px;font-weight:750}.badge.blue{background:#e8efff;color:#244caa}.badge.amber{background:#fff3d6;color:#8a5b08}.badge.red{background:#fee4e2;color:#9b1c13}
-.match{border:1px solid var(--line);border-radius:12px;padding:13px;margin:9px 0;background:white}.teams{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px}.team{font-weight:700}.team.winner{color:#167347}.team.loser{color:#64748b}.winner-tag{display:inline-block;margin-left:6px;padding:2px 7px;border-radius:20px;background:#e8f5ee;color:#176044;font-size:10px;font-weight:800;vertical-align:middle}.scoreline{display:flex;align-items:center;gap:7px;font-size:18px;font-weight:850;font-variant-numeric:tabular-nums}.scoreline .score-win{color:#167347}.scoreline .score-loss{color:#64748b}.scoreline .dash{font-size:13px;color:var(--muted);font-weight:500}.vs{color:var(--muted);font-size:12px}.matchhead{display:flex;justify-content:space-between;gap:8px;margin-bottom:8px;align-items:center}
+.match{border:1px solid var(--line);border-radius:12px;padding:13px;margin:9px 0;background:white}.teams{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px}.team{font-weight:700}.team.winner{color:#167347}.team.loser{color:#64748b}.duo-tag{display:inline-block;margin-left:6px;padding:2px 7px;border-radius:20px;background:#eef2ff;color:#4856a6;font-size:10px;font-weight:800;vertical-align:middle;letter-spacing:.02em}.winner-tag{display:inline-block;margin-left:6px;padding:2px 7px;border-radius:20px;background:#e8f5ee;color:#176044;font-size:10px;font-weight:800;vertical-align:middle}.scoreline{display:flex;align-items:center;gap:7px;font-size:18px;font-weight:850;font-variant-numeric:tabular-nums}.scoreline .score-win{color:#167347}.scoreline .score-loss{color:#64748b}.scoreline .dash{font-size:13px;color:var(--muted);font-weight:500}.vs{color:var(--muted);font-size:12px}.matchhead{display:flex;justify-content:space-between;gap:8px;margin-bottom:8px;align-items:center}
 /* Soft status-based match card shades for faster scanning */
 .match.match-playing{background:#edf7f0;border-color:#c9e3d1}
 .match.match-playing .matchhead .badge{background:#dcefe2;color:#176044}
@@ -196,7 +196,7 @@ button.primary{background:#198754;color:#fff}button.primary:hover{background:#14
   .teams{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:6px;align-items:start}
   .team{min-width:0;font-size:12px;line-height:1.35;overflow-wrap:anywhere}
   .vs{font-size:10px;padding-top:2px}
-  .winner-tag{display:inline-block;margin:4px 0 0;font-size:9px;white-space:normal}
+  .duo-tag{display:inline-block;margin-left:6px;padding:2px 7px;border-radius:20px;background:#eef2ff;color:#4856a6;font-size:10px;font-weight:800;vertical-align:middle;letter-spacing:.02em}.winner-tag{display:inline-block;margin:4px 0 0;font-size:9px;white-space:normal}
   .actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:7px}
   .actions button{width:100%;min-height:42px;padding:9px 8px;white-space:normal;line-height:1.25}
   .row>*{min-width:0}
@@ -323,7 +323,12 @@ button.primary{background:#198754;color:#fff}button.primary:hover{background:#14
 <label>Number of courts</label><input id="courtCount" type="number" min="1" max="30" value="2" onchange="updateCourtCount(this.value)"><div class="small">Active matches cannot exceed this number of courts. Court numbers are assigned automatically and released when a match ends or is cancelled.</div>
 <hr><h3>Court status</h3><div id="adminCourts"></div>
 <label>Match generation limit</label><div class="stat"><b>Total courts + 3 matches</b><span class="small">This is the combined limit for active and upcoming matches. Example: 4 courts = 7 total matches, including games in progress.</span></div>
-<label>Attendance</label><div class="small">Mark players present/available in the Players tab. Only available players are selected.</div>
+<hr><h3>Match format</h3>
+<label for="matchGenderMode">Gender matchup</label><select id="matchGenderMode" onchange="changeMatchGenderMode(this.value)"><option value="open">Open · any gender combination</option><option value="girls">Girls only</option><option value="boys">Boys only</option><option value="girls-vs-boys">Girls vs Boys · one team each</option></select>
+<div class="small">Girls vs Boys creates one all-female team against one all-male team. Fixed partners must be the same gender for this format, and every player needs a gender set in the Players tab.</div>
+<label style="display:flex;align-items:center;gap:9px;margin-top:12px"><input id="tournamentMode" type="checkbox" style="width:auto" onchange="changeTournamentMode(this.checked)"> <span><b>Tournament Mode</b></span></label>
+<div class="small">When enabled, match generation uses registered fixed duos only. Set up each pair in the Players tab first. This is intended for interclub tournament practice; existing queued matches keep their current setup.</div>
+<hr><label>Attendance</label><div class="small">Mark players present/available in the Players tab. Only available players are selected.</div>
 <div class="actions"><button class="primary" onclick="generateMatches()">Generate upcoming matches</button><button onclick="clearUpcoming()">Clear upcoming</button></div>
 
 
@@ -340,17 +345,19 @@ button.primary{background:#198754;color:#fff}button.primary:hover{background:#14
 <div class="card span4"><h2>Add player</h2>
 <label>Player name</label><input id="newName" placeholder="Full name">
 <label>Skill bracket</label><select id="newBracket"></select>
+<label>Gender</label><select id="newGender"><option value="unspecified">Not set</option><option value="female">Female</option><option value="male">Male</option></select>
+<label>Fixed partner (optional)</label><select id="newPartner"><option value="">No fixed partner</option></select><div class="small">Pair players who want to stay together as a doubles team. A fixed duo is always kept on the same team.</div>
 <div class="actions"><button class="primary" onclick="addPlayer()">Add player</button></div>
-<hr><h3>Bulk add</h3><label>One name per line</label><textarea id="bulkNames" rows="5" style="width:100%;border:1px solid #cbd5e1;border-radius:8px;padding:10px"></textarea><div class="actions"><button class="primary" onclick="bulkAdd()">Add all names</button></div>
+<hr><h3>Bulk add</h3><label>One name per line</label><div class="small">Bulk-added players use the gender selected above and can be paired later in the player directory.</div><textarea id="bulkNames" rows="5" style="width:100%;border:1px solid #cbd5e1;border-radius:8px;padding:10px"></textarea><div class="actions"><button class="primary" onclick="bulkAdd()">Add all names</button></div>
 </div>
-<div class="card span8"><h2>Player directory & attendance</h2><div class="small">Toggle availability before generating matches. Mark a player unavailable if they leave or cannot play.</div><div id="playerTable"></div></div>
+<div class="card span8"><h2>Player directory & attendance</h2><div class="small">Set each player’s gender and optional fixed doubles partner. Fixed partners are kept together when matches are generated. Toggle availability before generating matches.</div><div id="playerTable"></div></div>
 </div>
 </section>
 <p class="small" style="margin:18px 3px">Shared club session: match data is stored in Cloudflare D1. Public pages refresh from the shared database automatically; organizer changes are password-protected.</p>
 </main><footer class="club-footer">PICKLEBALL BUDDIES QATAR · PLAY TOGETHER. GET BETTER. BUILD FRIENDSHIPS.</footer>
 <script>
 const BRACKETS=["Beginner","Advance beginner","Novice","Lower intermediate","Intermediate","High intermediate","Advance"];
-function freshState(){return {players:[],matches:[],seq:1,session:"Club Open Play",courtCount:2};}
+function freshState(){return {players:[],matches:[],seq:1,session:"Club Open Play",courtCount:2,matchGenderMode:"open",tournamentMode:false};}
 let state=freshState();
 let serverRevision=0;
 let databaseReady=false;
@@ -362,9 +369,12 @@ function normalizeState(candidate){
  if(!candidate||typeof candidate!=="object"||!Array.isArray(candidate.players)||!Array.isArray(candidate.matches))return freshState();
  return {
   ...candidate,
+  players:candidate.players.map(p=>({...p,gender:["female","male"].includes(p.gender)?p.gender:"unspecified",partnerId:typeof p.partnerId==="string"&&p.partnerId?p.partnerId:null})),
   seq:Number.isInteger(candidate.seq)&&candidate.seq>0?candidate.seq:1,
   session:typeof candidate.session==="string"?candidate.session:"Club Open Play",
-  courtCount:Number.isInteger(candidate.courtCount)&&candidate.courtCount>=1?Math.min(30,candidate.courtCount):2
+  courtCount:Number.isInteger(candidate.courtCount)&&candidate.courtCount>=1?Math.min(30,candidate.courtCount):2,
+  matchGenderMode:["open","girls","boys","girls-vs-boys"].includes(candidate.matchGenderMode)?candidate.matchGenderMode:"open",
+  tournamentMode:candidate.tournamentMode===true
  };
 }
 function setDatabaseStatus(message,kind=""){
@@ -535,8 +545,40 @@ function player(id){return state.players.find(p=>p.id===id)}
 function stats(p){let done=state.matches.filter(m=>m.status==="done"&&(m.teamA.includes(p.id)||m.teamB.includes(p.id)));let wins=0,losses=0,points=0;done.forEach(m=>{let a=m.scoreA,b=m.scoreB;points+=(m.teamA.includes(p.id)?a:b);let won=(m.teamA.includes(p.id)?a>b:b>a);if(won)wins++;else losses++});return {games:done.length,wins,losses,points}}
 function idle(p){return p.lastStart?Math.max(0,Math.floor((Date.now()-p.lastStart)/60000)):Math.max(0,Math.floor((Date.now()-p.addedAt)/60000))}
 function ranking(list){return list.sort((a,b)=>{let x=stats(a),y=stats(b);return y.wins-x.wins||x.losses-y.losses||y.points-x.points||a.name.localeCompare(b.name)})}
-function addPlayer(){let name=document.getElementById("newName").value.trim(),bracket=document.getElementById("newBracket").value;if(!name)return alert("Enter a player name.");if(state.players.some(p=>p.name.toLowerCase()===name.toLowerCase()))return alert("That player already exists.");state.players.push({id:"p"+state.seq++,name,bracket,available:true,addedAt:Date.now(),lastStart:0});document.getElementById("newName").value="";save()}
-function bulkAdd(){let names=document.getElementById("bulkNames").value.split(/\n/).map(x=>x.trim()).filter(Boolean),bracket=document.getElementById("newBracket").value;let count=0;names.forEach(name=>{if(!state.players.some(p=>p.name.toLowerCase()===name.toLowerCase())){state.players.push({id:"p"+state.seq++,name,bracket,available:true,addedAt:Date.now(),lastStart:0});count++}});document.getElementById("bulkNames").value="";save();alert(count+" players added.")}
+function selectedGender(){return document.getElementById("newGender")?.value||"unspecified"}
+function partnerCandidates(excludeId=""){
+ const busy=busyIds();
+ return state.players.filter(p=>p.id!==excludeId&&!p.partnerId&&!busy.has(p.id)).sort((a,b)=>a.name.localeCompare(b.name));
+}
+function refreshPartnerSelect(){const el=document.getElementById("newPartner");if(!el)return;let selected=el.value;el.innerHTML='<option value="">No fixed partner</option>'+partnerCandidates().map(p=>`<option value="${p.id}">${esc(p.name)} · ${esc(p.bracket)}</option>`).join("");if([...el.options].some(o=>o.value===selected))el.value=selected;}
+function addPlayer(){
+ let name=document.getElementById("newName").value.trim(),bracket=document.getElementById("newBracket").value,gender=selectedGender(),partnerId=document.getElementById("newPartner").value;
+ if(!name)return alert("Enter a player name.");
+ if(state.players.some(p=>p.name.toLowerCase()===name.toLowerCase()))return alert("That player already exists.");
+ let partner=partnerId?player(partnerId):null;
+ if(partnerId&&(!partner||partner.partnerId||busyIds().has(partnerId)))return alert("That partner is no longer available to pair. Refresh the list and choose an unpaired player.");
+ if(partner&&!skillCompatibleGroup([{bracket},{bracket:partner.bracket}]))return alert("These skill brackets cannot be fixed partners because Beginner players cannot be grouped with Lower intermediate or higher players.");
+ let created={id:"p"+state.seq++,name,bracket,gender,partnerId:partner?partner.id:null,available:true,addedAt:Date.now(),lastStart:0};
+ state.players.push(created);if(partner)partner.partnerId=created.id;
+ document.getElementById("newName").value="";document.getElementById("newPartner").value="";save();
+}
+function bulkAdd(){let names=document.getElementById("bulkNames").value.split(/\n/).map(x=>x.trim()).filter(Boolean),bracket=document.getElementById("newBracket").value,gender=selectedGender();let count=0;names.forEach(name=>{if(!state.players.some(p=>p.name.toLowerCase()===name.toLowerCase())){state.players.push({id:"p"+state.seq++,name,bracket,gender,partnerId:null,available:true,addedAt:Date.now(),lastStart:0});count++}});document.getElementById("bulkNames").value="";save();alert(count+" players added. Pair them later in the player directory if needed.")}
+function changeGender(id,value){let p=player(id);if(!p)return;if(busyIds().has(id))return alert("Gender cannot be changed while this player is in an active or upcoming match.");if(!["female","male","unspecified"].includes(value))return;p.gender=value;save()}
+function changePartner(id,partnerId){
+ let p=player(id);if(!p)return;
+ if(busyIds().has(id))return alert("A fixed partner cannot be changed while this player is in an active or upcoming match.");
+ let next=partnerId?player(partnerId):null;
+ if(next&&(next.id===id||next.partnerId||busyIds().has(next.id)))return alert("Choose an unpaired player who is not already in an active or upcoming match.");
+ if(next&&!skillCompatibleGroup([p,next]))return alert("These skill brackets cannot be fixed partners because Beginner players cannot be grouped with Lower intermediate or higher players.");
+ let previous=p.partnerId?player(p.partnerId):null;
+ if(previous)previous.partnerId=null;
+ p.partnerId=null;
+ if(next){p.partnerId=next.id;next.partnerId=p.id;}
+ save();
+}
+function unlinkPartner(id){return changePartner(id,"")}
+function changeMatchGenderMode(value){if(!["open","girls","boys","girls-vs-boys"].includes(value))return;state.matchGenderMode=value;save()}
+function changeTournamentMode(value){state.tournamentMode=!!value;save();if(state.tournamentMode)alert("Tournament Mode is on. New matches will be generated from registered fixed duos only. Existing queued matches are unchanged.")}
 function changeAvailability(id,v){let p=player(id);if(p){p.available=v;save()}}
 function configuredCourts(){return Math.max(1,Math.min(30,Math.floor(Number(state.courtCount)||1)))}
 function queueLimit(){return Math.max(0,configuredCourts()+3-state.matches.filter(m=>m.status==="playing").length)}
@@ -544,7 +586,7 @@ function generationSlots(){return Math.max(0,configuredCourts()+3-state.matches.
 function updateCourtCount(value){let next=Math.max(1,Math.min(30,Math.floor(Number(value)||1))),active=state.matches.filter(m=>m.status==="playing");if(active.some(m=>m.court>next)){alert("Court count cannot be reduced below a court currently in use. Finish or cancel the affected match first.");document.getElementById("courtCount").value=state.courtCount;return;}state.courtCount=next;save()}
 function courtBoard(){let active=state.matches.filter(m=>m.status==="playing"),count=configuredCourts();return `<div class="statrow" style="margin-bottom:12px"><div class="stat"><b>${count}</b><span class="small">Total courts</span></div><div class="stat"><b>${active.length}</b><span class="small">Occupied</span></div><div class="stat"><b>${count-active.length}</b><span class="small">Available</span></div><div class="stat"><b>${state.matches.filter(m=>m.status==="upcoming").length}</b><span class="small">Queued matches</span></div></div><div class="court-grid">${Array.from({length:count},(_,i)=>{let n=i+1,m=active.find(x=>Number(x.court)===n);return `<div class="card" style="padding:10px;background:${m?'#fff3d6':'#e8f1ed'}"><b>Court ${n}</b><div class="small" style="color:${m?'#8a5b08':'#176044'}">${m?'IN USE':'AVAILABLE'}</div>${m?`<div class="small">${esc(m.bracket)}<br>${esc(m.teamA.concat(m.teamB).map(id=>player(id)?.name||'Player').join(' · '))}</div>`:''}</div>`}).join('')}</div>`}
 function changeBracket(id,v){let p=player(id);if(p){p.bracket=v;save()}}
-function removePlayer(id){if(state.matches.some(m=>m.status!=="done"&&(m.teamA.includes(id)||m.teamB.includes(id))))return alert("Remove this player from active/upcoming matches first.");if(confirm("Delete this player and their directory record? Historical match results remain.")){state.players=state.players.filter(p=>p.id!==id);save()}}
+function removePlayer(id){let p=player(id);if(!p)return;if(state.matches.some(m=>m.status!=="done"&&(m.teamA.includes(id)||m.teamB.includes(id))))return alert("Remove this player from active/upcoming matches first.");if(confirm("Delete this player and their directory record? Historical match results remain.")){if(p.partnerId&&player(p.partnerId))player(p.partnerId).partnerId=null;state.players=state.players.filter(x=>x.id!==id);save()}}
 function busyIds(){return new Set(state.matches.filter(m=>m.status==="playing"||m.status==="upcoming").flatMap(m=>[...m.teamA,...m.teamB]))}
 function activeCount(p){return stats(p).games}
 function matchBrackets(m){
@@ -557,134 +599,144 @@ function skillCompatibleGroup(players){
  let hasLowerIntermediateOrAbove=players.some(p=>p&&BRACKETS.indexOf(p.bracket)>=BRACKETS.indexOf("Lower intermediate"));
  return !(hasBeginner&&hasLowerIntermediateOrAbove);
 }
+function fixedPartner(p){let q=p?.partnerId?player(p.partnerId):null;return q&&q.partnerId===p.id?q:null}
+function isFixedDuo(a,b){return !!a&&!!b&&a.partnerId===b.id&&b.partnerId===a.id}
+function genderModeLabel(mode){return ({open:"Open",girls:"Girls only",boys:"Boys only","girls-vs-boys":"Girls vs Boys"})[mode||"open"]||"Open"}
+function genderGroupCompatible(group,mode){
+ let girls=group.filter(p=>p.gender==="female"),boys=group.filter(p=>p.gender==="male");
+ if(mode==="girls")return group.length===4&&girls.length===4;
+ if(mode==="boys")return group.length===4&&boys.length===4;
+ if(mode==="girls-vs-boys")return girls.length===2&&boys.length===2&&group.every(p=>p.gender==="female"||p.gender==="male")&&group.every(p=>!p.partnerId||fixedPartner(p)&&fixedPartner(p).gender===p.gender);
+ return true;
+}
+function matchGenderCompatible(m){
+ const a=(m.teamA||[]).map(player).filter(Boolean),b=(m.teamB||[]).map(player).filter(Boolean),all=a.concat(b),mode=m.genderMode||"open";
+ if(mode==="girls")return all.length===4&&all.every(p=>p.gender==="female");
+ if(mode==="boys")return all.length===4&&all.every(p=>p.gender==="male");
+ if(mode==="girls-vs-boys")return a.length===2&&b.length===2&&((a.every(p=>p.gender==="female")&&b.every(p=>p.gender==="male"))||(a.every(p=>p.gender==="male")&&b.every(p=>p.gender==="female")));
+ return true;
+}
+function partnerLayoutValid(m){
+ const teamA=new Set(m.teamA||[]),teamB=new Set(m.teamB||[]),all=new Set([...teamA,...teamB]);
+ for(const id of all){const p=player(id);if(!p||!p.partnerId)continue;const q=player(p.partnerId);if(!q||!all.has(q.id))return false;if((teamA.has(id)!==teamA.has(q.id))||(teamB.has(id)!==teamB.has(q.id)))return false;}
+ if(m.tournament){if(teamA.size!==2||teamB.size!==2)return false;const a=[...teamA].map(player),b=[...teamB].map(player);if(!isFixedDuo(a[0],a[1])||!isFixedDuo(b[0],b[1]))return false;}
+ return true;
+}
+function selectGenerationGroup(pool,count=4,quotas=null){
+ const byId=new Map(pool.map(p=>[p.id,p])),units=[],seen=new Set();
+ for(const p of pool){if(seen.has(p.id))continue;const q=fixedPartner(p);
+  if(p.partnerId){if(!q||!byId.has(q.id))continue;seen.add(p.id);seen.add(q.id);units.push([p,q]);}
+  else{seen.add(p.id);units.push([p]);}
+ }
+ const keys=quotas?Object.keys(quotas):[],counts=Object.fromEntries(keys.map(k=>[k,0]));let visited=0;
+ function find(index,chosen,current){
+  if(++visited>12000)return null;
+  if(chosen.length===count){if(quotas&&!keys.every(k=>current[k]===quotas[k]))return null;return genderGroupCompatible(chosen,state.matchGenderMode||"open")?chosen:null;}
+  if(index>=units.length)return null;
+  const unit=units[index],unitCounts={};unit.forEach(p=>unitCounts[p.bracket]=(unitCounts[p.bracket]||0)+1);
+  const quotaFits=!quotas||Object.entries(unitCounts).every(([k,n])=>Object.prototype.hasOwnProperty.call(quotas,k)&&current[k]+n<=quotas[k]);
+  const fits=(!state.tournamentMode||unit.length===2)&&chosen.length+unit.length<=count&&quotaFits;
+  if(fits){const next={...current};Object.entries(unitCounts).forEach(([k,n])=>{if(Object.prototype.hasOwnProperty.call(next,k))next[k]+=n});const included=find(index+1,chosen.concat(unit),next);if(included)return included;}
+  return find(index+1,chosen,current);
+ }
+ return find(0,[],counts)||[];
+}
+function teamsForGeneratedGroup(group,mode){
+ if(mode==="girls-vs-boys")return {teamA:group.filter(p=>p.gender==="female"),teamB:group.filter(p=>p.gender==="male")};
+ const pairs=[],singles=[],seen=new Set();
+ group.forEach(p=>{if(seen.has(p.id))return;let q=fixedPartner(p);if(q&&group.some(x=>x.id===q.id)){pairs.push([p,q]);seen.add(p.id);seen.add(q.id);}else{singles.push(p);seen.add(p.id);}});
+ if(pairs.length===2)return {teamA:pairs[0],teamB:pairs[1]};
+ if(pairs.length===1){let rest=singles.slice();return Math.random()<.5?{teamA:pairs[0],teamB:rest}:{teamA:rest,teamB:pairs[0]};}
+ let ranked=group.slice().sort((a,b)=>{let x=stats(a),y=stats(b);return (y.wins*3+y.points*.02)-(x.wins*3+x.points*.02);});
+ return {teamA:[ranked[0],ranked[3]],teamB:[ranked[1],ranked[2]]};
+}
 function generateMatches(){
  let busy=busyIds(),made=0;
  let target=generationSlots(),bracketMade=Object.fromEntries(BRACKETS.map(b=>[b,0]));
+ const genderMode=state.matchGenderMode||"open";
  function performance(p){
   let done=state.matches.filter(m=>m.status==="done"&&(m.teamA.includes(p.id)||m.teamB.includes(p.id)));
   let wins=0,forPts=0,againstPts=0;
-  done.forEach(m=>{
-   let onA=m.teamA.includes(p.id),own=onA?m.scoreA:m.scoreB,opp=onA?m.scoreB:m.scoreA;
-   forPts+=Number(own)||0;againstPts+=Number(opp)||0;
-   if(own>opp)wins++;
-  });
-  let games=done.length;
-  return {winRate:games?wins/games:0,pointDiffPerGame:games?(forPts-againstPts)/games:0,games};
+  done.forEach(m=>{let onA=m.teamA.includes(p.id),own=onA?m.scoreA:m.scoreB,opp=onA?m.scoreB:m.scoreA;forPts+=Number(own)||0;againstPts+=Number(opp)||0;if(own>opp)wins++;});
+  let games=done.length;return {winRate:games?wins/games:0,pointDiffPerGame:games?(forPts-againstPts)/games:0,games};
  }
  function mixedPool(pool,bracket,otherBracket){
   let lower=BRACKETS.indexOf(bracket)<BRACKETS.indexOf(otherBracket);
-  return pool.slice().sort((a,b)=>{
-   if(lower){
-    let x=performance(a),y=performance(b);
-    return y.winRate-x.winRate||y.pointDiffPerGame-x.pointDiffPerGame||
-     activeCount(a)-activeCount(b)||idle(b)-idle(a)||a.name.localeCompare(b.name);
-   }
-   return activeCount(a)-activeCount(b)||idle(b)-idle(a)||a.name.localeCompare(b.name);
-  });
+  return pool.slice().sort((a,b)=>{if(lower){let x=performance(a),y=performance(b);return y.winRate-x.winRate||y.pointDiffPerGame-x.pointDiffPerGame||activeCount(a)-activeCount(b)||idle(b)-idle(a)||a.name.localeCompare(b.name);}return activeCount(a)-activeCount(b)||idle(b)-idle(a)||a.name.localeCompare(b.name);});
  }
  while(made<target){
   let pools=Object.fromEntries(BRACKETS.map(bracket=>{
-   let pool=state.players.filter(p=>p.available&&!busy.has(p.id)&&p.bracket===bracket);
-   pool.sort((a,b)=>activeCount(a)-activeCount(b)||idle(b)-idle(a)||a.name.localeCompare(b.name));
-   return [bracket,pool];
+   let pool=state.players.filter(p=>p.available&&!busy.has(p.id)&&p.bracket===bracket&&(genderMode==="open"||(genderMode==="girls"&&p.gender==="female")||(genderMode==="boys"&&p.gender==="male")||(genderMode==="girls-vs-boys"&&(p.gender==="female"||p.gender==="male"))));
+   pool.sort((a,b)=>activeCount(a)-activeCount(b)||idle(b)-idle(a)||a.name.localeCompare(b.name));return [bracket,pool];
   }));
-  let candidates=[];
-  function addCandidate(group,brackets,mixed,distance=0){
-   if(group.length!==4||new Set(group.map(p=>p.id)).size!==4||!skillCompatibleGroup(group))return;
+  let candidates=[],candidateKeys=new Set();
+  function addCandidate(group,hintBrackets,mixed,distance=0){
+   if(group.length!==4||new Set(group.map(p=>p.id)).size!==4||!skillCompatibleGroup(group)||!genderGroupCompatible(group,genderMode))return;
+   if(state.tournamentMode&&group.some(p=>!fixedPartner(p)))return;
+   let brackets=[...new Set(group.map(p=>p.bracket))].sort((a,b)=>BRACKETS.indexOf(a)-BRACKETS.indexOf(b));
+   if(!brackets.length||brackets.length>2)return;
+   let key=group.map(p=>p.id).sort().join("|");if(candidateKeys.has(key))return;candidateKeys.add(key);
    let games=group.map(p=>activeCount(p)),waits=group.map(p=>idle(p));
-   candidates.push({brackets,bracket:brackets.join(" + "),group,mixed,distance,
-    avgGames:games.reduce((a,b)=>a+b,0)/4,maxGames:Math.max(...games),
-    maxIdle:Math.max(...waits),avgIdle:waits.reduce((a,b)=>a+b,0)/4,
-    queued:brackets.reduce((n,b)=>n+bracketMade[b],0)});
+   candidates.push({brackets,bracket:brackets.join(" + "),group,mixed:brackets.length>1,distance:brackets.length>1?Math.max(...brackets.map(b=>BRACKETS.indexOf(b)))-Math.min(...brackets.map(b=>BRACKETS.indexOf(b))):0,
+    avgGames:games.reduce((a,b)=>a+b,0)/4,maxGames:Math.max(...games),maxIdle:Math.max(...waits),avgIdle:waits.reduce((a,b)=>a+b,0)/4,queued:brackets.reduce((n,b)=>n+bracketMade[b],0)});
   }
-  for(let bracket of BRACKETS){
-   let pool=pools[bracket];
-   if(pool.length>=4)addCandidate(pool.slice(0,4),[bracket],false,0);
-  }
-  // Underfilled categories may borrow from a surplus pool. When the donor is
-  // the lower category, its strongest performers are selected first.
+  for(let bracket of BRACKETS){let group=selectGenerationGroup(pools[bracket],4,{[bracket]:4});if(group.length)addCandidate(group,[bracket],false,0);}
+  // Underfilled categories can borrow from a surplus category, while duo units stay intact.
   for(let i=0;i<BRACKETS.length;i++){
-   let strandedBracket=BRACKETS[i],stranded=pools[strandedBracket];
-   if(stranded.length<1||stranded.length>3)continue;
-   let need=4-stranded.length;
+   let stranded=pools[BRACKETS[i]];if(stranded.length<1||stranded.length>3)continue;
    for(let j=0;j<BRACKETS.length;j++){
-    if(i===j)continue;
-    let donorBracket=BRACKETS[j],donor=pools[donorBracket];
-    if(donor.length<need+4)continue;
-    let group=mixedPool(stranded,strandedBracket,donorBracket)
-      .concat(mixedPool(donor,donorBracket,strandedBracket).slice(0,need));
-    addCandidate(group,[strandedBracket,donorBracket],true,Math.abs(i-j));
+    if(i===j)continue;let donor=pools[BRACKETS[j]];if(donor.length<2)continue;
+    let combined=mixedPool(stranded,BRACKETS[i],BRACKETS[j]).concat(mixedPool(donor,BRACKETS[j],BRACKETS[i]));
+    let group=selectGenerationGroup(combined,4,{[BRACKETS[i]]:stranded.length,[BRACKETS[j]]:4-stranded.length});if(group.length)addCandidate(group,[BRACKETS[i],BRACKETS[j]],true,Math.abs(i-j));
    }
   }
-  // Underfilled pools can combine; lower-category players are chosen by
-  // recorded win rate and point differential before rotation tie-breaks.
-  for(let i=0;i<BRACKETS.length;i++){
-   let a=pools[BRACKETS[i]];
-   if(a.length<1||a.length>3)continue;
-   for(let j=i+1;j<BRACKETS.length;j++){
-    let b=pools[BRACKETS[j]];
-    if(b.length<1||b.length>3||a.length+b.length<4)continue;
-    let takeA=Math.min(3,a.length),takeB=4-takeA;
-    if(takeB>b.length){takeB=Math.min(3,b.length);takeA=4-takeB;}
-    let group=mixedPool(a,BRACKETS[i],BRACKETS[j]).slice(0,takeA)
-      .concat(mixedPool(b,BRACKETS[j],BRACKETS[i]).slice(0,takeB));
-    addCandidate(group,[BRACKETS[i],BRACKETS[j]],true,j-i);
-   }
+  // Pair underfilled brackets and consider controlled mixes from two surplus brackets.
+  for(let i=0;i<BRACKETS.length;i++)for(let j=i+1;j<BRACKETS.length;j++){
+   let a=pools[BRACKETS[i]],b=pools[BRACKETS[j]];if(a.length+b.length<4||!a.length||!b.length)continue;
+   let takeA=Math.min(3,a.length),takeB=4-takeA;if(takeB>b.length){takeB=Math.min(3,b.length);takeA=4-takeB;}
+   let group=selectGenerationGroup(mixedPool(a,BRACKETS[i],BRACKETS[j]).concat(mixedPool(b,BRACKETS[j],BRACKETS[i])),4,{[BRACKETS[i]]:takeA,[BRACKETS[j]]:takeB});
+   if(group.length)addCandidate(group,[BRACKETS[i],BRACKETS[j]],true,j-i);
   }
-  // Even when both categories can field their own matches, allow a controlled
-  // 1+3 / 2+2 / 3+1 mix, preserving at least four players in each pool.
-  for(let i=0;i<BRACKETS.length;i++){
-   for(let j=i+1;j<BRACKETS.length;j++){
-    let a=pools[BRACKETS[i]],b=pools[BRACKETS[j]];
-    if(a.length<5||b.length<5)continue;
-    for(let takeA=1;takeA<=3;takeA++){
-     let takeB=4-takeA;
-     if(a.length-takeA<4||b.length-takeB<4)continue;
-     let group=mixedPool(a,BRACKETS[i],BRACKETS[j]).slice(0,takeA)
-      .concat(mixedPool(b,BRACKETS[j],BRACKETS[i]).slice(0,takeB));
-     addCandidate(group,[BRACKETS[i],BRACKETS[j]],true,j-i);
-    }
+  for(let i=0;i<BRACKETS.length;i++)for(let j=i+1;j<BRACKETS.length;j++){
+   let a=pools[BRACKETS[i]],b=pools[BRACKETS[j]];if(a.length<5||b.length<5)continue;
+   for(let takeA=1;takeA<=3;takeA++){
+    let takeB=4-takeA;if(a.length-takeA<4||b.length-takeB<4)continue;
+    let group=selectGenerationGroup(mixedPool(a,BRACKETS[i],BRACKETS[j]).concat(mixedPool(b,BRACKETS[j],BRACKETS[i])),4,{[BRACKETS[i]]:takeA,[BRACKETS[j]]:takeB});
+    if(group.length)addCandidate(group,[BRACKETS[i],BRACKETS[j]],true,j-i);
    }
   }
   if(!candidates.length)break;
-  candidates.sort((a,b)=>a.avgGames-b.avgGames||a.maxGames-b.maxGames||
-   b.maxIdle-a.maxIdle||b.avgIdle-a.avgIdle||Number(a.mixed)-Number(b.mixed)||
-   a.distance-b.distance||a.queued-b.queued||
-   BRACKETS.indexOf(a.brackets[0])-BRACKETS.indexOf(b.brackets[0]));
-  let chosen=candidates[0],group=chosen.group;
-  let ranked=group.slice().sort((a,b)=>{
-   let x=stats(a),y=stats(b);
-   return (y.wins*3+y.points*.02)-(x.wins*3+x.points*.02);
-  });
-  let teamA=[ranked[0],ranked[3]],teamB=[ranked[1],ranked[2]];
-  if(Math.random()<.5)[teamA,teamB]=[teamB,teamA];
-  let m={id:"m"+state.seq++,bracket:chosen.bracket,brackets:chosen.brackets.slice(),
-   teamA:teamA.map(p=>p.id),teamB:teamB.map(p=>p.id),status:"upcoming",court:null,
-   scoreA:null,scoreB:null,createdAt:Date.now()};
-  state.matches.push(m);m.teamA.concat(m.teamB).forEach(id=>busy.add(id));made++;
-  chosen.brackets.forEach(b=>bracketMade[b]++);
+  candidates.sort((a,b)=>a.avgGames-b.avgGames||a.maxGames-b.maxGames||b.maxIdle-a.maxIdle||b.avgIdle-a.avgIdle||Number(a.mixed)-Number(b.mixed)||a.distance-b.distance||a.queued-b.queued||BRACKETS.indexOf(a.brackets[0])-BRACKETS.indexOf(b.brackets[0]));
+  let chosen=candidates[0],group=chosen.group,teams=teamsForGeneratedGroup(group,genderMode);
+  if(teams.teamA.length!==2||teams.teamB.length!==2||!genderGroupCompatible(group,genderMode))break;
+  if(Math.random()<.5&&genderMode!=="girls-vs-boys")[teams.teamA,teams.teamB]=[teams.teamB,teams.teamA];
+  let m={id:"m"+state.seq++,bracket:chosen.bracket,brackets:chosen.brackets.slice(),teamA:teams.teamA.map(p=>p.id),teamB:teams.teamB.map(p=>p.id),status:"upcoming",court:null,scoreA:null,scoreB:null,createdAt:Date.now(),genderMode,tournament:state.tournamentMode===true};
+  state.matches.push(m);m.teamA.concat(m.teamB).forEach(id=>busy.add(id));made++;chosen.brackets.forEach(b=>bracketMade[b]++);
  }
  if(!made){
   if(target===0)alert("The match limit is full. Active and upcoming matches together cannot exceed total courts + 3.");
-  else alert("Not enough available, unassigned players. A doubles match needs four players from one category or a feasible mixed-category pool.");
+  else if(state.tournamentMode)alert("Tournament Mode needs two complete registered partner duos (four available players) who meet the selected skill and gender format.");
+  else if(genderMode==="girls"||genderMode==="boys"||genderMode==="girls-vs-boys")alert("Not enough available players with the required gender settings for this match format. Check each player's gender in the Players tab.");
+  else alert("Not enough available, unassigned players for the selected skill format. Fixed partners must be available together.");
  }
  save();
 }
 function clearUpcoming(){if(!confirm("Remove all upcoming matches?"))return;state.matches=state.matches.filter(m=>m.status!=="upcoming");save()}
-function startMatch(id){let m=state.matches.find(x=>x.id===id);if(!m||m.status!=="upcoming")return;let ids=[...m.teamA,...m.teamB],members=ids.map(player);if(ids.length!==4||new Set(ids).size!==4||members.some(p=>!p||!p.available)){alert("This match needs four different available players. Replace or add the missing player before starting.");return;}if(!skillCompatibleGroup(members)){alert("Skill mismatch: Beginner players cannot be matched with Lower intermediate or higher players. Adjust the player brackets or regenerate this match.");return;}let courts=configuredCourts(),occupied=new Set(state.matches.filter(x=>x.status==="playing").map(x=>Number(x.court)).filter(n=>Number.isInteger(n)&&n>0));if(occupied.size>=courts){alert("All "+courts+" courts are currently in use. Finish an active match before starting another match.");return;}let freeCourt=Array.from({length:courts},(_,i)=>i+1).find(n=>!occupied.has(n));if(!freeCourt){alert("No court is currently available.");return;}m.status="playing";m.court=freeCourt;m.startedAt=Date.now();save()}
+function startMatch(id){let m=state.matches.find(x=>x.id===id);if(!m||m.status!=="upcoming")return;let ids=[...m.teamA,...m.teamB],members=ids.map(player);if(ids.length!==4||new Set(ids).size!==4||members.some(p=>!p||!p.available)){alert("This match needs four different available players. Replace or add the missing player before starting.");return;}if(!skillCompatibleGroup(members)){alert("Skill mismatch: Beginner players cannot be matched with Lower intermediate or higher players. Adjust the player brackets or regenerate this match.");return;}if(!partnerLayoutValid(m)){alert(m.tournament?"Tournament match must contain two complete registered duos, with each duo on its own team.":"Fixed partners must stay together on the same team. Adjust the match before starting.");return;}if(!matchGenderCompatible(m)){alert("This match does not meet its selected gender format. Adjust the teams before starting.");return;}let courts=configuredCourts(),occupied=new Set(state.matches.filter(x=>x.status==="playing").map(x=>Number(x.court)).filter(n=>Number.isInteger(n)&&n>0));if(occupied.size>=courts){alert("All "+courts+" courts are currently in use. Finish an active match before starting another match.");return;}let freeCourt=Array.from({length:courts},(_,i)=>i+1).find(n=>!occupied.has(n));if(!freeCourt){alert("No court is currently available.");return;}m.status="playing";m.court=freeCourt;m.startedAt=Date.now();save()}
 function eligibleReplacements(m,oldId){
  if(!m||m.status!=="upcoming")return [];
  // Players in other active/upcoming matches are busy. Players in this match
  // are handled separately so the vacant player's own slot can be replaced.
  let busy=new Set(state.matches.filter(x=>x.id!==m.id&&(x.status==="playing"||x.status==="upcoming")).flatMap(x=>[...x.teamA,...x.teamB]));
  let alreadyInThisMatch=new Set([...m.teamA,...m.teamB].filter(id=>id!==oldId));
+ let oldPlayer=player(oldId);if(oldPlayer?.partnerId)return [];
  let allowedBrackets=new Set(matchBrackets(m));
  let currentMembers=[...m.teamA,...m.teamB].filter(id=>id!==oldId).map(player).filter(Boolean);
- return state.players.filter(p=>p.available&&!busy.has(p.id)&&!alreadyInThisMatch.has(p.id)&&p.id!==oldId&&allowedBrackets.has(p.bracket)&&skillCompatibleGroup([...currentMembers,p]))
+ return state.players.filter(p=>p.available&&!p.partnerId&&!busy.has(p.id)&&!alreadyInThisMatch.has(p.id)&&p.id!==oldId&&allowedBrackets.has(p.bracket)&&skillCompatibleGroup([...currentMembers,p])&&((m.genderMode||"open")==="open"||(m.genderMode==="girls"?p.gender==="female":m.genderMode==="boys"?p.gender==="male":m.genderMode==="girls-vs-boys"?p.gender===oldPlayer?.gender:true)))
   .sort((a,b)=>stats(a).games-stats(b).games||idle(b)-idle(a)||a.name.localeCompare(b.name));
 }
-function removeMatchPlayer(matchId,playerId){let m=state.matches.find(x=>x.id===matchId);if(!m||m.status!=="upcoming")return;let arr=m.teamA.includes(playerId)?m.teamA:m.teamB,idx=arr.indexOf(playerId);if(idx<0)return;arr.splice(idx,1);save()}
-function applyReplacement(m,oldId,replacement){if(!m||m.status!=="upcoming"||!replacement)return false;let arr=m.teamA.includes(oldId)?m.teamA:m.teamB,idx=arr.indexOf(oldId);if(idx<0||!eligibleReplacements(m,oldId).some(p=>p.id===replacement.id))return false;arr[idx]=replacement.id;save();return true}
+function removeMatchPlayer(matchId,playerId){let m=state.matches.find(x=>x.id===matchId);if(!m||m.status!=="upcoming")return;if(player(playerId)?.partnerId)return alert("This player has a fixed partner. Remove or change the duo pairing in the Players tab before editing this match.");let arr=m.teamA.includes(playerId)?m.teamA:m.teamB,idx=arr.indexOf(playerId);if(idx<0)return;arr.splice(idx,1);save()}
+function applyReplacement(m,oldId,replacement){if(!m||m.status!=="upcoming"||!replacement||player(oldId)?.partnerId||replacement.partnerId)return false;let arr=m.teamA.includes(oldId)?m.teamA:m.teamB,idx=arr.indexOf(oldId);if(idx<0||!eligibleReplacements(m,oldId).some(p=>p.id===replacement.id))return false;arr[idx]=replacement.id;save();return true}
 function substitute(id,oldId){let m=state.matches.find(x=>x.id===id),replacement=player(document.getElementById("sub-"+id+"-"+oldId)?.value);if(!m||!replacement)return;if(!applyReplacement(m,oldId,replacement))return alert("That player is unavailable, already assigned, or in a different bracket.")}
 function randomSubstitute(id,oldId){let m=state.matches.find(x=>x.id===id);if(!m||m.status!=="upcoming")return;let candidates=eligibleReplacements(m,oldId);if(!candidates.length)return alert("No eligible replacement is currently waiting in the participating category or categories.");let fewest=stats(candidates[0]).games,candidatesAtLowestGames=candidates.filter(p=>stats(p).games===fewest),longestIdle=Math.max(...candidatesAtLowestGames.map(idle)),top=candidatesAtLowestGames.filter(p=>idle(p)===longestIdle),replacement=top[Math.floor(Math.random()*top.length)];if(applyReplacement(m,oldId,replacement))alert(replacement.name+" has been randomly selected. ("+stats(replacement).games+" games played; idle "+idle(replacement)+" min.)")}
 function finishMatch(id){let m=state.matches.find(x=>x.id===id),inputA=document.getElementById("sa-"+id),inputB=document.getElementById("sb-"+id);if(!m||m.status!=="playing"||!inputA||!inputB)return;let rawA=inputA.value.trim(),rawB=inputB.value.trim(),a=Number(rawA),b=Number(rawB);if(rawA===""||rawB===""||!Number.isInteger(a)||!Number.isInteger(b)||a<0||b<0)return alert("Enter whole-number scores of 0 or higher for both teams.");if(a>11||b>11)return alert("Each team can score a maximum of 11 points.");if(a+b>21)return alert("The combined score for this match cannot exceed 21 points.");if(a===b)return alert("Scores cannot be tied. Please enter a winner.");m.scoreA=a;m.scoreB=b;m.status="done";m.finishedAt=Date.now();m.durationSeconds=Math.max(0,Math.floor((m.finishedAt-(m.startedAt||m.finishedAt))/1000));[...m.teamA,...m.teamB].forEach(pid=>{let p=player(pid);if(p)p.lastStart=m.finishedAt});save()}
@@ -692,8 +744,8 @@ function removeUpcomingMatch(id){let m=state.matches.find(x=>x.id===id);if(!m||m
 function deleteMatch(id){let m=state.matches.find(x=>x.id===id);if(!m)return;if(!confirm(m.status==="playing"?"Cancel this active match and free its court?":"Delete this match?"))return;state.matches=state.matches.filter(x=>x.id!==id);save()}
 function formatDuration(totalSeconds){let n=Math.max(0,Math.floor(totalSeconds||0)),h=Math.floor(n/3600),min=Math.floor((n%3600)/60),sec=n%60;return h>0?`${h}:${String(min).padStart(2,"0")}:${String(sec).padStart(2,"0")}`:`${String(min).padStart(2,"0")}:${String(sec).padStart(2,"0")}`}
 function currentDuration(m){return m.status==="playing"?Math.max(0,Math.floor((Date.now()-(m.startedAt||Date.now()))/1000)):(m.durationSeconds||0)}
-function matchCard(m,admin=false){let names=arr=>arr.map(id=>player(id)?.name||"Removed player").join(" + ");let status=m.status==="playing"?"Playing":m.status==="upcoming"?"Upcoming":"Completed";let badge=m.status==="playing"?"badge":m.status==="upcoming"?"badge blue":"badge amber";let aWon=m.status==="done"&&m.scoreA>m.scoreB,bWon=m.status==="done"&&m.scoreB>m.scoreA;
- let html=`<div class="match match-${m.status} ${m.status==="done"?"match-completed":""}"><div class="matchhead"><b>${esc(m.court?"Court "+m.court:"Unassigned court")} · ${esc(m.bracket)}</b><span class="${badge}">${status}</span></div><div class="teams"><div class="team ${aWon?"winner":m.status==="done"?"loser":""}">${esc(names(m.teamA))}${aWon?'<span class="winner-tag">WINNER</span>':""}</div><div class="vs">VS</div><div class="team ${bWon?"winner":m.status==="done"?"loser":""}" style="text-align:right">${esc(names(m.teamB))}${bWon?'<span class="winner-tag">WINNER</span>':""}</div></div>`;
+function matchCard(m,admin=false){let names=arr=>arr.map(id=>player(id)?.name||"Removed player").join(" + ");let duoTag=arr=>arr.length===2&&isFixedDuo(player(arr[0]),player(arr[1]))?'<span class="duo-tag">FIXED DUO</span>':"";let status=m.status==="playing"?"Playing":m.status==="upcoming"?"Upcoming":"Completed";let badge=m.status==="playing"?"badge":m.status==="upcoming"?"badge blue":"badge amber";let aWon=m.status==="done"&&m.scoreA>m.scoreB,bWon=m.status==="done"&&m.scoreB>m.scoreA;
+ let html=`<div class="match match-${m.status} ${m.status==="done"?"match-completed":""}"><div class="matchhead"><b>${esc(m.court?"Court "+m.court:"Unassigned court")} · ${esc(m.bracket)}${m.tournament?" · Tournament":""}${m.genderMode&&m.genderMode!=="open"?" · "+esc(genderModeLabel(m.genderMode)):""}</b><span class="${badge}">${status}</span></div><div class="teams"><div class="team ${aWon?"winner":m.status==="done"?"loser":""}">${esc(names(m.teamA))}${duoTag(m.teamA)}${aWon?'<span class="winner-tag">WINNER</span>':""}</div><div class="vs">VS</div><div class="team ${bWon?"winner":m.status==="done"?"loser":""}" style="text-align:right">${esc(names(m.teamB))}${duoTag(m.teamB)}${bWon?'<span class="winner-tag">WINNER</span>':""}</div></div>`;
  if(m.status==="playing"){let elapsed=currentDuration(m);html+=`<div class="row" style="margin-top:10px"><div class="small">⏱ Game duration</div><b class="game-timer" data-match-id="${m.id}" style="font-variant-numeric:tabular-nums;text-align:right">${formatDuration(elapsed)}</b></div><div class="match-duration-notice" data-match-warning="${m.id}" role="status" aria-live="polite" ${elapsed>=1800?"":"hidden"}><strong>30-minute notice</strong><span>This game has reached the 30-minute mark. Please check the court and update the match when it finishes.</span></div>`;}
  if(m.status==="done")html+=`<hr><div class="row"><div class="scoreline"><span class="${aWon?"score-win":"score-loss"}">${m.scoreA}</span><span class="dash">–</span><span class="${bWon?"score-win":"score-loss"}">${m.scoreB}</span><span class="winner-tag">${aWon?"TEAM A WON":"TEAM B WON"}</span></div><div class="small" style="text-align:right">⏱ Duration: <b>${formatDuration(m.durationSeconds)}</b></div></div>`;
  if(admin&&m.status==="upcoming"){
@@ -702,18 +754,21 @@ function matchCard(m,admin=false){let names=arr=>arr.map(id=>player(id)?.name||"
   slots.forEach(slot=>{
    let members=slot.ids.slice();
    if(!members.length)html+=`<div class="small" style="padding:7px 0"><b>Team ${slot.team}:</b> <span class="muted">Empty</span></div>`;
-   members.forEach(pid=>{let person=player(pid),opts=eligibleReplacements(m,pid);html+=`<div class="row match-player-controls" style="padding:7px 0;border-top:1px solid var(--line)"><div class="small" style="min-width:130px"><b>Team ${slot.team}:</b> ${esc(person?.name||"Missing player")}</div><div><select id="sub-${m.id}-${pid}"><option value="">Choose replacement</option>${opts.map(p=>`<option value="${p.id}">${esc(p.name)} · ${stats(p).games} games · idle ${idle(p)}m</option>`).join("")}</select></div><button class="fit" onclick="substitute('${m.id}','${pid}')" ${opts.length?"":"disabled"}>Replace</button><button class="fit" onclick="randomSubstitute('${m.id}','${pid}')" ${opts.length?"":"disabled"}>Random</button><button class="danger fit" onclick="removeMatchPlayer('${m.id}','${pid}')">Remove player</button></div>`});
+   members.forEach(pid=>{let person=player(pid),opts=eligibleReplacements(m,pid),isPaired=!!person?.partnerId;html+=`<div class="row match-player-controls" style="padding:7px 0;border-top:1px solid var(--line)"><div class="small" style="min-width:130px"><b>Team ${slot.team}:</b> ${esc(person?.name||"Missing player")}</div><div><select id="sub-${m.id}-${pid}"><option value="">Choose replacement</option>${opts.map(p=>`<option value="${p.id}">${esc(p.name)} · ${stats(p).games} games · idle ${idle(p)}m</option>`).join("")}</select></div><button class="fit" onclick="substitute('${m.id}','${pid}')" ${opts.length?"":"disabled"}>Replace</button><button class="fit" onclick="randomSubstitute('${m.id}','${pid}')" ${opts.length?"":"disabled"}>Random</button><button class="danger fit" onclick="removeMatchPlayer('${m.id}','${pid}')" ${isPaired?"disabled":""}>Remove player</button></div>${isPaired?'<div class="small muted">Fixed duo: these players cannot be split. To change the pairing, remove this entire upcoming match first, then update the duo in Players.</div>':""}`});
    if(members.length<2)html+=`<div class="small" style="padding:6px 0;color:#9a5b00">Team ${slot.team} has ${2-members.length} open player slot(s).</div>`;
   });
  }
  if(admin&&m.status==="playing")html+=`<div class="actions"><button onclick="deleteMatch('${m.id}')">Cancel match</button></div><div class="small" style="margin:5px 0 8px">Score limit: max 11 points per team and 21 points combined per match.</div><div class="score-entry-row"><div><label>Team A score</label><input id="sa-${m.id}" type="number" min="0" max="11" step="1" inputmode="numeric" placeholder="11"></div><div><label>Team B score</label><input id="sb-${m.id}" type="number" min="0" max="11" step="1" inputmode="numeric" placeholder="8"></div><div class="fit" style="align-self:end"><button class="primary" onclick="finishMatch('${m.id}')">Record result</button></div></div>`;
  return html+"</div>"}
 function renderPublic(){let active=state.matches.filter(m=>m.status==="playing"),up=state.matches.filter(m=>m.status==="upcoming"),done=state.matches.filter(m=>m.status==="done").slice(-4).reverse();document.getElementById("liveBadge").textContent=active.length+" live · "+up.length+" queued · "+(active.length+up.length)+"/"+(configuredCourts()+3)+" total";document.getElementById("publicCourts").innerHTML=courtBoard();let h="<h3>Currently playing</h3>"+(active.map(m=>matchCard(m)).join("")||'<div class="empty">No matches currently playing.</div>')+"<h3 style='margin-top:16px'>Upcoming matches</h3>"+(up.map(m=>matchCard(m)).join("")||'<div class="empty">No upcoming matches yet.</div>')+"<h3 style='margin-top:16px'>Recent results</h3>"+(done.map(m=>matchCard(m)).join("")||'<div class="empty">No completed matches yet.</div>');document.getElementById("publicMatches").innerHTML=h;
- let busy=busyIds(),waiting=state.players.filter(p=>p.available&&!busy.has(p.id)).sort((a,b)=>stats(a).games-stats(b).games||idle(b)-idle(a));document.getElementById("waitingList").innerHTML=waiting.length?waiting.map(p=>`<div class="row waiting-player-row" style="padding:7px 0;border-bottom:1px solid var(--line)"><div><b>${esc(p.name)}</b><div class="small">${esc(p.bracket)}</div></div><div class="small" style="text-align:right">${stats(p).games} games · idle ${idle(p)}m</div></div>`).join(""):'<div class="empty">No available players waiting.</div>';
+ let busy=busyIds(),waiting=state.players.filter(p=>p.available&&!busy.has(p.id)).sort((a,b)=>stats(a).games-stats(b).games||idle(b)-idle(a));document.getElementById("waitingList").innerHTML=waiting.length?waiting.map(p=>{let partner=p.partnerId?player(p.partnerId):null,partnerNote=partner?(partner.available&&!busy.has(partner.id)?"Fixed duo with "+partner.name:"Waiting for "+partner.name+" to become available"):p.bracket;return `<div class="row waiting-player-row" style="padding:7px 0;border-bottom:1px solid var(--line)"><div><b>${esc(p.name)}</b><div class="small">${esc(partnerNote)}</div></div><div class="small" style="text-align:right">${stats(p).games} games · idle ${idle(p)}m</div></div>`}).join(""):'<div class="empty">No available players waiting.</div>';
  let q=(document.getElementById("playerSearch")?.value||"").trim().toLowerCase(),results=document.getElementById("playerSearchResults");if(!q){results.innerHTML='<div class="small muted">Search player names across all skill brackets.</div>'}else{let found=state.players.filter(p=>(p.name||"").toLowerCase().includes(q));results.innerHTML=found.slice(0,12).map(p=>{let s=stats(p),rank=ranking(state.players.filter(x=>x.bracket===p.bracket)).findIndex(x=>x.id===p.id)+1;return `<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>${esc(p.name)}</b><div class="small">${esc(p.bracket)} · Rank #${rank} · ${s.wins}W / ${s.losses}L</div></div>`}).join("")||'<div class="empty">No matching player.</div>'}}
 function renderLeaderboard(){let view=document.getElementById("bracketFilter").value||"Overall",overall=view==="Overall",source=overall?state.players:state.players.filter(p=>p.bracket===view),list=ranking([...source]);let medals=["🥇","🥈","🥉"],classes=["gold","silver","bronze"],labels=["CHAMPION","2ND PLACE","3RD PLACE"];document.getElementById("leaderboardTable").innerHTML=list.length?`<div class="leaderboard-table-wrap"><table><thead><tr><th>Rank</th><th>Player</th><th>Games</th><th>Wins</th><th>Losses</th><th>Points</th></tr></thead><tbody>${list.map((p,i)=>{let s=stats(p),podium=i<3?classes[i]:"",rank=i<3?`<span class="medal">${medals[i]} <span>#${i+1}</span></span>`:`<b>#${i+1}</b>`,name=i<3?`<span class="podium-name">${esc(p.name)}</span><span class="podium-label">${labels[i]}</span>`:esc(p.name);return `<tr class="${podium?`leader-row ${podium}`:""}"><td>${rank}</td><td>${name}</td><td>${s.games}</td><td>${s.wins}</td><td>${s.losses}</td><td>${s.points}</td></tr>`}).join("")}</tbody></table></div>`:overall?'<div class="empty">No players have been added yet.</div>':'<div class="empty">No players in this bracket yet.</div>'}
-function renderPlayers(){document.getElementById("playerTable").innerHTML=state.players.length?`<div class="player-table-wrap"><table><thead><tr><th>Player</th><th>Bracket</th><th>Available</th><th>W-L</th><th></th></tr></thead><tbody>${state.players.map(p=>{let s=stats(p);return `<tr><td><b>${esc(p.name)}</b></td><td><select onchange="changeBracket('${p.id}',this.value)">${BRACKETS.map(b=>`<option ${b===p.bracket?"selected":""}>${b}</option>`).join("")}</select></td><td><input type="checkbox" ${p.available?"checked":""} onchange="changeAvailability('${p.id}',this.checked)" style="width:auto"></td><td>${s.wins}-${s.losses}</td><td><button class="danger" onclick="removePlayer('${p.id}')">Delete</button></td></tr>`}).join("")}</tbody></table></div>`:'<div class="empty">Add players to begin.</div>'}
-function renderAdmin(){document.getElementById("sessionName").value=state.session;document.getElementById("courtCount").value=configuredCourts();document.getElementById("adminCourts").innerHTML=courtBoard();let active=state.matches.filter(m=>m.status==="playing"),up=state.matches.filter(m=>m.status==="upcoming");document.getElementById("adminMatches").innerHTML="<h3>Playing</h3>"+(active.map(m=>matchCard(m,true)).join("")||'<div class="empty">No active matches.</div>')+"<h3 style='margin-top:15px'>Upcoming queue · "+up.length+"/"+queueLimit()+"</h3>"+(up.map(m=>matchCard(m,true)).join("")||'<div class="empty">Queue is empty.</div>');document.getElementById("scoreEntry").innerHTML=active.length?active.map(m=>`<div class="small">${esc(m.bracket)} · ${esc(m.teamA.map(id=>player(id)?.name).join(" + "))} vs ${esc(m.teamB.map(id=>player(id)?.name).join(" + "))}</div>`).join(""):'<div class="empty">Start a match to enter its score here.</div>'}
+function renderPlayers(){
+ const busy=busyIds();refreshPartnerSelect();
+ document.getElementById("playerTable").innerHTML=state.players.length?`<div class="player-table-wrap"><table><thead><tr><th>Player</th><th>Bracket</th><th>Gender</th><th>Fixed partner</th><th>Available</th><th>W-L</th><th></th></tr></thead><tbody>${state.players.map(p=>{let s=stats(p),partner=p.partnerId?player(p.partnerId):null,locked=!!busy.has(p.id);let opts=state.players.filter(q=>q.id!==p.id&&(!q.partnerId||q.partnerId===p.id)&&(!busy.has(q.id)||q.id===p.partnerId));return `<tr><td><b>${esc(p.name)}</b></td><td><select onchange="changeBracket('${p.id}',this.value)" ${locked?"disabled":""}>${BRACKETS.map(b=>`<option value="${b}" ${b===p.bracket?"selected":""}>${b}</option>`).join("")}</select></td><td><select onchange="changeGender('${p.id}',this.value)" ${locked?"disabled":""}><option value="unspecified" ${p.gender==="unspecified"?"selected":""}>Not set</option><option value="female" ${p.gender==="female"?"selected":""}>Female</option><option value="male" ${p.gender==="male"?"selected":""}>Male</option></select></td><td><select onchange="changePartner('${p.id}',this.value)" ${locked?"disabled":""}><option value="">No fixed partner</option>${opts.map(q=>`<option value="${q.id}" ${q.id===p.partnerId?"selected":""}>${esc(q.name)}</option>`).join("")}</select>${partner?`<div class="small muted">Paired with ${esc(partner.name)}</div>`:""}</td><td><input type="checkbox" ${p.available?"checked":""} onchange="changeAvailability('${p.id}',this.checked)" style="width:auto" ${locked?"disabled":""}></td><td>${s.wins}-${s.losses}</td><td><button class="danger" onclick="removePlayer('${p.id}')" ${locked?"disabled":""}>Delete</button></td></tr>`}).join("")}</tbody></table></div>`:'<div class="empty">Add players to begin.</div>';
+}
+function renderAdmin(){document.getElementById("sessionName").value=state.session;document.getElementById("courtCount").value=configuredCourts();document.getElementById("matchGenderMode").value=state.matchGenderMode||"open";document.getElementById("tournamentMode").checked=state.tournamentMode===true;document.getElementById("adminCourts").innerHTML=courtBoard();let active=state.matches.filter(m=>m.status==="playing"),up=state.matches.filter(m=>m.status==="upcoming");document.getElementById("adminMatches").innerHTML="<h3>Playing</h3>"+(active.map(m=>matchCard(m,true)).join("")||'<div class="empty">No active matches.</div>')+"<h3 style='margin-top:15px'>Upcoming queue · "+up.length+"/"+queueLimit()+"</h3>"+(up.map(m=>matchCard(m,true)).join("")||'<div class="empty">Queue is empty.</div>');document.getElementById("scoreEntry").innerHTML=active.length?active.map(m=>`<div class="small">${esc(m.bracket)} · ${esc(m.teamA.map(id=>player(id)?.name).join(" + "))} vs ${esc(m.teamB.map(id=>player(id)?.name).join(" + "))}</div>`).join(""):'<div class="empty">Start a match to enter its score here.</div>'}
 function renderAll(){document.getElementById("newBracket").innerHTML=BRACKETS.map(b=>`<option>${b}</option>`).join("");let filter=document.getElementById("bracketFilter"),previousView=filter.value;filter.innerHTML=`<option value="Overall">Overall · all brackets</option>`+BRACKETS.map(b=>`<option value="${b}">${b}</option>`).join("");filter.value=previousView==="Overall"||BRACKETS.includes(previousView)?previousView:"Overall";renderPublic();renderLeaderboard();renderPlayers();renderAdmin()}
 
 

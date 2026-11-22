@@ -72,6 +72,116 @@ export async function onRequestPost({ request, env }) {
     return json({ error: "Could not verify the current match state." }, 500);
   }
   const previousMatches = new Map((previousState?.matches || []).map((match) => [String(match.id), match]));
+  const playerById = new Map(state.players.map((player) => [String(player.id), player]));
+  if (state.matchGenderMode != null && !["open", "girls", "boys", "girls-vs-boys"].includes(state.matchGenderMode)) {
+    return json({ error: "The selected gender matchup format is invalid." }, 400);
+  }
+  if (state.tournamentMode != null && typeof state.tournamentMode !== "boolean") {
+    return json({ error: "Tournament Mode must be enabled or disabled." }, 400);
+  }
+  for (const player of state.players) {
+    if (player.gender != null && !["female", "male", "unspecified"].includes(player.gender)) {
+      return json({ error: "A player's gender value is invalid." }, 400);
+    }
+    if (player.partnerId) {
+      const partner = playerById.get(String(player.partnerId));
+      if (!partner || String(partner.id) === String(player.id) || String(partner.partnerId || "") !== String(player.id)) {
+        return json({ error: "Fixed partners must be valid reciprocal player pairs." }, 400);
+      }
+      const pairHasBeginner = player.bracket === "Beginner" || partner.bracket === "Beginner";
+      const pairHasLowerIntermediateOrAbove = ["Lower intermediate", "Intermediate", "High intermediate", "Advance"].includes(player.bracket) || ["Lower intermediate", "Intermediate", "High intermediate", "Advance"].includes(partner.bracket);
+      if (pairHasBeginner && pairHasLowerIntermediateOrAbove) {
+        return json({ error: "A Beginner player cannot be fixed with a Lower intermediate or higher partner." }, 400);
+      }
+    }
+  }
+
+  // A registered duo cannot be split or partially queued while either partner is active/upcoming.
+  for (const match of state.matches) {
+    if (!match || !["upcoming", "playing"].includes(match.status)) continue;
+    const teamA = new Set(Array.isArray(match.teamA) ? match.teamA.map(String) : []);
+    const teamB = new Set(Array.isArray(match.teamB) ? match.teamB.map(String) : []);
+    const ids = new Set([...teamA, ...teamB]);
+    for (const id of ids) {
+      const person = playerById.get(id);
+      if (!person?.partnerId) continue;
+      const partnerId = String(person.partnerId);
+      const onSameTeam = (teamA.has(id) && teamA.has(partnerId)) || (teamB.has(id) && teamB.has(partnerId));
+      if (!ids.has(partnerId) || !onSameTeam) {
+        return json({ error: "A registered fixed duo cannot be separated in an active or upcoming match." }, 400);
+      }
+    }
+  }
+
+  // Validate newly generated or edited matchups when they enter the queue or start.
+  for (const match of state.matches) {
+    const previous = previousMatches.get(String(match.id));
+    if (!match || !["upcoming", "playing"].includes(match.status)) continue;
+    const matchupChanged = !previous || previous.status !== match.status ||
+      JSON.stringify(previous.teamA || []) !== JSON.stringify(match.teamA || []) ||
+      JSON.stringify(previous.teamB || []) !== JSON.stringify(match.teamB || []) ||
+      previous.genderMode !== match.genderMode || previous.tournament !== match.tournament;
+    if (!matchupChanged) continue;
+
+    const teamA = Array.isArray(match.teamA) ? match.teamA : [];
+    const teamB = Array.isArray(match.teamB) ? match.teamB : [];
+    const ids = [...teamA, ...teamB];
+    if (ids.length > 4 || new Set(ids.map(String)).size !== ids.length || ids.some((id) => !playerById.has(String(id)))) {
+      return json({ error: "A doubles match may contain up to four different registered players." }, 400);
+    }
+    // An upcoming match may intentionally have an open slot while the organizer
+    // replaces a player. Full skill/gender/tournament checks run when it is complete
+    // and again when it is started. Tournament fixtures cannot be left incomplete.
+    if (match.status === "upcoming" && ids.length < 4) {
+      if (match.tournament === true) return json({ error: "Tournament fixtures must keep both registered duos intact." }, 400);
+      continue;
+    }
+    if (ids.length !== 4) return json({ error: "A playing match must contain four different registered players." }, 400);
+    const members = ids.map((id) => playerById.get(String(id)));
+    const hasBeginner = members.some((p) => p.bracket === "Beginner");
+    const hasLowerIntermediateOrAbove = members.some((p) => ["Lower intermediate", "Intermediate", "High intermediate", "Advance"].includes(p.bracket));
+    if (hasBeginner && hasLowerIntermediateOrAbove) {
+      return json({ error: "Beginner players cannot be matched with Lower intermediate or higher players." }, 400);
+    }
+    for (const player of members) {
+      if (!player.partnerId) continue;
+      const partner = playerById.get(String(player.partnerId));
+      if (!partner || !ids.some((id) => String(id) === String(partner.id))) {
+        return json({ error: "A fixed partner cannot be separated from their registered duo." }, 400);
+      }
+      const sameSide = (teamA.some((id) => String(id) === String(player.id)) && teamA.some((id) => String(id) === String(partner.id))) ||
+        (teamB.some((id) => String(id) === String(player.id)) && teamB.some((id) => String(id) === String(partner.id)));
+      if (!sameSide) return json({ error: "Fixed partners must play on the same team." }, 400);
+    }
+    if (match.tournament === true) {
+      const isPair = (side) => side.length === 2 && side.every((id) => {
+        const person = playerById.get(String(id));
+        const partner = person?.partnerId ? playerById.get(String(person.partnerId)) : null;
+        return partner && String(partner.partnerId || "") === String(person.id) && String(partner.id) === String(side.find((otherId) => String(otherId) !== String(id)));
+      });
+      if (!isPair(teamA) || !isPair(teamB)) return json({ error: "Tournament Mode requires two complete fixed duos, one duo per team." }, 400);
+    }
+    const genderMode = match.genderMode || "open";
+    if (!["open", "girls", "boys", "girls-vs-boys"].includes(genderMode)) {
+      return json({ error: "A match contains an invalid gender matchup format." }, 400);
+    }
+    const gendersA = teamA.map((id) => playerById.get(String(id)).gender || "unspecified");
+    const gendersB = teamB.map((id) => playerById.get(String(id)).gender || "unspecified");
+    const allGenders = gendersA.concat(gendersB);
+    if (genderMode === "girls" && !allGenders.every((gender) => gender === "female")) {
+      return json({ error: "Girls-only matches require four players registered as female." }, 400);
+    }
+    if (genderMode === "boys" && !allGenders.every((gender) => gender === "male")) {
+      return json({ error: "Boys-only matches require four players registered as male." }, 400);
+    }
+    if (genderMode === "girls-vs-boys" && !(
+      (gendersA.every((gender) => gender === "female") && gendersB.every((gender) => gender === "male")) ||
+      (gendersA.every((gender) => gender === "male") && gendersB.every((gender) => gender === "female"))
+    )) {
+      return json({ error: "Girls vs Boys requires one all-female team against one all-male team." }, 400);
+    }
+  }
+
   for (const match of state.matches) {
     if (!match || match.status !== "done") continue;
     const previous = previousMatches.get(String(match.id));

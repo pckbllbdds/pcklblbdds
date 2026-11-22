@@ -135,9 +135,7 @@ Completed match scores are restricted to whole numbers: each team may score up t
 
 ### Mobile player search
 
-The Find a Player card is placed directly after court availability and stays within easy reach while scrolling on mobile. Search results appear only after a name is entered, and the results area has its own scroll limit to keep the page compact. This is a frontend-only change; no D1 migration is required.
-
-- Public Find a Player search is available as its own top-level tab, keeping the Live & upcoming Match Board compact on mobile.
+Public Find a Player search is available as its own top-level tab alongside the Waiting Players list, keeping the Live & Upcoming Match Board compact on mobile. Search results appear only after a name is entered.
 
 ### Public navigation update
 - The Live & Upcoming tab shows Court Availability first, followed by the Match Board.
@@ -147,3 +145,15 @@ The Find a Player card is placed directly after court availability and stays wit
 
 ### Match status card shades
 - Ongoing matches use a soft green shade, Upcoming matches use a soft blue shade, and Recent Results use a subtle neutral sage shade. The status badges follow the same restrained color cues. Existing match data, timing, scoring, and winner/loser styling are unchanged.
+
+
+### Fixed partner duos, gender formats and Tournament Mode
+
+- Organizer player registration supports Female, Male or Not set, plus an optional fixed partner selection. Existing players can be assigned or unpaired in the Players directory. Pair links are stored reciprocally in the shared D1 state JSON.
+- Match generation keeps fixed partners on the same doubles team. Players with an unavailable or busy fixed partner are held out of new match generation until both partners are available. Manual substitutions/removals cannot split a fixed duo.
+- The Organizer can select Open, Girls only, Boys only, or Girls vs Boys. Girls vs Boys means one all-female doubles team against one all-male doubles team. Gender-specific formats require each participating player to have a matching gender value.
+- Tournament Mode is an Organizer toggle. When enabled, new generated matches are made only from two registered fixed duos, with one duo on each side. It is intended for interclub tournament preparation. Existing queued and active matches keep their original format.
+- The browser and Pages state API both check duo integrity, skill compatibility, gender matchup rules, and tournament team composition. No D1 schema migration is required because the settings and player fields are stored in the existing JSON state row.
+
+
+- Organizer mode now supports registered fixed doubles partners, player gender identifiers, gender-specific matchmaking formats, and Tournament Mode. These settings are saved in the existing app-state JSON row; no D1 schema migration is required.
