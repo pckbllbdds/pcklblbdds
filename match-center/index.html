@@ -256,6 +256,163 @@ button.primary{background:#198754;color:#fff}button.primary:hover{background:#14
 .header-actions .home-link{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:10px 13px;border-radius:9px;background:#142b49;color:#fff;text-decoration:none;font-weight:650;white-space:nowrap}
 .header-actions .home-link:hover{filter:brightness(1.08)}
 @media(max-width:680px){.header-actions .home-link{min-height:42px;padding:10px 11px}}
+
+
+/* === Accessibility and text-wrapping correction === */
+/* Responsive typography + wrapping repair for the Match Center. */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif; font-size: 15px; line-height: 1.5; overflow-wrap: break-word; }
+h1, h2, h3, h4, h5, h6 { max-width: 100%; line-height: 1.22; overflow-wrap: break-word; word-break: normal; }
+p, li, label, small, summary, th, td { line-height: 1.45; overflow-wrap: break-word; word-break: normal; }
+main, header, .brand, .brand > div, header > .row, .row, .grid, .grid > *, .card, .match, .matchhead, .teams, .team, .actions, .tabs, .tab, .waiting-player-row, .match-player-controls, .score-entry-row, .public-layout, .public-layout > *, .tournament-hero, .tournament-setup, .tournament-setup > *, .tournament-stats, .tournament-stat, .tournament-club-row, .tournament-club-name, .bracket-match, .bracket-match-top, .bracket-team, .bracket-team-name, .bracket-meta, .bracket-edit-grid, .tournament-roster-form, .tournament-roster-club, .tournament-roster-player, .tournament-subgame, .subgame-top, .subgame-team, .subgame-team span, .header-actions { min-width: 0; }
+button, .btn, a, input, select, textarea { font-family: inherit; max-width: 100%; }
+button, .btn { height: auto; min-height: 42px; line-height: 1.35; white-space: normal; overflow-wrap: anywhere; }
+header { gap: 12px; }
+header .brand { flex: 1 1 320px; min-width: 0; align-items: center; }
+header .brand > div { flex: 1 1 190px; min-width: 0; }
+header h1 { font-size: clamp(18px, 2vw, 22px); line-height: 1.2; letter-spacing: .005em; overflow-wrap: break-word; }
+header p { font-size: 12px; line-height: 1.4; letter-spacing: .06em; overflow-wrap: break-word; }
+.brand-tagline { font-size: 10px; line-height: 1.4; letter-spacing: .04em; }
+.header-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+.header-actions .home-link { white-space: normal; text-align: center; line-height: 1.3; }
+main { width: 100%; max-width: 1100px; }
+.grid > *, .card { min-width: 0; }
+h2 { line-height: 1.22; overflow-wrap: break-word; }
+h3 { line-height: 1.3; overflow-wrap: break-word; }
+.muted, .small, .database-status { line-height: 1.5; overflow-wrap: anywhere; }
+.tabs { min-width: 0; }
+.tabs .tab { white-space: normal; line-height: 1.3; min-width: 0; height: auto; }
+.stat b { line-height: 1.15; }
+.matchhead { align-items: flex-start; flex-wrap: wrap; line-height: 1.4; }
+.teams { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
+.team { line-height: 1.4; overflow-wrap: break-word; }
+.team.winner, .team.loser { overflow-wrap: anywhere; }
+.duo-tag, .winner-tag, .badge, .bracket-state-chip, .bracket-advances { white-space: normal; max-width: 100%; line-height: 1.3; overflow-wrap: anywhere; }
+.medal { white-space: normal; flex-wrap: wrap; line-height: 1.3; }
+.match-duration-notice { line-height: 1.45; flex-wrap: wrap; }
+.match-duration-notice strong { white-space: normal; }
+.actions { flex-wrap: wrap; min-width: 0; }
+.actions button { white-space: normal; line-height: 1.35; min-width: 0; }
+.row { flex-wrap: wrap; }
+.row > * { min-width: 0; }
+.waiting-player-row { flex-wrap: wrap; }
+.match-player-controls { flex-wrap: wrap; }
+.match-player-controls > div { min-width: 0 !important; max-width: 100%; }
+.match-player-controls select { min-width: 0; }
+input, select, textarea { min-width: 0; max-width: 100%; line-height: 1.4; }
+label { line-height: 1.35; }
+.leaderboard-table-wrap, .player-table-wrap { width: 100%; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { max-width: 100%; }
+th, td { vertical-align: top; overflow-wrap: break-word; }
+.sponsor-feature { min-width: 0; flex-wrap: wrap; }
+.sponsor-feature > *, .featured-brand-card > * { min-width: 0; max-width: 100%; }
+.sponsor-headline, .sponsor-description, .sponsor-cta { line-height: 1.45; white-space: normal; overflow-wrap: break-word; }
+.sponsor-cta, .reclub-join-cta, .dupr-join-cta, .facebook-join-link { white-space: normal; line-height: 1.35; text-align: center; }
+.sponsor-sidebar-title { line-height: 1.2; overflow-wrap: break-word; }
+.sponsor-sidebar-copy { line-height: 1.55; overflow-wrap: break-word; }
+.tournament-hero { min-width: 0; }
+.tournament-hero h2 { line-height: 1.2; overflow-wrap: break-word; }
+.tournament-stats { min-width: 0; }
+.tournament-stat { min-width: 0; flex: 1 1 82px; }
+.tournament-stat b { line-height: 1.2; }
+.tournament-stat span { line-height: 1.35; overflow-wrap: break-word; }
+.tournament-setup { grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); }
+.tournament-club-row { flex-wrap: wrap; align-items: flex-start; }
+.tournament-club-name { flex: 1 1 150px; overflow-wrap: anywhere; }
+.bracket-round { min-width: 0; }
+.bracket-round-title { line-height: 1.4; }
+.bracket-match-top { flex-wrap: wrap; align-items: flex-start; line-height: 1.4; }
+.bracket-team { align-items: flex-start; }
+.bracket-team-name { overflow-wrap: anywhere; line-height: 1.35; }
+.bracket-meta-line { line-height: 1.4; overflow-wrap: anywhere; }
+.bracket-edit summary { line-height: 1.4; }
+.bracket-edit-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.bracket-edit-grid label { line-height: 1.35; }
+.bracket-result-actions { flex-wrap: wrap; }
+.bracket-result-actions button { white-space: normal; }
+.tournament-roster-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.tournament-roster-player { grid-template-columns: minmax(0, 1fr) minmax(110px, 150px) auto; }
+.tournament-roster-player > * { min-width: 0; }
+.tournament-roster-player select { width: 100%; white-space: normal; }
+.subgame-top { flex-wrap: wrap; line-height: 1.4; }
+.subgame-team { align-items: flex-start; }
+.subgame-team span { overflow-wrap: anywhere; line-height: 1.35; }
+.subgame-team b { flex: 0 0 auto; }
+.tie-summary { line-height: 1.45; overflow-wrap: anywhere; }
+@media (max-width: 850px) {
+  header { align-items: flex-start; }
+  .tournament-setup { grid-template-columns: minmax(0, 1fr); }
+  .tournament-roster-player { grid-template-columns: minmax(0, 1fr) minmax(100px, 140px); }
+  .tournament-roster-player button { grid-column: 1 / -1; justify-self: start; }
+}
+@media (max-width: 700px) {
+  body { font-size: 15px; line-height: 1.5; }
+  header { align-items: stretch; }
+  header .brand { flex: 1 1 auto; }
+  header h1 { font-size: clamp(16px, 4.8vw, 19px); line-height: 1.2; }
+  header p { font-size: 10px; letter-spacing: .055em; }
+  .brand-tagline { font-size: 9px; letter-spacing: .025em; }
+  header > .row { display: flex !important; flex-wrap: wrap; grid-template-columns: none; }
+  header > .row button, header > .row a { flex: 1 1 110px; min-width: 0; width: auto; font-size: 12px; white-space: normal; }
+  main { margin: 12px auto 0; padding: 0 12px; }
+  .tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tabs .tab { font-size: 12px; line-height: 1.3; padding: 9px 7px; }
+  .grid { gap: 10px; }
+  .card { padding: 13px; }
+  h2 { font-size: 17px; line-height: 1.25; }
+  h3 { font-size: 15px; line-height: 1.3; }
+  .teams { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 6px; }
+  .team { font-size: 12px; line-height: 1.4; }
+  .winner-tag { margin: 4px 0 0; }
+  .match-duration-notice { align-items: flex-start; }
+  .match-duration-notice strong { display: block; }
+  .actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 135px), 1fr)); }
+  .actions button { width: 100%; min-height: 42px; }
+  .score-entry-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .public-layout { grid-template-columns: minmax(0, 1fr); }
+  .tournament-hero { padding: 16px; }
+  .tournament-setup { grid-template-columns: minmax(0, 1fr); }
+  .tournament-stats { width: 100%; }
+  .tournament-stat { flex: 1 1 calc(50% - 8px); }
+  .tournament-roster-form { grid-template-columns: minmax(0, 1fr); }
+  .tournament-roster-form label.wide { grid-column: auto; }
+  .tournament-home-select { grid-template-columns: minmax(0, 1fr); }
+  .tournament-roster-player { grid-template-columns: minmax(0, 1fr); gap: 5px; }
+  .tournament-roster-player button { grid-column: auto; justify-self: stretch; }
+  .bracket-round { width: 220px; }
+  .bracket-match { padding: 10px; }
+  .bracket-match-top { font-size: 10px; }
+  .bracket-team { font-size: 11px; }
+  .bracket-meta-line { font-size: 10px; }
+  .bracket-edit-grid { grid-template-columns: minmax(0, 1fr); }
+  .bracket-edit-grid .wide { grid-column: auto; }
+  .bracket-result-actions { display: grid; grid-template-columns: minmax(0, 1fr); }
+  .bracket-result-actions button { width: 100%; }
+  .tournament-club-row { align-items: flex-start; }
+  .tournament-club-name { flex-basis: 100%; }
+  .tournament-stat b { font-size: 18px; }
+  .subgame-team { gap: 6px; }
+  .subgame-team span { font-size: 10px; }
+  .sponsor-feature { align-items: stretch; flex-direction: column; gap: 12px; padding: 16px; }
+  .sponsor-cta { width: 100%; }
+  .featured-brand-card { padding: 15px; }
+  .sponsor-sidebar-title { font-size: 20px; }
+  .club-footer { font-size: 10px; letter-spacing: .04em; line-height: 1.5; }
+  input, select, textarea { font-size: 16px; min-height: 44px; }
+  button { font-size: 13px; }
+}
+@media (max-width: 380px) {
+  main { padding: 0 10px; }
+  header h1 { font-size: 16px; }
+  .brand-tagline { font-size: 8px; letter-spacing: 0; }
+  .tabs .tab { font-size: 11px; padding: 8px 5px; }
+  .card { padding: 11px; }
+  .teams { gap: 4px; }
+  .team { font-size: 11px; }
+  .tournament-stat { flex-basis: 100%; }
+  .bracket-round { width: 205px; }
+}
+
 </style>
 </head>
 <body class="db-loading">

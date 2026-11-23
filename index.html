@@ -453,6 +453,94 @@
     @media(max-width:760px) { .manager-form-grid { grid-template-columns:1fr; } .manager-field.full { grid-column:auto; } }
     @media(max-width:620px) { .nav-admin { width:100%; min-height:44px; border-radius:10px; text-align:center; } .manager-list-item { align-items:flex-start; } .manager-list-item img { width:54px; height:50px; } .manager-post-actions { flex-direction:column; } }
     @media(max-width:520px) { .admin-login-dialog { padding:25px 20px 22px; } }
+
+
+/* === Accessibility and text-wrapping correction === */
+/* Responsive typography + wrapping repair: avoid clipped labels and cut-off copy. */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif; line-height: 1.55; }
+h1, h2, h3, h4, h5, h6 { line-height: 1.2; max-width: 100%; overflow-wrap: break-word; word-break: normal; }
+p, li, small, label, summary, figcaption { line-height: 1.5; overflow-wrap: break-word; word-break: normal; }
+a, button, input, select, textarea { font-family: inherit; }
+button, .btn, .nav-admin, .manager-close, .manager-secondary, .manager-primary, .manager-delete { height: auto; min-height: 42px; max-width: 100%; white-space: normal !important; line-height: 1.35; overflow-wrap: anywhere; }
+.container, .header-inner, .brand, .brand-copy, .hero, .hero > *, .section, .section-head, .gallery-grid, .gallery-card, .sponsor-grid, .sponsor-card, .sponsor-banner, .sponsor-banner > *, .recognition-inner, .recognition-inner > *, .connect-grid, .connect-card, .final-inner, .final-inner > *, .footer-inner, .footer-inner > *, .manager-columns, .manager-columns > *, .manager-card, .manager-media-item, .manager-media-meta, .manager-list-item, .manager-list-item > * { min-width: 0; }
+.nav { min-width: 0; max-width: 100%; flex-wrap: wrap; justify-content: flex-end; gap: clamp(8px, 1.3vw, 18px); }
+.nav a, .nav .nav-admin { min-width: 0; max-width: 100%; white-space: normal; line-height: 1.35; overflow-wrap: break-word; text-align: center; }
+.hero { grid-template-columns: minmax(0, 1fr) minmax(0, .9fr); }
+.hero h1 { line-height: 1.06; overflow-wrap: normal; }
+.hero-lead, .hero-motto, .section-head p, .recognition p, .final-cta p { line-height: 1.55; }
+.eyebrow, .section-kicker { letter-spacing: .12em; line-height: 1.4; }
+.section h2 { line-height: 1.18; }
+.gallery-card figcaption, .gallery-card strong, .gallery-card span { min-width: 0; overflow-wrap: break-word; line-height: 1.45; }
+.sponsor-card { min-height: 150px; height: auto; }
+.sponsor-card strong, .sponsor-card small, .sponsor-banner strong, .sponsor-banner p { overflow-wrap: break-word; line-height: 1.45; }
+.sponsor-banner { flex-wrap: wrap; }
+.recognition-inner { grid-template-columns: minmax(64px, 88px) minmax(0, 1fr) auto; }
+.recognition h2 { line-height: 1.2; }
+.recognition .btn { white-space: normal; text-align: center; line-height: 1.35; }
+.connect-card strong, .connect-card span, .footer-brand strong, .footer-brand span, .copyright { line-height: 1.45; overflow-wrap: break-word; }
+.post-copy, .post-copy h3, .post-copy p { min-width: 0; overflow-wrap: break-word; }
+.post-copy h3 { line-height: 1.35; }
+.post-copy p { line-height: 1.55; }
+.media-count { white-space: normal; line-height: 1.3; text-align: center; }
+.manager-media-meta strong { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; line-height: 1.35; font-size: 12px; }
+.manager-media-meta span { font-size: 11px; line-height: 1.4; overflow-wrap: anywhere; }
+.manager-secondary { white-space: normal; }
+.manager-label { font-size: 12px; line-height: 1.4; }
+.manager-input, .manager-field input, .manager-field textarea { font-size: 14px; line-height: 1.4; }
+.manager-card h3 { line-height: 1.25; }
+.admin-login-dialog h2 { line-height: 1.2; overflow-wrap: break-word; }
+.manager-notice, .manager-message, .manager-save-note, .form-help { line-height: 1.5; overflow-wrap: anywhere; }
+
+@media (max-width: 900px) {
+  .nav { gap: 8px 12px; }
+  .nav a, .nav .nav-admin { font-size: 11px; padding: 9px 10px; }
+  .recognition-inner { grid-template-columns: 72px minmax(0, 1fr); }
+  .recognition-inner .btn { grid-column: 2; justify-self: start; }
+}
+@media (max-width: 620px) {
+  body { font-size: 15px; line-height: 1.55; }
+  .brand-name { font-size: 14px; line-height: 1.2; }
+  .brand-motto { font-size: 9px; line-height: 1.4; letter-spacing: .035em; }
+  .brand strong { font-size: 12px; line-height: 1.25; }
+  .brand span { font-size: 9px; line-height: 1.4; letter-spacing: .015em; }
+  .nav { align-items: stretch; }
+  .nav a, .nav .nav-admin { width: 100%; text-align: left; padding: 12px 4px; font-size: 12px; }
+  .hero { grid-template-columns: minmax(0, 1fr); }
+  .hero h1 { font-size: clamp(34px, 9.5vw, 48px); line-height: 1.08; letter-spacing: -.035em; }
+  .eyebrow, .section-kicker { font-size: 10px; letter-spacing: .09em; }
+  .hero-lead { font-size: 14px; }
+  .hero-motto { font-size: 11px; letter-spacing: .02em; }
+  .btn { padding: 12px 14px; font-size: 12px; }
+  .section h2 { font-size: clamp(23px, 6.3vw, 28px); line-height: 1.2; }
+  .section-head p { font-size: 13px; }
+  .gallery-card strong { font-size: 12px; }
+  .gallery-card span { font-size: 11px; }
+  .sponsor-card { min-height: 112px; padding: 18px 14px; }
+  .sponsor-card strong { font-size: 14px; }
+  .sponsor-card small { font-size: 11px; }
+  .recognition-inner { grid-template-columns: 56px minmax(0, 1fr); }
+  .recognition-inner .btn { grid-column: 1 / -1; justify-self: stretch; }
+  .recognition p { font-size: 12px; }
+  .connect-card strong { font-size: 12px; }
+  .connect-card span:last-child { font-size: 11px; }
+  .footer-brand span, .copyright { font-size: 10px; letter-spacing: .02em; }
+  .manager-card { padding: 15px; }
+  .manager-label { font-size: 12px; }
+  .manager-input, .manager-field input, .manager-field textarea { font-size: 16px; }
+  .manager-list-item { align-items: flex-start; }
+  .manager-list-item > div { min-width: 0; }
+  .manager-list-item strong, .manager-list-item span { white-space: normal; overflow-wrap: anywhere; line-height: 1.4; }
+}
+@media (max-width: 380px) {
+  .brand-name, .brand strong { font-size: 11.5px; }
+  .brand-motto, .brand span { font-size: 9px; letter-spacing: 0; }
+  .hero h1 { font-size: clamp(32px, 9.2vw, 38px); }
+  .section h2 { font-size: 23px; }
+  .section-kicker { font-size: 9px; }
+  .manager-secondary, .manager-close, .manager-delete { padding-inline: 9px; font-size: 11px; }
+}
+
 </style>
 </head>
 <body>
@@ -491,7 +579,7 @@
         </div>
         <button type="button" class="manager-close" id="homeAdminClose">Close manager</button>
       </div>
-      <div class="manager-save-note">Changes are published to the live homepage for everyone. Photos are stored in Cloudflare R2; captions and announcements are stored in the shared club database. Each image can be up to 10 MB.</div>
+      <div class="manager-save-note">Changes are published to the live homepage for everyone. Photos and announcements use the existing club database. Large photos are automatically compressed before upload; animated GIFs must already be 1.7 MB or smaller.</div>
       <div class="manager-columns">
         <section class="manager-card" aria-labelledby="homePhotosHeading">
           <h3 id="homePhotosHeading">Homepage photos</h3>
@@ -815,8 +903,33 @@
         if(window.PBBHomepage)window.PBBHomepage.setContent(content);
         renderManagerLists();
       }
+      async function prepareImageForD1(file){
+        const maxBytes=1700000;
+        if(!file||!file.type||!file.type.startsWith('image/'))throw new Error('Choose a valid image file.');
+        if(file.size<=maxBytes)return file;
+        // Preserve animated GIFs; only accept them when they already fit the D1 row limit.
+        if(file.type==='image/gif')throw new Error('Animated GIFs must be 1.7 MB or smaller. Larger photos are compressed automatically.');
+        if(!['image/jpeg','image/png','image/webp'].includes(file.type))throw new Error('Use a JPEG, PNG, WebP or small animated GIF image.');
+        let bitmap;
+        try{bitmap=await createImageBitmap(file);}catch{throw new Error('This image could not be opened for automatic compression.');}
+        try{
+          let scale=Math.min(1,1600/Math.max(bitmap.width,bitmap.height));
+          for(let pass=0;pass<8;pass++){
+            const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));
+            const context=canvas.getContext('2d',{alpha:false});if(!context)throw new Error('Your browser cannot compress this image.');
+            context.drawImage(bitmap,0,0,canvas.width,canvas.height);
+            for(const quality of [0.84,0.76,0.68,0.60]){
+              const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/webp',quality));
+              if(blob&&blob.size<=maxBytes)return new File([blob],file.name.replace(/\.[^.]+$/,'')+'.webp',{type:'image/webp',lastModified:Date.now()});
+            }
+            scale*=0.78;
+          }
+          throw new Error('This image is too large to compress below the 1.7 MB limit. Try a smaller image.');
+        }finally{bitmap.close?.();}
+      }
       async function uploadImage(file){
-        const data=new FormData();data.append('file',file);
+        const readyFile=await prepareImageForD1(file);
+        const data=new FormData();data.append('file',readyFile);
         const response=await fetch('/api/home-media',{method:'POST',body:data,credentials:'same-origin',cache:'no-store'});
         const payload=await response.json().catch(()=>({}));
         if(!response.ok)throw new Error(payload.error||'Image upload failed.');
@@ -891,7 +1004,7 @@
       photoForm.addEventListener('submit',async event=>{
         event.preventDefault();if(!authenticated)return;
         const file=document.getElementById('homePhotoFile').files[0];if(!file)return;
-        const submit=photoForm.querySelector('button[type="submit"]');submit.disabled=true;submit.textContent='Uploading…';setMessage(photoStatus,'Uploading image to shared storage…');
+        const submit=photoForm.querySelector('button[type="submit"]');submit.disabled=true;submit.textContent='Uploading…';setMessage(photoStatus,'Optimizing and saving image to the existing club database…');
         let uploadedKey=null;
         try{
           const uploaded=await uploadImage(file);uploadedKey=uploaded.key;
