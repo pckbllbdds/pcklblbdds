@@ -1,8 +1,15 @@
-# Pickleball Buddies Qatar — Match Center
+# Pickleball Buddies Qatar — Homepage + Match Center
 
-This is the GitHub-ready Cloudflare Pages version of the Match Center. It follows the dashboard-based Cloudflare setup used for Pantheon Tools: D1 is created and initialized in the Cloudflare dashboard, and Pages Functions receive the database through a dashboard binding. Node.js and Wrangler are not required for the deployment flow in this README.
+This is the GitHub-ready Cloudflare Pages site for Pickleball Buddies Qatar. The supplied club homepage is served at the root URL, and the existing Match Center is preserved at `/match-center/`. It follows the dashboard-based Cloudflare setup used for Pantheon Tools: D1 is created and initialized in the Cloudflare dashboard, and Pages Functions receive the database through a dashboard binding. Node.js and Wrangler are not required for the deployment flow in this README.
 
-## What changed from the supplied HTML
+## Public homepage and Match Center routes
+
+- `/` serves the new Pickleball Buddies Qatar public homepage with the hero carousel, community gallery, updates placeholder, sponsor/partner links, achievements section, Facebook and Reclub links, and Match Center calls-to-action.
+- `/match-center/` serves the existing interactive Match Center. The Match Center header includes a Home link back to `/`.
+- Homepage Match Center links use the same-site `/match-center/` route. API calls remain at `/api/state` and `/api/auth`, so the Cloudflare Pages Functions and device-specific Organizer cookie continue to work without a D1 change.
+- The supplied homepage's photo manager was not enabled in production: its IndexedDB prototype stores uploads only in the current browser and cannot publish them to other visitors. The homepage keeps its static illustrative carousel/gallery images and an updates placeholder. Shared photo publishing should be added later with authenticated uploads to Cloudflare R2 (or another shared media store).
+
+## What changed from the supplied Match Center HTML
 
 - The old browser-only `localStorage` persistence has been removed.
 - Shared match data is loaded from and saved to Cloudflare D1 through Pages Functions.
@@ -24,7 +31,9 @@ A successful password check creates a browser-specific, signed session cookie. T
 ## Files
 
 ```text
-index.html
+index.html                  # Public club homepage
+match-center/
+  index.html                # Existing interactive Match Center
 schema.sql
 functions/
   api/
@@ -39,7 +48,7 @@ The app expects a D1 binding named `DB` (`env.DB` in the Pages Functions). The e
 ## 1. Put the project in GitHub
 
 1. Create a new GitHub repository, for example `pickleball-buddies-qatar`.
-2. Upload the contents of this project folder to the repository root. `index.html`, `schema.sql`, and the `functions/` directory must be at the top level.
+2. Upload the contents of this project folder to the repository root. The homepage `index.html`, the `match-center/` directory, `schema.sql`, and the `functions/` directory must be at the top level.
 3. Commit the files to the `main` branch.
 
 Do not upload `.dev.vars`, `.env`, passwords or other secrets. The `.gitignore` excludes local secret files.
@@ -110,9 +119,9 @@ Do not put the password in GitHub, `index.html`, or any other public file. Give 
 
 ## 7. Check the deployment
 
-Open the deployed `*.pages.dev` URL.
+Open the deployed `*.pages.dev` URL to see the public homepage. Select **Match Center** to open `/match-center/`.
 
-- The status strip near the top should say that the shared database is connected.
+- In Match Center, the status strip near the top should say that the shared database is connected.
 - The public view should load even when no players have been added yet.
 - Click **Manage session** or **Players** and enter the organizer password.
 - Add a test player, then open the site in another browser/device. The public view should show the updated player/match data after the next refresh cycle (within about 10 seconds).
