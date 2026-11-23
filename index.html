@@ -40,6 +40,8 @@
     .nav a { text-decoration: none; color: #f7f8fb; font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; transition: color .2s; }
     .nav a:hover { color: var(--gold); }
     .nav .nav-cta { background: var(--gold); color: var(--navy); padding: 11px 15px; border-radius: 999px; }
+    .nav .nav-admin { border: 1px solid rgba(240,189,25,.8); color: var(--gold); padding: 10px 14px; border-radius: 999px; background:transparent; font:inherit; font-size:12px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; cursor:pointer; white-space:nowrap; }
+    .nav .nav-admin:hover { background: rgba(240,189,25,.12); color: #fff; }
     .menu-btn { display: none; border: 1px solid rgba(255,255,255,.35); background: transparent; color: #fff; padding: 9px 12px; border-radius: 10px; font-size: 20px; cursor: pointer; }
 
     .hero-wrap { background: var(--navy); position: relative; overflow: hidden; color: #fff; }
@@ -127,6 +129,7 @@
       .nav.open { display: flex; }
       .nav a { padding: 13px 4px; border-bottom: 1px solid rgba(255,255,255,.1); }
       .nav .nav-cta { margin-top: 10px; text-align: center; border: 0; }
+      .nav .nav-admin { width:100%; margin-top:9px; min-height:44px; text-align:center; border:1px solid rgba(240,189,25,.75); border-radius:10px; }
       .hero { grid-template-columns: 1fr .8fr; gap: 20px; padding: 45px 0 68px; }
       .hero-photo, .hero-photo img { min-height: 330px; }
       .gallery-card img { height: 175px; }
@@ -404,7 +407,53 @@
       *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
     }
 
-  </style>
+  
+    .admin-login-overlay[hidden] { display:none !important; }
+    .admin-login-overlay { position:fixed; inset:0; z-index:1000; display:grid; place-items:center; padding:20px; background:rgba(5,13,27,.72); backdrop-filter:blur(5px); }
+    .admin-login-dialog { position:relative; width:min(100%,420px); padding:30px; border-radius:20px; background:#fff; border:1px solid #e2e5eb; box-shadow:0 24px 70px rgba(0,0,0,.28); }
+    .admin-login-close { position:absolute; top:12px; right:13px; width:38px; height:38px; border:0; border-radius:50%; background:#f1f3f6; color:var(--navy); font-size:23px; cursor:pointer; }
+    .admin-login-kicker { margin:0 0 7px; color:var(--burgundy); font-size:10px; font-weight:950; letter-spacing:.16em; text-transform:uppercase; }
+    .admin-login-dialog h2 { margin:0 42px 8px 0; color:var(--navy); font-size:27px; letter-spacing:-.03em; }
+    .admin-login-dialog p { margin:0 0 20px; color:var(--muted); font-size:13px; }
+    .admin-login-dialog label { display:block; margin:0 0 7px; color:var(--navy); font-size:11px; font-weight:850; }
+    .admin-login-dialog input { width:100%; min-height:48px; border:1px solid #cfd5df; border-radius:10px; padding:11px 13px; color:var(--ink); font:inherit; font-size:16px; }
+    .admin-login-dialog input:focus { outline:2px solid rgba(240,189,25,.42); border-color:#bb9212; }
+    .admin-login-submit { width:100%; margin-top:14px; min-height:48px; border:0; border-radius:999px; background:var(--gold); color:var(--navy); font:inherit; font-weight:950; cursor:pointer; }
+    .admin-login-submit:disabled { opacity:.65; cursor:wait; }
+    .admin-login-status { min-height:18px; margin:10px 0 0 !important; font-size:12px !important; }
+    .admin-login-status.error { color:#a21d3c !important; }
+    .admin-login-status.ok { color:#176044 !important; }
+
+    .nav-admin { border:1px solid rgba(255,255,255,.45); background:transparent; color:#fff; border-radius:999px; padding:10px 14px; font:inherit; font-size:11px; font-weight:900; cursor:pointer; }
+    .nav-admin:hover { color:var(--gold); border-color:var(--gold); }
+    .nav-admin[hidden] { display:none !important; }
+    .photo-manager-section[hidden] { display:none !important; }
+    .photo-manager-section { background:#f4f5f8; border-top:5px solid var(--gold); }
+    .manager-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px 12px; margin-top:14px; }
+    .manager-field { min-width:0; }
+    .manager-field.full { grid-column:1/-1; }
+    .manager-field label { display:block; color:var(--navy); font-size:11px; font-weight:850; margin:0 0 5px; }
+    .manager-field input,.manager-field textarea,.manager-field select { width:100%; min-height:43px; border:1px solid #d8dde5; border-radius:9px; padding:10px 11px; font:inherit; font-size:12px; color:var(--ink); background:#fff; }
+    .manager-field textarea { min-height:95px; resize:vertical; }
+    .manager-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:13px; }
+    .manager-message { min-height:18px; color:var(--muted); font-size:11px; margin:9px 0 0; }
+    .manager-message.error { color:#a21d3c; }
+    .manager-message.ok { color:#176044; }
+    .manager-list { display:grid; gap:9px; margin-top:14px; }
+    .manager-list-item { display:flex; gap:10px; align-items:center; min-width:0; border:1px solid var(--line); border-radius:11px; background:#fff; padding:9px; }
+    .manager-list-item img { width:64px; height:54px; flex:0 0 auto; object-fit:cover; border-radius:7px; background:#f1f3f6; }
+    .manager-list-copy { flex:1; min-width:0; }
+    .manager-list-copy strong { display:block; color:var(--navy); font-size:11px; overflow-wrap:anywhere; }
+    .manager-list-copy span { display:block; color:var(--muted); font-size:10px; margin-top:3px; overflow-wrap:anywhere; }
+    .manager-list-item button { border:1px solid #e8c3cc; background:#fff7f9; color:#8a1539; border-radius:8px; min-height:36px; padding:7px 10px; font-size:10px; font-weight:850; cursor:pointer; }
+    .manager-post-item { align-items:flex-start; }
+    .manager-post-actions { display:flex; gap:6px; flex:0 0 auto; }
+    .manager-post-actions button:first-child { border-color:#d6deea; background:#f5f8fc; color:var(--navy); }
+    .manager-save-note { background:var(--gold-soft); color:#574719; border-left:4px solid var(--gold); border-radius:8px; padding:11px 13px; font-size:11px; line-height:1.5; margin-bottom:14px; }
+    @media(max-width:760px) { .manager-form-grid { grid-template-columns:1fr; } .manager-field.full { grid-column:auto; } }
+    @media(max-width:620px) { .nav-admin { width:100%; min-height:44px; border-radius:10px; text-align:center; } .manager-list-item { align-items:flex-start; } .manager-list-item img { width:54px; height:50px; } .manager-post-actions { flex-direction:column; } }
+    @media(max-width:520px) { .admin-login-dialog { padding:25px 20px 22px; } }
+</style>
 </head>
 <body>
   <header class="topbar">
@@ -424,10 +473,66 @@
         <a href="#recognition">Recognition</a>
         <a href="#connect">Connect</a>
         <a href="/match-center/" data-match-center class="nav-cta">Match Center ↗</a>
+        <button type="button" class="nav-admin" data-admin-login-open aria-haspopup="dialog" aria-controls="adminLoginModal">Admin Login</button>
+        <button type="button" class="nav-admin" data-home-admin-open hidden>Manage Homepage</button>
+        <button type="button" class="nav-admin" data-home-admin-logout hidden>Logout</button>
       </nav>
     </div>
   </header>
 
+
+  <section class="section photo-manager-section" id="homeAdminTools" hidden aria-labelledby="homeAdminHeading">
+    <div class="container">
+      <div class="photo-manager-heading">
+        <div>
+          <div class="section-kicker">Organizer tools</div>
+          <h2 id="homeAdminHeading">Homepage Manager</h2>
+          <p>Publish photos and announcements that are shared with every visitor.</p>
+        </div>
+        <button type="button" class="manager-close" id="homeAdminClose">Close manager</button>
+      </div>
+      <div class="manager-save-note">Changes are published to the live homepage for everyone. Photos are stored in Cloudflare R2; captions and announcements are stored in the shared club database. Each image can be up to 10 MB.</div>
+      <div class="manager-columns">
+        <section class="manager-card" aria-labelledby="homePhotosHeading">
+          <h3 id="homePhotosHeading">Homepage photos</h3>
+          <p>Upload photos for the hero carousel or community gallery. Use real club photos to replace the illustrative placeholders.</p>
+          <form id="homePhotoForm">
+            <div class="manager-form-grid">
+              <div class="manager-field full"><label for="homePhotoFile">Choose image</label><input id="homePhotoFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif" required></div>
+              <div class="manager-field"><label for="homePhotoPlacement">Display location</label><select id="homePhotoPlacement"><option value="hero">Hero carousel</option><option value="gallery">Community gallery</option><option value="both">Both</option></select></div>
+              <div class="manager-field"><label for="homePhotoTitle">Photo title</label><input id="homePhotoTitle" maxlength="80" required placeholder="e.g. Friday club session"></div>
+              <div class="manager-field full"><label for="homePhotoCaption">Short caption</label><input id="homePhotoCaption" maxlength="120" placeholder="A short line shown under the photo"></div>
+              <div class="manager-field full"><label for="homePhotoAlt">Image description (accessibility)</label><input id="homePhotoAlt" maxlength="180" required placeholder="Describe what is visible in the photo"></div>
+            </div>
+            <div class="manager-actions"><button type="submit" class="manager-primary">Upload &amp; publish photo</button></div>
+            <p class="manager-message" id="homePhotoStatus" role="status" aria-live="polite"></p>
+          </form>
+          <div class="manager-library">
+            <div class="library-heading"><h3>Published photo library</h3><span class="media-count" id="homeMediaCount">0 photos</span></div>
+            <div class="manager-list" id="homeMediaList"><div class="post-empty">No uploaded photos yet.</div></div>
+          </div>
+        </section>
+        <section class="manager-card" aria-labelledby="homeAnnouncementsHeading">
+          <h3 id="homeAnnouncementsHeading">Announcements &amp; updates</h3>
+          <p>Publish club announcements, upcoming activities, event recaps and community news.</p>
+          <form id="homePostForm">
+            <input id="homePostId" type="hidden">
+            <div class="manager-form-grid">
+              <div class="manager-field full"><label for="homePostTitle">Announcement title</label><input id="homePostTitle" maxlength="100" required placeholder="e.g. Interclub tournament this weekend"></div>
+              <div class="manager-field full"><label for="homePostBody">Announcement details</label><textarea id="homePostBody" maxlength="1500" required placeholder="Write the announcement for club visitors..."></textarea></div>
+              <div class="manager-field full"><label for="homePostImage">Photo (optional)</label><input id="homePostImage" type="file" accept="image/jpeg,image/png,image/webp,image/gif"></div>
+            </div>
+            <div class="manager-actions"><button type="submit" class="manager-primary" id="homePostSubmit">Publish announcement</button><button type="button" class="manager-secondary" id="homePostCancel" hidden>Cancel edit</button></div>
+            <p class="manager-message" id="homePostStatus" role="status" aria-live="polite"></p>
+          </form>
+          <div class="manager-library">
+            <div class="library-heading"><h3>Published announcements</h3><span class="media-count" id="homePostCount">0 posts</span></div>
+            <div class="manager-list" id="homePostList"><div class="post-empty">No announcements published yet.</div></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
   <main>
     <section class="hero-wrap" id="home">
       <div class="container hero">
@@ -566,74 +671,256 @@
       const image = document.getElementById('heroCarouselImage');
       const note = document.getElementById('heroPhotoNote');
       const dots = document.getElementById('heroDots');
-      const gallery = [...document.querySelectorAll('.gallery-card')];
-      const slides = [
-        { src: image.getAttribute('src'), alt: image.alt, label: 'PBB community' },
-        ...gallery.map(card => ({
-          src: card.querySelector('img').getAttribute('src'),
-          alt: card.querySelector('img').alt,
-          label: card.querySelector('figcaption strong')?.textContent || 'PBB community'
-        }))
-      ];
+      const galleryGrid = document.querySelector('.gallery-grid');
+      const postsGrid = document.getElementById('pbbPostsGrid');
+      const galleryNote = document.querySelector('#community .small-note');
+      const defaultHero = { src: image.getAttribute('src'), alt: image.alt, label: 'PBB community' };
+      const defaultGallery = [...galleryGrid.querySelectorAll('.gallery-card')].map(card => ({
+        src: card.querySelector('img').getAttribute('src'),
+        alt: card.querySelector('img').alt,
+        title: card.querySelector('figcaption strong')?.textContent || 'PBB community',
+        caption: card.querySelector('figcaption span')?.textContent || ''
+      }));
+      let slides = [defaultHero, ...defaultGallery.map(item => ({src:item.src,alt:item.alt,label:item.title}))];
       let active = 0;
       let timer = null;
+
+      const mediaUrl = key => '/media/' + encodeURIComponent(key);
+      const makeText = (tag, text, className) => { const el=document.createElement(tag); el.textContent=text || ''; if(className)el.className=className; return el; };
+      function renderGallery(content) {
+        const photos = Array.isArray(content.galleryImages) && content.galleryImages.length ? content.galleryImages : null;
+        galleryGrid.replaceChildren();
+        const items = photos ? photos.map(photo => ({src:mediaUrl(photo.key),alt:photo.alt,title:photo.title || photo.caption || 'PBB community',caption:photo.caption || ''})) : defaultGallery;
+        items.forEach(item => {
+          const figure=document.createElement('figure'); figure.className='gallery-card';
+          const img=document.createElement('img'); img.src=item.src; img.alt=item.alt; img.loading='lazy';
+          const figcaption=document.createElement('figcaption'); figcaption.append(makeText('strong',item.title),makeText('span',item.caption));
+          figure.append(img,figcaption); galleryGrid.append(figure);
+        });
+        if(galleryNote) galleryNote.hidden=!!photos;
+      }
+      function renderPosts(content) {
+        postsGrid.replaceChildren();
+        const posts=Array.isArray(content.posts)?content.posts:[];
+        if(!posts.length){ const empty=makeText('div','Club updates, announcements and community moments will be featured here.','post-empty'); postsGrid.append(empty); return; }
+        posts.slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))).forEach(post=>{
+          const card=document.createElement('article'); card.className='post-card';
+          if(post.imageKey){ const img=document.createElement('img'); img.src=mediaUrl(post.imageKey); img.alt=post.title || 'PBB announcement'; img.loading='lazy'; card.append(img); }
+          const copy=document.createElement('div'); copy.className='post-copy';
+          copy.append(makeText('h3',post.title),makeText('p',post.body));
+          let dateLabel=''; if(post.date){ const d=new Date(post.date); if(!Number.isNaN(d.getTime())) dateLabel=d.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}); }
+          if(dateLabel)copy.append(makeText('span',dateLabel,'post-date'));
+          card.append(copy); postsGrid.append(card);
+        });
+      }
+      function renderCarousel(content) {
+        const custom=Array.isArray(content.heroImages)?content.heroImages:[];
+        slides=custom.length?custom.map(photo=>({src:mediaUrl(photo.key),alt:photo.alt,label:photo.title || photo.caption || 'PBB community'})):[defaultHero,...defaultGallery.map(item=>({src:item.src,alt:item.alt,label:item.title}))];
+        active=0;
+        dots.replaceChildren();
+        slides.forEach((slide,index)=>{
+          const dot=document.createElement('button'); dot.className='carousel-dot'+(index===0?' active':''); dot.type='button';
+          dot.setAttribute('aria-label','Show photo '+(index+1)); dot.setAttribute('aria-pressed',String(index===0));
+          dot.addEventListener('click',()=>showSlide(index)); dots.append(dot);
+        });
+        document.getElementById('heroPrev').hidden=slides.length<2;
+        document.getElementById('heroNext').hidden=slides.length<2;
+        dots.hidden=slides.length<2;
+        showSlide(0);
+        window.clearInterval(timer);
+        if(slides.length>1) timer=window.setInterval(()=>showSlide(active+1),6500);
+      }
       function showSlide(index) {
-        active = (index + slides.length) % slides.length;
-        const slide = slides[active];
-        image.style.opacity = '0.35';
-        window.setTimeout(() => {
-          image.src = slide.src;
-          image.alt = slide.alt;
-          note.textContent = slide.label;
-          image.style.opacity = '1';
-        }, 100);
-        [...dots.children].forEach((dot, i) => {
-          dot.classList.toggle('active', i === active);
-          dot.setAttribute('aria-pressed', String(i === active));
-        });
+        active=(index+slides.length)%slides.length; const slide=slides[active];
+        image.style.opacity='0.35';
+        window.setTimeout(()=>{image.src=slide.src;image.alt=slide.alt;note.textContent=slide.label;image.style.opacity='1';},100);
+        [...dots.children].forEach((dot,i)=>{dot.classList.toggle('active',i===active);dot.setAttribute('aria-pressed',String(i===active));});
       }
-      slides.forEach((slide, index) => {
-        const dot = document.createElement('button');
-        dot.className = 'carousel-dot' + (index === 0 ? ' active' : '');
-        dot.type = 'button';
-        dot.setAttribute('aria-label', 'Show photo ' + (index + 1));
-        dot.setAttribute('aria-pressed', String(index === 0));
-        dot.addEventListener('click', () => showSlide(index));
-        dots.append(dot);
-      });
-      document.getElementById('heroPrev').addEventListener('click', () => showSlide(active - 1));
-      document.getElementById('heroNext').addEventListener('click', () => showSlide(active + 1));
-      if (slides.length < 2) {
-        document.getElementById('heroPrev').hidden = true;
-        document.getElementById('heroNext').hidden = true;
-        dots.hidden = true;
-      } else {
-        timer = window.setInterval(() => showSlide(active + 1), 6500);
-        document.getElementById('heroCarousel').addEventListener('mouseenter', () => window.clearInterval(timer));
-        document.getElementById('heroCarousel').addEventListener('mouseleave', () => {
-          window.clearInterval(timer);
-          timer = window.setInterval(() => showSlide(active + 1), 6500);
-        });
-      }
-      document.getElementById('year').textContent = new Date().getFullYear();
-      const menuButton = document.querySelector('.menu-btn');
-      const nav = document.getElementById('site-nav');
-      menuButton.addEventListener('click', () => {
-        const open = nav.classList.toggle('open');
-        menuButton.setAttribute('aria-expanded', String(open));
-        menuButton.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
-        menuButton.textContent = open ? '×' : '☰';
-      });
-      nav.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
-        nav.classList.remove('open');
-        menuButton.setAttribute('aria-expanded', 'false');
-        menuButton.setAttribute('aria-label', 'Open navigation');
-        menuButton.textContent = '☰';
-      }));
+      document.getElementById('heroPrev').addEventListener('click',()=>showSlide(active-1));
+      document.getElementById('heroNext').addEventListener('click',()=>showSlide(active+1));
+      document.getElementById('heroCarousel').addEventListener('mouseenter',()=>window.clearInterval(timer));
+      document.getElementById('heroCarousel').addEventListener('mouseleave',()=>{window.clearInterval(timer);if(slides.length>1)timer=window.setInterval(()=>showSlide(active+1),6500);});
+      document.getElementById('year').textContent=new Date().getFullYear();
+      const menuButton=document.querySelector('.menu-btn'); const nav=document.getElementById('site-nav');
+      menuButton.addEventListener('click',()=>{const open=nav.classList.toggle('open');menuButton.setAttribute('aria-expanded',String(open));menuButton.setAttribute('aria-label',open?'Close navigation':'Open navigation');menuButton.textContent=open?'×':'☰';});
+      nav.querySelectorAll('a').forEach(link=>link.addEventListener('click',()=>{nav.classList.remove('open');menuButton.setAttribute('aria-expanded','false');menuButton.setAttribute('aria-label','Open navigation');menuButton.textContent='☰';}));
+      window.PBBHomepage = {
+        setContent(content){ const safe=content&&typeof content==='object'?content:{}; renderGallery(safe);renderPosts(safe);renderCarousel(safe); }
+      };
+      fetch('/api/home-content',{cache:'no-store'}).then(response=>response.ok?response.json():Promise.reject(new Error('Homepage content unavailable'))).then(payload=>window.PBBHomepage.setContent(payload.content||{})).catch(()=>window.PBBHomepage.setContent({}));
     })();
   </script>
   <script>
     document.querySelectorAll('[data-match-center]').forEach(link => { link.href = '/match-center/'; });
+  </script>
+
+  <div class="admin-login-overlay" id="adminLoginModal" hidden>
+    <section class="admin-login-dialog" role="dialog" aria-modal="true" aria-labelledby="adminLoginTitle" aria-describedby="adminLoginDescription">
+      <button type="button" class="admin-login-close" data-admin-login-close aria-label="Close admin login">×</button>
+      <div class="admin-login-kicker">Pickleball Buddies Qatar</div>
+      <h2 id="adminLoginTitle">Admin Login</h2>
+      <p id="adminLoginDescription">Sign in to manage homepage photos and announcements, plus club sessions, players, matchmaking and interclub tournaments.</p>
+      <form id="adminLoginForm">
+        <label for="adminLoginPassword">Organizer password</label>
+        <input id="adminLoginPassword" name="password" type="password" autocomplete="current-password" required placeholder="Enter organizer password">
+        <p id="adminLoginStatus" class="admin-login-status" role="status" aria-live="polite"></p>
+        <button id="adminLoginSubmit" class="admin-login-submit" type="submit">Sign in to Organizer</button>
+      </form>
+    </section>
+  </div>
+  <script>
+    (() => {
+      const openButton=document.querySelector('[data-admin-login-open]');
+      const manageButton=document.querySelector('[data-home-admin-open]');
+      const logoutButton=document.querySelector('[data-home-admin-logout]');
+      const modal=document.getElementById('adminLoginModal');
+      const closeButton=document.querySelector('[data-admin-login-close]');
+      const form=document.getElementById('adminLoginForm');
+      const passwordInput=document.getElementById('adminLoginPassword');
+      const submitButton=document.getElementById('adminLoginSubmit');
+      const loginStatus=document.getElementById('adminLoginStatus');
+      const manager=document.getElementById('homeAdminTools');
+      const nav=document.getElementById('site-nav');
+      const menuButton=document.querySelector('.menu-btn');
+      const photoForm=document.getElementById('homePhotoForm');
+      const postForm=document.getElementById('homePostForm');
+      const photoStatus=document.getElementById('homePhotoStatus');
+      const postStatus=document.getElementById('homePostStatus');
+      const mediaList=document.getElementById('homeMediaList');
+      const postList=document.getElementById('homePostList');
+      let authenticated=false;
+      let content={heroImages:[],galleryImages:[],posts:[]};
+      const clone=value=>JSON.parse(JSON.stringify(value));
+      const mediaUrl=key=>'/media/'+encodeURIComponent(key);
+      const setMessage=(el,message,type='')=>{el.textContent=message;el.className='manager-message'+(type?' '+type:'');};
+      function updateAuthUI(value){
+        authenticated=!!value;
+        openButton.hidden=authenticated;manageButton.hidden=!authenticated;logoutButton.hidden=!authenticated;
+        manager.hidden=!authenticated;
+        if(!authenticated) manager.hidden=true;
+      }
+      async function fetchContent(){
+        const response=await fetch('/api/home-content',{cache:'no-store',credentials:'same-origin'});
+        const payload=await response.json().catch(()=>({}));
+        if(!response.ok)throw new Error(payload.error||'Could not load homepage content.');
+        content=payload.content||{heroImages:[],galleryImages:[],posts:[]};
+        if(window.PBBHomepage)window.PBBHomepage.setContent(content);
+        renderManagerLists();
+      }
+      async function saveContent(next){
+        const response=await fetch('/api/home-content',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',cache:'no-store',body:JSON.stringify({content:next})});
+        const payload=await response.json().catch(()=>({}));
+        if(!response.ok)throw new Error(payload.error||'Could not publish homepage changes.');
+        content=payload.content||next;
+        if(window.PBBHomepage)window.PBBHomepage.setContent(content);
+        renderManagerLists();
+      }
+      async function uploadImage(file){
+        const data=new FormData();data.append('file',file);
+        const response=await fetch('/api/home-media',{method:'POST',body:data,credentials:'same-origin',cache:'no-store'});
+        const payload=await response.json().catch(()=>({}));
+        if(!response.ok)throw new Error(payload.error||'Image upload failed.');
+        return payload;
+      }
+      async function deleteImage(key){
+        const response=await fetch('/api/home-media',{method:'DELETE',headers:{'Content-Type':'application/json'},credentials:'same-origin',cache:'no-store',body:JSON.stringify({key})});
+        const payload=await response.json().catch(()=>({}));
+        if(!response.ok)throw new Error(payload.error||'Could not delete image file.');
+      }
+      function el(tag,text,className){const node=document.createElement(tag);if(text!==undefined)node.textContent=text;if(className)node.className=className;return node;}
+      function renderManagerLists(){
+        const mediaMap=new Map();
+        [...(content.heroImages||[]),...(content.galleryImages||[])].forEach(photo=>mediaMap.set(photo.key,photo));
+        (content.posts||[]).forEach(post=>{if(post.imageKey&&!mediaMap.has(post.imageKey))mediaMap.set(post.imageKey,{key:post.imageKey,title:post.title,caption:'Announcement photo',alt:post.title});});
+        mediaList.replaceChildren();
+        document.getElementById('homeMediaCount').textContent=mediaMap.size+' photos';
+        if(!mediaMap.size)mediaList.append(el('div','No uploaded photos yet.','post-empty'));
+        mediaMap.forEach(photo=>{
+          const item=el('div',undefined,'manager-list-item');const img=document.createElement('img');img.src=mediaUrl(photo.key);img.alt=photo.alt||'';
+          const copy=el('div',undefined,'manager-list-copy');copy.append(el('strong',photo.title||photo.caption||'Homepage photo'),el('span',photo.caption||photo.key));
+          const remove=el('button','Remove');remove.type='button';remove.addEventListener('click',()=>removeMedia(photo.key));
+          item.append(img,copy,remove);mediaList.append(item);
+        });
+        postList.replaceChildren();const posts=content.posts||[];document.getElementById('homePostCount').textContent=posts.length+' posts';
+        if(!posts.length)postList.append(el('div','No announcements published yet.','post-empty'));
+        posts.slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))).forEach(post=>{
+          const item=el('div',undefined,'manager-list-item manager-post-item');
+          if(post.imageKey){const img=document.createElement('img');img.src=mediaUrl(post.imageKey);img.alt='';item.append(img);}
+          const copy=el('div',undefined,'manager-list-copy');copy.append(el('strong',post.title),el('span',(post.body||'').slice(0,150)));
+          const actions=el('div',undefined,'manager-post-actions');const edit=el('button','Edit');edit.type='button';edit.addEventListener('click',()=>editPost(post.id));
+          const remove=el('button','Delete');remove.type='button';remove.addEventListener('click',()=>removePost(post.id));actions.append(edit,remove);item.append(copy,actions);postList.append(item);
+        });
+      }
+      async function removeMedia(key){
+        if(!confirm('Remove this image from the homepage and delete its uploaded file?'))return;
+        try{
+          const next=clone(content);next.heroImages=(next.heroImages||[]).filter(item=>item.key!==key);next.galleryImages=(next.galleryImages||[]).filter(item=>item.key!==key);next.posts=(next.posts||[]).map(post=>post.imageKey===key?{...post,imageKey:null}:post);
+          await saveContent(next);await deleteImage(key);setMessage(photoStatus,'Image removed from the homepage.','ok');
+        }catch(error){setMessage(photoStatus,error.message,'error');}
+      }
+      async function removePost(id){
+        const post=(content.posts||[]).find(item=>item.id===id);if(!post||!confirm('Delete this announcement from the homepage?'))return;
+        try{const next=clone(content);next.posts=next.posts.filter(item=>item.id!==id);await saveContent(next);if(post.imageKey&&!([...next.heroImages,...next.galleryImages].some(item=>item.key===post.imageKey))&&!next.posts.some(item=>item.imageKey===post.imageKey))await deleteImage(post.imageKey);setMessage(postStatus,'Announcement deleted.','ok');resetPostForm();}
+        catch(error){setMessage(postStatus,error.message,'error');}
+      }
+      function editPost(id){
+        const post=(content.posts||[]).find(item=>item.id===id);if(!post)return;
+        document.getElementById('homePostId').value=post.id;document.getElementById('homePostTitle').value=post.title;document.getElementById('homePostBody').value=post.body;document.getElementById('homePostImage').value='';
+        document.getElementById('homePostSubmit').textContent='Save announcement';document.getElementById('homePostCancel').hidden=false;setMessage(postStatus,'Editing announcement. Save to publish your changes.');
+        document.getElementById('homePostTitle').focus();
+      }
+      function resetPostForm(){postForm.reset();document.getElementById('homePostId').value='';document.getElementById('homePostSubmit').textContent='Publish announcement';document.getElementById('homePostCancel').hidden=true;}
+      function openManager(){if(!authenticated)return;manager.hidden=false;manager.scrollIntoView({behavior:'smooth',block:'start'});}
+      function closeModal(){modal.hidden=true;}
+      openButton.addEventListener('click',()=>{nav.classList.remove('open');menuButton.setAttribute('aria-expanded','false');menuButton.textContent='☰';modal.hidden=false;loginStatus.textContent='';loginStatus.className='admin-login-status';passwordInput.value='';setTimeout(()=>passwordInput.focus(),0);});
+      closeButton.addEventListener('click',closeModal);modal.addEventListener('click',event=>{if(event.target===modal)closeModal();});
+      document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!modal.hidden)closeModal();});
+      manageButton.addEventListener('click',()=>{nav.classList.remove('open');menuButton.setAttribute('aria-expanded','false');menuButton.textContent='☰';openManager();});
+      document.getElementById('homeAdminClose').addEventListener('click',()=>{manager.hidden=true;window.scrollTo({top:0,behavior:'smooth'});});
+      logoutButton.addEventListener('click',async()=>{
+        try{const response=await fetch('/api/auth',{method:'DELETE',credentials:'same-origin',cache:'no-store'});if(!response.ok)throw new Error('Logout failed.');updateAuthUI(false);window.scrollTo({top:0,behavior:'smooth'});}
+        catch(error){alert('Could not log out: '+error.message);}
+      });
+      form.addEventListener('submit',async event=>{
+        event.preventDefault();const password=passwordInput.value;if(!password)return;
+        submitButton.disabled=true;submitButton.textContent='Signing in…';loginStatus.textContent='Checking administrator access…';loginStatus.className='admin-login-status';
+        try{const response=await fetch('/api/auth',{method:'POST',headers:{'X-Admin-Password':password},credentials:'same-origin',cache:'no-store'});const payload=await response.json().catch(()=>({}));if(!response.ok)throw new Error(payload.error||'The organizer password was not accepted.');passwordInput.value='';updateAuthUI(true);closeModal();await fetchContent().catch(error=>{setMessage(photoStatus,error.message,'error');});openManager();}
+        catch(error){loginStatus.textContent=error.message||'Could not sign in. Please try again.';loginStatus.className='admin-login-status error';passwordInput.focus();}
+        finally{submitButton.disabled=false;submitButton.textContent='Sign in to Organizer';}
+      });
+      photoForm.addEventListener('submit',async event=>{
+        event.preventDefault();if(!authenticated)return;
+        const file=document.getElementById('homePhotoFile').files[0];if(!file)return;
+        const submit=photoForm.querySelector('button[type="submit"]');submit.disabled=true;submit.textContent='Uploading…';setMessage(photoStatus,'Uploading image to shared storage…');
+        let uploadedKey=null;
+        try{
+          const uploaded=await uploadImage(file);uploadedKey=uploaded.key;
+          const title=document.getElementById('homePhotoTitle').value.trim();const caption=document.getElementById('homePhotoCaption').value.trim();const alt=document.getElementById('homePhotoAlt').value.trim();
+          const photo={id:crypto.randomUUID(),key:uploaded.key,title,caption,alt};const next=clone(content);const placement=document.getElementById('homePhotoPlacement').value;
+          if(placement==='hero'||placement==='both')next.heroImages.push(photo);if(placement==='gallery'||placement==='both')next.galleryImages.push(photo);
+          await saveContent(next);photoForm.reset();setMessage(photoStatus,'Photo published to the homepage for all visitors.','ok');
+        }catch(error){if(uploadedKey)await deleteImage(uploadedKey).catch(()=>{});setMessage(photoStatus,error.message,'error');}
+        finally{submit.disabled=false;submit.textContent='Upload & publish photo';}
+      });
+      postForm.addEventListener('submit',async event=>{
+        event.preventDefault();if(!authenticated)return;
+        const submit=document.getElementById('homePostSubmit');submit.disabled=true;submit.textContent='Publishing…';
+        let uploadedKey=null;
+        try{
+          const id=document.getElementById('homePostId').value;const existing=(content.posts||[]).find(post=>post.id===id);const title=document.getElementById('homePostTitle').value.trim();const body=document.getElementById('homePostBody').value.trim();
+          const file=document.getElementById('homePostImage').files[0];let imageKey=existing?.imageKey||null;if(file){const uploaded=await uploadImage(file);uploadedKey=uploaded.key;imageKey=uploaded.key;}
+          const post={id:id||crypto.randomUUID(),title,body,date:new Date().toISOString(),imageKey};const next=clone(content);const index=next.posts.findIndex(item=>item.id===post.id);if(index>=0)next.posts[index]=post;else next.posts.unshift(post);
+          await saveContent(next);if(existing?.imageKey&&existing.imageKey!==imageKey&&!next.heroImages.some(item=>item.key===existing.imageKey)&&!next.galleryImages.some(item=>item.key===existing.imageKey)&&!next.posts.some(item=>item.imageKey===existing.imageKey))await deleteImage(existing.imageKey).catch(()=>{});
+          resetPostForm();setMessage(postStatus,'Announcement published to the homepage for all visitors.','ok');
+        }catch(error){if(uploadedKey)await deleteImage(uploadedKey).catch(()=>{});setMessage(postStatus,error.message,'error');}
+        finally{submit.disabled=false;submit.textContent=document.getElementById('homePostId').value?'Save announcement':'Publish announcement';}
+      });
+      document.getElementById('homePostCancel').addEventListener('click',resetPostForm);
+      fetch('/api/auth',{cache:'no-store',credentials:'same-origin'}).then(response=>response.ok?response.json():{authenticated:false}).then(payload=>{
+        updateAuthUI(!!payload.authenticated);
+        if(payload.authenticated){fetchContent().catch(error=>{setMessage(photoStatus,error.message,'error');});}
+      }).catch(()=>updateAuthUI(false));
+    })();
   </script>
 </body>
 </html>

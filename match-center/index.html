@@ -1121,7 +1121,15 @@ function updateClubClock(){
 function makeQR(){let url=document.getElementById("siteUrl").value.trim();if(!/^https?:\/\//i.test(url))return alert("Enter the full hosted website URL, beginning with https://");document.getElementById("publicUrl").textContent=url;document.getElementById("qrBox").innerHTML=`<img alt="QR code for public match page" width="180" height="180" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(url)}"><div class="small">QR code generated for the URL you entered. Internet access is needed to load it.</div>`}
 document.getElementById("sessionName").addEventListener("change",e=>{state.session=e.target.value;save()});
 void checkOrganizerSession();
-initializeDatabase();
+void initializeDatabase().then(()=>{
+ const params=new URLSearchParams(window.location.search);
+ if(params.get("organizer")==="1"){
+  params.delete("organizer");
+  const remaining=params.toString();
+  window.history.replaceState(null,"",window.location.pathname+(remaining?"?"+remaining:"")+window.location.hash);
+  void showTab("admin");
+ }
+});
 updateClubClock();
 setInterval(updateClubClock,1000);
 setInterval(()=>{

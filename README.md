@@ -4,10 +4,10 @@ This is the GitHub-ready Cloudflare Pages site for Pickleball Buddies Qatar. The
 
 ## Public homepage and Match Center routes
 
-- `/` serves the new Pickleball Buddies Qatar public homepage with the hero carousel, community gallery, updates placeholder, sponsor/partner links, achievements section, Facebook and Reclub links, and Match Center calls-to-action.
+- `/` serves the new Pickleball Buddies Qatar public homepage with the hero carousel, community gallery, shared announcements, sponsor/partner links, achievements section, Facebook and Reclub links, and Match Center calls-to-action.
 - `/match-center/` serves the existing interactive Match Center. The Match Center header includes a Home link back to `/`.
 - Homepage Match Center links use the same-site `/match-center/` route. API calls remain at `/api/state` and `/api/auth`, so the Cloudflare Pages Functions and device-specific Organizer cookie continue to work without a D1 change.
-- The supplied homepage's photo manager was not enabled in production: its IndexedDB prototype stores uploads only in the current browser and cannot publish them to other visitors. The homepage keeps its static illustrative carousel/gallery images and an updates placeholder. Shared photo publishing should be added later with authenticated uploads to Cloudflare R2 (or another shared media store).
+- The homepage includes an Organizer-only Homepage Manager. Signed-in organizers can upload and remove hero-carousel/gallery photos and publish, edit or delete announcements. Image files are stored in Cloudflare R2; only image keys and announcement text are stored in the existing D1 `app_state.state_json` document. Public visitors see the shared images and announcements. Photo uploads require the `PBB_MEDIA` R2 binding described below.
 
 ## What changed from the supplied Match Center HTML
 
@@ -39,11 +39,15 @@ functions/
   api/
     auth.js
     state.js
+    home-content.js
+    home-media.js
+  media/
+    [key].js
   _shared/
     auth.js
 ```
 
-The app expects a D1 binding named `DB` (`env.DB` in the Pages Functions). The existing app state is stored as one JSON document in the D1 table `app_state`; this preserves the current app state model and match logic instead of requiring a rewrite into separate player and match tables. The revision check helps prevent silent concurrent overwrites, but this is designed for one organizer making changes at a time, not heavy simultaneous multi-organizer editing.
+The app expects a D1 binding named `DB` (`env.DB` in the Pages Functions). The existing app state is stored as one JSON document in the D1 table `app_state`; this preserves the current app state model and match logic instead of requiring a rewrite into separate player and match tables. The revision check helps prevent silent concurrent overwrites, but this is designed for one organizer making changes at a time, not heavy simultaneous multi-organizer editing. The homepage content API merges homepage metadata into this same JSON document with a compare-and-swap retry so a homepage edit does not overwrite a concurrent Match Center update. Image binaries are not stored in D1.
 
 ## 1. Put the project in GitHub
 
@@ -117,7 +121,18 @@ The public match board is readable by visitors, but the Organizer and Players ta
 
 Do not put the password in GitHub, `index.html`, or any other public file. Give it only to trusted organizers.
 
-## 7. Check the deployment
+## 7. Create and bind the homepage media bucket
+
+Photo uploads use Cloudflare R2 so image files are shared across all visitors without inflating the D1 state document. Announcements and photo metadata continue to use the existing D1 row.
+
+1. In the Cloudflare dashboard, open **R2 Object Storage** and create a bucket named `pbb-homepage-media`.
+2. Open **Workers & Pages → your Pages project → Settings → Bindings** (the section may appear as **Functions → R2 bucket bindings** in some dashboard layouts).
+3. Add an **R2 bucket** binding with the variable name `PBB_MEDIA` and select `pbb-homepage-media`.
+4. Save and redeploy the Pages project.
+
+Do not enable public bucket access or configure a public R2 domain. The `/media/:key` Pages Function serves uploaded files through the same site. The binding is required for photo uploads/deletes; the rest of the homepage and Match Center can still load if no photos have been uploaded.
+
+## 8. Check the deployment
 
 Open the deployed `*.pages.dev` URL to see the public homepage. Select **Match Center** to open `/match-center/`.
 
@@ -192,3 +207,12 @@ When Tournament Mode is enabled, visitors can open the Interclub Tournament tab 
 - Registered reciprocal fixed-partner duos ("luggages") are exempt and always remain together.
 - Tournament fixtures are excluded from this Open Play rotation rule; interclub registered duos are governed by the tournament roster rules.
 - The Pages state API independently validates newly generated or edited active/upcoming Open Play matchups, so the rule cannot be bypassed by submitting a handcrafted state. Existing historical matches are not retroactively changed.
+
+
+### Homepage administrator entry point and content management
+- The public homepage navigation includes **Admin Login**. After the shared Organizer password is accepted, the login remains on the homepage and reveals the private **Homepage Manager** panel. The Organizer can also open the Match Center using the same authenticated device session.
+- The Homepage Manager controls hero-carousel photos, community-gallery photos, and announcements shown in PBB Updates & Moments. Organizers can upload photos, choose Hero / Gallery / Both placement, publish announcements with optional photos, edit or delete announcements, and remove uploaded photos.
+- Public visitors receive the same published homepage content. The homepage loads content from `/api/home-content`; only the authenticated Organizer can save it.
+- Image files are uploaded to the `PBB_MEDIA` R2 binding through `/api/home-media` and served by `/media/:key`. Images are limited to 10 MB each and JPEG, PNG, WebP or GIF. SVG uploads are rejected.
+- Announcement text and image-key metadata are stored under `homepageContent` in the existing D1 state JSON. The Match Center state API preserves this field when older clients submit normalized session state. No D1 schema migration is required.
+- The same existing HttpOnly device session, Organizer password, and `/api/auth` Pages Function are used. No second login system or new secret is introduced.

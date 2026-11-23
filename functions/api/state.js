@@ -71,6 +71,12 @@ export async function onRequestPost({ request, env }) {
     console.error("D1 current-state validation read error:", error);
     return json({ error: "Could not verify the current match state." }, 500);
   }
+  // Preserve shared homepage content when an older Match Center client posts
+  // a normalized state shape that does not know about homepageContent. This
+  // keeps photo/announcement updates safe from ordinary session saves.
+  if (!Object.prototype.hasOwnProperty.call(state, "homepageContent") && previousState?.homepageContent) {
+    state.homepageContent = previousState.homepageContent;
+  }
   const previousMatches = new Map((previousState?.matches || []).map((match) => [String(match.id), match]));
   const playerById = new Map(state.players.map((player) => [String(player.id), player]));
   if (state.matchGenderMode != null && !["open", "girls", "boys", "girls-vs-boys"].includes(state.matchGenderMode)) {
