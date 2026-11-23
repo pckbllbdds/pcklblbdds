@@ -342,6 +342,7 @@ button.primary{background:#198754;color:#fff}button.primary:hover{background:#14
 <hr><h3>Match format</h3>
 <label for="matchGenderMode">Gender matchup</label><select id="matchGenderMode" onchange="changeMatchGenderMode(this.value)"><option value="open">Open · any gender combination</option><option value="girls">Girls only</option><option value="boys">Boys only</option><option value="girls-vs-boys">Girls vs Boys · one team each</option></select>
 <div class="small">Girls vs Boys creates one all-female team against one all-male team. Fixed partners must be the same gender for this format, and every player needs a gender set in the Players tab.</div>
+<div class="small"><b>Partner rotation:</b> players cannot be teammates for a third consecutive match. The generator tries alternative team combinations first. Registered fixed-partner luggages are exempt.</div>
 <label style="display:flex;align-items:center;gap:9px;margin-top:12px"><input id="tournamentMode" type="checkbox" style="width:auto" onchange="changeTournamentMode(this.checked)"> <span><b>Tournament Mode</b></span></label>
 <div class="small">Opens a public Interclub Tournament tab. Register the players for each club, then generate a seeded knockout bracket containing a doubles game for every compatible duo matchup. Club ties are decided by game wins; winning clubs advance. This is separate from normal Open Play matchmaking.</div>
 <hr><label>Attendance</label><div class="small">Mark players present/available in the Players tab. Only available players are selected.</div>
@@ -687,8 +688,51 @@ function teamsForGeneratedGroup(group,mode){
  let ranked=group.slice().sort((a,b)=>{let x=stats(a),y=stats(b);return (y.wins*3+y.points*.02)-(x.wins*3+x.points*.02);});
  return {teamA:[ranked[0],ranked[3]],teamB:[ranked[1],ranked[2]]};
 }
+// A non-fixed pair may be teammates for at most two consecutive matches in
+// the sequence of matches involving either player. Fixed partner duos
+// (the club's "luggages") are deliberately exempt.
+function consecutiveTeammateStreak(playerAId,playerBId){
+ const aId=String(playerAId),bId=String(playerBId);
+ const timeline=state.matches.map((match,index)=>({match,index})).filter(({match})=>{
+  if(!match||match.tournament===true||!["upcoming","playing","done"].includes(match.status))return false;
+  const ids=[...(match.teamA||[]),...(match.teamB||[])].map(String);
+  return ids.includes(aId)||ids.includes(bId);
+ }).sort((a,b)=>(Number(a.match.createdAt)||0)-(Number(b.match.createdAt)||0)||a.index-b.index);
+ let streak=0;
+ for(let i=timeline.length-1;i>=0;i--){
+  const m=timeline[i].match,ta=(m.teamA||[]).map(String),tb=(m.teamB||[]).map(String);
+  const together=(ta.includes(aId)&&ta.includes(bId))||(tb.includes(aId)&&tb.includes(bId));
+  if(!together)break;
+  streak++;
+ }
+ return streak;
+}
+function teammatesAllowed(a,b){
+ if(!a||!b)return false;
+ if(isFixedDuo(a,b))return true;
+ return consecutiveTeammateStreak(a.id,b.id)<2;
+}
+function teamPairingAllowed(team){return Array.isArray(team)&&team.length===2&&teammatesAllowed(team[0],team[1]);}
+function generatedTeamOptions(group,mode){
+ const preferred=teamsForGeneratedGroup(group,mode),options=[preferred];
+ if(mode!=="girls-vs-boys"){
+  const fixedPairs=[],singles=[],seen=new Set();
+  group.forEach(p=>{if(seen.has(p.id))return;const q=fixedPartner(p);if(q&&group.some(x=>x.id===q.id)){fixedPairs.push([p,q]);seen.add(p.id);seen.add(q.id);}else{singles.push(p);seen.add(p.id);}});
+  if(fixedPairs.length===0&&group.length===4){
+   const [a,b,c,d]=group;
+   options.push({teamA:[a,b],teamB:[c,d]},{teamA:[a,c],teamB:[b,d]},{teamA:[a,d],teamB:[b,c]});
+  }
+ }
+ const unique=new Set();
+ return options.filter(option=>{
+  if(!option||option.teamA?.length!==2||option.teamB?.length!==2)return false;
+  const pairs=[option.teamA.map(p=>String(p.id)).sort().join("~"),option.teamB.map(p=>String(p.id)).sort().join("~")].sort();
+  const key=pairs.join("|");if(unique.has(key))return false;unique.add(key);
+  return teamPairingAllowed(option.teamA)&&teamPairingAllowed(option.teamB);
+ });
+}
 function generateMatches(){
- let busy=busyIds(),made=0;
+ let busy=busyIds(),made=0,blockedByTeammateLimit=0;
  let target=generationSlots(),bracketMade=Object.fromEntries(BRACKETS.map(b=>[b,0]));
  const genderMode=state.matchGenderMode||"open";
  function performance(p){
@@ -712,8 +756,10 @@ function generateMatches(){
    let brackets=[...new Set(group.map(p=>p.bracket))].sort((a,b)=>BRACKETS.indexOf(a)-BRACKETS.indexOf(b));
    if(!brackets.length||brackets.length>2)return;
    let key=group.map(p=>p.id).sort().join("|");if(candidateKeys.has(key))return;candidateKeys.add(key);
+   const teamOptions=generatedTeamOptions(group,genderMode);
+   if(!teamOptions.length){blockedByTeammateLimit++;return;}
    let games=group.map(p=>activeCount(p)),waits=group.map(p=>idle(p));
-   candidates.push({brackets,bracket:brackets.join(" + "),group,mixed:brackets.length>1,distance:brackets.length>1?Math.max(...brackets.map(b=>BRACKETS.indexOf(b)))-Math.min(...brackets.map(b=>BRACKETS.indexOf(b))):0,
+   candidates.push({brackets,bracket:brackets.join(" + "),group,teamOptions,mixed:brackets.length>1,distance:brackets.length>1?Math.max(...brackets.map(b=>BRACKETS.indexOf(b)))-Math.min(...brackets.map(b=>BRACKETS.indexOf(b))):0,
     avgGames:games.reduce((a,b)=>a+b,0)/4,maxGames:Math.max(...games),maxIdle:Math.max(...waits),avgIdle:waits.reduce((a,b)=>a+b,0)/4,queued:brackets.reduce((n,b)=>n+bracketMade[b],0)});
   }
   for(let bracket of BRACKETS){let group=selectGenerationGroup(pools[bracket],4,{[bracket]:4});if(group.length)addCandidate(group,[bracket],false,0);}
@@ -743,13 +789,16 @@ function generateMatches(){
   }
   if(!candidates.length)break;
   candidates.sort((a,b)=>a.avgGames-b.avgGames||a.maxGames-b.maxGames||b.maxIdle-a.maxIdle||b.avgIdle-a.avgIdle||Number(a.mixed)-Number(b.mixed)||a.distance-b.distance||a.queued-b.queued||BRACKETS.indexOf(a.brackets[0])-BRACKETS.indexOf(b.brackets[0]));
-  let chosen=candidates[0],group=chosen.group,teams=teamsForGeneratedGroup(group,genderMode);
+  let chosen=candidates[0],group=chosen.group,teams=chosen.teamOptions[0];
   if(teams.teamA.length!==2||teams.teamB.length!==2||!genderGroupCompatible(group,genderMode))break;
   if(Math.random()<.5&&genderMode!=="girls-vs-boys")[teams.teamA,teams.teamB]=[teams.teamB,teams.teamA];
   let m={id:"m"+state.seq++,bracket:chosen.bracket,brackets:chosen.brackets.slice(),teamA:teams.teamA.map(p=>p.id),teamB:teams.teamB.map(p=>p.id),status:"upcoming",court:null,scoreA:null,scoreB:null,createdAt:Date.now(),genderMode};
   state.matches.push(m);m.teamA.concat(m.teamB).forEach(id=>busy.add(id));made++;chosen.brackets.forEach(b=>bracketMade[b]++);
  }
- if(!made){
+ if(made<target&&blockedByTeammateLimit){
+  const prefix=made?`Generated ${made} match${made===1?"":"es"}. `:"";
+  alert(prefix+"The remaining compatible combinations would make a non-fixed pair teammates for a third consecutive match. The two-in-a-row limit is being enforced; try again after players have rotated with different partners. Fixed partner luggages are exempt.");
+ }else if(!made){
   if(target===0)alert("The match limit is full. Active and upcoming matches together cannot exceed total courts + 3.");
   else if(genderMode==="girls"||genderMode==="boys"||genderMode==="girls-vs-boys")alert("Not enough available players with the required gender settings for this match format. Check each player's gender in the Players tab.");
   else alert("Not enough available, unassigned players for the selected skill format. Fixed partners must be available together.");

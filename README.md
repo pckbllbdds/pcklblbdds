@@ -174,3 +174,12 @@ Public Find a Player search is available as its own top-level tab alongside the 
 ### Public interclub tournament bracket
 
 When Tournament Mode is enabled, visitors can open the Interclub Tournament tab without signing in. The public display shows each club-level knockout tie and every doubles game inside it: player names, scheduled details, LIVE NOW status and live score, completed scores, per-club game-win totals, the advancing club and the eventual champion. The public GET endpoint is read-only; organizers alone can register rosters, edit game details and record scores. Updates use the existing 10-second shared-state refresh, which pauses while an Organizer has a game editor open to avoid disrupting active edits.
+
+
+### Open Play partner rotation
+
+- In normal Open Play matchmaking, two non-fixed players cannot be teammates for more than two consecutive matches. The streak is measured across each player's successive match appearances: if either player appears in a different pairing, the streak is broken.
+- The generator evaluates alternate doubles-team splits for the selected group before rejecting that group, so it can preserve a valid four-player group while rotating partners.
+- Registered reciprocal fixed-partner duos ("luggages") are exempt and always remain together.
+- Tournament fixtures are excluded from this Open Play rotation rule; interclub registered duos are governed by the tournament roster rules.
+- The Pages state API independently validates newly generated or edited active/upcoming Open Play matchups, so the rule cannot be bypassed by submitting a handcrafted state. Existing historical matches are not retroactively changed.

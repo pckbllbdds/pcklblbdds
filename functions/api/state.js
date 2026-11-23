@@ -287,10 +287,10 @@ export async function onRequestPost({ request, env }) {
     }
   }
 
-  // Validate newly generated or edited matchups when they enter the queue or start.
+  // Validate newly generated or edited matchups when they enter the queue, start, or are directly submitted as completed.
   for (const match of state.matches) {
     const previous = previousMatches.get(String(match.id));
-    if (!match || !["upcoming", "playing"].includes(match.status)) continue;
+    if (!match || !["upcoming", "playing", "done"].includes(match.status)) continue;
     const matchupChanged = !previous || previous.status !== match.status ||
       JSON.stringify(previous.teamA || []) !== JSON.stringify(match.teamA || []) ||
       JSON.stringify(previous.teamB || []) !== JSON.stringify(match.teamB || []) ||
@@ -300,6 +300,38 @@ export async function onRequestPost({ request, env }) {
     const teamA = Array.isArray(match.teamA) ? match.teamA : [];
     const teamB = Array.isArray(match.teamB) ? match.teamB : [];
     const ids = [...teamA, ...teamB];
+
+    // Prevent non-fixed teammates from being paired together for a third
+    // consecutive match. A player's sequence is evaluated across matches
+    // involving either member of the pair; fixed partner "luggages" are exempt.
+    const orderedMatches = state.matches.map((entry, index) => ({ match: entry, index }))
+      .sort((a, b) => (Number(a.match?.createdAt) || 0) - (Number(b.match?.createdAt) || 0) || a.index - b.index);
+    const currentMatchPosition = orderedMatches.findIndex((entry) => entry.match === match);
+    if (match.tournament !== true) {
+      for (const team of [teamA, teamB]) {
+        if (team.length !== 2) continue;
+        const first = playerById.get(String(team[0]));
+        const second = playerById.get(String(team[1]));
+        if (!first || !second) continue;
+        const isFixedLuggage = String(first.partnerId || "") === String(second.id) && String(second.partnerId || "") === String(first.id);
+        if (isFixedLuggage) continue;
+        let consecutiveTogether = 0;
+        for (let i = currentMatchPosition - 1; i >= 0; i--) {
+          const prior = orderedMatches[i].match;
+          if (!prior || prior.tournament === true || !["upcoming", "playing", "done"].includes(prior.status)) continue;
+          const priorA = (prior.teamA || []).map(String), priorB = (prior.teamB || []).map(String);
+          if (!priorA.includes(String(first.id)) && !priorB.includes(String(first.id)) &&
+              !priorA.includes(String(second.id)) && !priorB.includes(String(second.id))) continue;
+          const together = (priorA.includes(String(first.id)) && priorA.includes(String(second.id))) ||
+            (priorB.includes(String(first.id)) && priorB.includes(String(second.id)));
+          if (!together) break;
+          consecutiveTogether++;
+        }
+        if (consecutiveTogether >= 2) {
+          return json({ error: "A non-fixed pair cannot be teammates for more than two consecutive matches. Registered fixed partner luggages are exempt." }, 400);
+        }
+      }
+    }
     if (ids.length > 4 || new Set(ids.map(String)).size !== ids.length || ids.some((id) => !playerById.has(String(id)))) {
       return json({ error: "A doubles match may contain up to four different registered players." }, 400);
     }
