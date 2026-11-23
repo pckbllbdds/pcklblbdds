@@ -10,7 +10,7 @@ This is the GitHub-ready Cloudflare Pages version of the Match Center. It follow
 - The Organizer and Players tabs require one shared organizer password. After a successful sign-in, this browser receives a secure, HttpOnly device session cookie that survives page refreshes for up to one year. Other devices must sign in separately; the Logout button clears the current browser's session.
 - Writes include a revision number. If another organizer saves first, the later save is rejected and the browser loads the latest shared state instead of silently overwriting it.
 - The existing match generation, player management, leaderboard, court status and match scoring logic is retained.
-- Interclub Tournament Mode provides a public, read-only tournament tab and an Organizer-only editor. It uses a standard seeded single-elimination bracket for 2–16 clubs, with registration order as seed order, automatic opening-round byes, match details, live scores, winner advancement and champion display.
+- Interclub Tournament Mode provides a public, read-only club bracket and an Organizer-only setup/editor. Each club-vs-club bracket tie contains multiple generated doubles games based on the registered players for both clubs; each eligible duo matchup becomes a game. Club tie winners are decided by game wins and advance through a standard seeded 2–16-club single-elimination bracket.
 - Tournament fixture editing is stable while open: fixture fields are staged and saved explicitly, the 10-second background refresh pauses while a match editor is open, and score/result saves update only the tournament view while preserving the open editor and bracket scroll position.
 - The header now shows only the Organizer action; the redundant Player view button has been removed because the public match board is the default landing view.
 - A minimal “Join us on Facebook” text link appears in the public sidebar and opens the club Facebook page.
@@ -153,26 +153,24 @@ Public Find a Player search is available as its own top-level tab alongside the 
 
 - Organizer player registration supports Female, Male or Not set, plus an optional fixed partner selection. Existing players can be assigned or unpaired in the Players directory. Pair links are stored reciprocally in the shared D1 state JSON.
 - Match generation keeps fixed partners on the same doubles team. Players with an unavailable or busy fixed partner are held out of new match generation until both partners are available. Manual substitutions/removals cannot split a fixed duo.
-- The Organizer can select Open, Girls only, Boys only, or Girls vs Boys. Girls vs Boys means one all-female doubles team against one all-male doubles team. Gender-specific formats require each participating player to have a matching gender value.
-- Tournament Mode is an Organizer toggle that opens a dedicated public Interclub Tournament tab. It manages club-vs-club single-elimination brackets independently of everyday Open Play matchmaking.
-- The browser and Pages state API check duo integrity, skill compatibility and gender matchup rules for Open Play. Interclub fixture results are validated separately by the Pages state API. No D1 schema migration is required because the settings and bracket are stored in the existing JSON state row.
-
-
-- Organizer mode supports registered fixed doubles partners, player gender identifiers, and gender-specific Open Play matchmaking. Interclub brackets are stored separately in the same app-state JSON row; no D1 schema migration is required.
-
+- The Organizer can select Open, Girls only, Boys only, or Girls vs Boys for normal Open Play. Girls vs Boys means one all-female doubles team against one all-male doubles team.
+- Tournament Mode opens a dedicated public Interclub Tournament tab. It is separate from everyday Open Play matchmaking and has its own club rosters, gender format, game generation, scoring and knockout bracket.
+- Home-club players are imported from the existing Players directory; all registered players are selected automatically by default, regardless of whether they are marked available for everyday Open Play. Organizers may deselect players who are not entering the event. Organizers register the opposing club names and their players, with skill bracket, gender and optional fixed partner. Unpaired players are automatically paired within their own club, subject to the Beginner skill restriction and selected gender format.
+- For each club-vs-club tie, the app creates one doubles game for every compatible matchup of two players from Club A against two players from Club B. Each player is used once in the regular games for that tie; existing fixed duos stay together. If a club has more eligible duos than its opponent, the smaller roster determines the game count and the remaining duo sits out that tie.
+- The club with more completed game wins advances. If the regular games finish level, a deciding doubles game is added using the first game's duos. The club-level draw uses standard seeded single-elimination positions for 2–16 clubs, including automatic first-round byes.
+- The browser and Pages state API validate roster membership, fixed duos, skill compatibility, gender formats, individual game scores, club-tie totals and bracket progression. No D1 schema migration is required because roster and tournament data are stored in the existing JSON state row.
 
 ## Interclub Tournament tab
 
-- Enabling Tournament Mode opens a dedicated public Interclub Tournament tab.
-- Organizers can configure the tournament name and register 2–16 participating clubs, including Pickleball Buddies Qatar.
-- Build a single-elimination bracket with automatic first-round byes for non-power-of-two club counts.
-- Each club fixture supports fixture type, scheduled date/time, court, venue, notes, status, and score entry.
-- Recording a valid result automatically advances the winning club to the next round. Completed tournament scores follow the same limits as club matches: 11 points maximum per side, 21 combined maximum, and no ties.
-- The bracket is visible to visitors; fixture editing and result entry require Organizer access.
-- Interclub Tournament Mode is separate from normal Open Play match generation. Disabling the mode hides the tab but preserves the saved bracket.
-- Tournament bracket data is stored in the existing `app_state.state_json` record; no D1 schema migration is required.
-
+- Enabling Tournament Mode opens a dedicated public Interclub Tournament tab. Visitors can see the full bracket, all generated individual doubles games, live scores, completed game results, club-tie game tallies and clubs advancing. Only the Organizer can edit the event.
+- Organizers can configure the tournament name, select the home-club roster from registered PBB players, and register 2–16 participating clubs including Pickleball Buddies Qatar.
+- Each opponent club has its own roster. Register at least two eligible players per club; assign fixed partners where needed or allow automatic pairing. Each compatible duo on one club plays one doubles game against a compatible duo from the other club: four eligible players per club generate two games; eight generate four. If rosters differ in size, the smaller number of eligible duos determines the game count and extra duos sit out that tie.
+- The first round's club ties and all their doubles games are generated immediately when the Organizer selects **Generate bracket & all doubles games**. Later-round games are generated as soon as both clubs advance into that tie.
+- Every individual doubles game has its own schedule, court, venue, notes, status, live score and final score. The score limit is 11 points maximum per side and 21 combined, with no tied final result.
+- The club with more game wins advances. When regular games finish level, a deciding game is created automatically. The bracket winner is displayed as tournament champion.
+- Tournament editing pauses the 10-second background refresh while a game editor is open. Saves preserve the current game editor and bracket scroll position; scoring updates refresh only the Tournament view rather than rebuilding the entire app.
+- Disabling Tournament Mode hides the tab but preserves its saved roster and bracket. Tournament data is stored in the existing `app_state.state_json` record; no D1 schema migration is required.
 
 ### Public interclub tournament bracket
 
-When Tournament Mode is enabled, the Interclub Tournament tab is visible to all visitors. The public bracket displays scheduled and in-progress fixtures, saved live scores, completed results, winners advancing, and the champion. Organizer-only controls manage fixtures and results. Visitors read the shared state through the public GET endpoint; updates appear through the existing 10-second refresh cycle. During a live fixture, the organizer can save a live score without completing the match; recording the final non-tied score advances the winner.
+When Tournament Mode is enabled, visitors can open the Interclub Tournament tab without signing in. The public display shows each club-level knockout tie and every doubles game inside it: player names, scheduled details, LIVE NOW status and live score, completed scores, per-club game-win totals, the advancing club and the eventual champion. The public GET endpoint is read-only; organizers alone can register rosters, edit game details and record scores. Updates use the existing 10-second shared-state refresh, which pauses while an Organizer has a game editor open to avoid disrupting active edits.

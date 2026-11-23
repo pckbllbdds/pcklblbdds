@@ -248,7 +248,9 @@ button.primary{background:#198754;color:#fff}button.primary:hover{background:#14
 .tournament-stats{display:flex;gap:9px;flex-wrap:wrap}.tournament-stat{background:#ffffff18;border:1px solid #ffffff2b;border-radius:10px;padding:9px 12px;min-width:82px}.tournament-stat b{display:block;font-size:19px}.tournament-stat span{font-size:10px;color:#d8e3ef}
 .tournament-setup{display:grid;grid-template-columns:1.05fr .95fr;gap:14px;margin-bottom:14px}.tournament-club-list{display:grid;gap:7px;margin:10px 0}.tournament-club-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#f7f8fa;border:1px solid var(--line);border-radius:9px;padding:9px 11px}.tournament-club-row.home{background:#eef4fb;border-color:#d3e1f0}.tournament-club-name{font-weight:750}.home-tag{font-size:9px;letter-spacing:.07em;font-weight:850;color:#1c4d79;background:#dceaf8;padding:3px 6px;border-radius:20px;margin-left:6px}
 .tournament-bracket-scroll{overflow-x:auto;padding:8px 2px 16px;-webkit-overflow-scrolling:touch}.tournament-bracket{display:flex;align-items:stretch;gap:15px;min-width:max-content}.bracket-round{width:245px;display:flex;flex-direction:column;justify-content:space-around;gap:12px}.bracket-round-title{font-size:12px;letter-spacing:.06em;text-transform:uppercase;font-weight:850;color:var(--muted);margin:0 0 2px 3px}.bracket-match{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px;box-shadow:0 2px 8px #14243a0b}.bracket-match.match-waiting{background:#f7f8fa}.bracket-match.match-complete{border-color:#c7dfd0}.bracket-match.match-live{border-color:#7ca9d7;box-shadow:0 0 0 2px #e8f2fc,0 3px 12px #1c4d7914}.bracket-match.match-bye{background:#f3f6f8}.bracket-match-top{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px;font-size:10px;color:var(--muted);font-weight:800}.bracket-state-chip{display:inline-flex;align-items:center;border-radius:30px;padding:4px 7px;font-size:9px;letter-spacing:.04em;font-weight:900;background:#eef1f5;color:#5c6675}.bracket-state-chip.live{background:#e4f0fc;color:#16558d}.bracket-state-chip.complete{background:#e6f3eb;color:#176044}.bracket-state-chip.scheduled{background:#edf3fa;color:#375c84}.bracket-advances{display:inline-block;margin-left:6px;padding:2px 5px;border-radius:5px;background:#d8efe0;color:#176044;font-size:8px;font-weight:900;letter-spacing:.03em;vertical-align:middle}.bracket-live-score-note{font-size:10px;font-weight:850;color:#16558d;margin:7px 0 0}.bracket-match.match-live .bracket-team{background:#eff6fd}.bracket-team{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;background:#f5f7fa;margin-top:5px;font-size:12px}.bracket-team.winner{background:#eaf5ee;color:#176044;font-weight:850}.bracket-team.loser{color:#768293}.bracket-team-name{min-width:0;overflow-wrap:anywhere}.bracket-score{font-weight:900;font-size:14px;font-variant-numeric:tabular-nums}.bracket-vs{font-size:9px;color:#9aa4b2;margin:4px 0 0 8px;font-weight:800}.bracket-meta{border-top:1px solid var(--line);padding-top:8px;margin-top:8px;display:grid;gap:4px}.bracket-meta-line{font-size:11px;color:var(--muted)}.bracket-edit{margin-top:9px;border-top:1px dashed var(--line);padding-top:9px}.bracket-edit summary{cursor:pointer;color:#1c4d79;font-weight:800;font-size:11px}.bracket-edit[open]{background:#f8fbff;border-radius:9px;padding:10px;border:1px solid #d7e4f2}.bracket-edit[open] summary{margin-bottom:7px}.save-match-details{background:#edf3fa;color:#244d75;border:1px solid #cbd9e8}.bracket-edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}.bracket-edit-grid label{font-size:10px;margin:0}.bracket-edit-grid input,.bracket-edit-grid select{font-size:12px;padding:7px}.bracket-edit-grid .wide{grid-column:1/-1}.bracket-result-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.bracket-result-actions button{font-size:11px;padding:8px 10px}.tournament-winner-banner{background:#eaf5ee;border:1px solid #c7dfd0;color:#176044;border-radius:12px;padding:14px;margin-bottom:12px;font-weight:800}
-@media(max-width:700px){.tournament-setup{grid-template-columns:1fr}.bracket-round{width:222px}.tournament-hero{padding:16px}.bracket-edit-grid{grid-template-columns:1fr 1fr}}
+
+.tournament-roster-form{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}.tournament-roster-form label{margin:0;font-size:12px}.tournament-roster-form label.wide{grid-column:1/-1}.tournament-home-select{max-height:230px;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:7px;display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:8px 0 14px}.tournament-home-select label{display:flex;align-items:center;gap:7px;padding:6px;border-radius:7px;font-size:12px;margin:0}.tournament-home-select label:hover{background:#f4f7fb}.tournament-home-select input{width:auto;flex:0 0 auto}.tournament-home-select small,.tournament-roster-player small{display:block;color:var(--muted);font-size:10px}.tournament-roster-club{border:1px solid var(--line);border-radius:10px;padding:9px;margin:8px 0;background:#fafbfd}.tournament-roster-club> b{display:block}.tournament-roster-player{display:grid;grid-template-columns:minmax(0,1fr) minmax(110px,150px) auto;gap:7px;align-items:center;padding:6px 0;border-top:1px solid var(--line);font-size:12px}.tournament-roster-player select{font-size:11px;padding:6px;min-width:0}.tournament-roster-player button{padding:5px 8px}.tournament-subgames{display:grid;gap:8px;margin-top:10px;padding-top:9px;border-top:1px dashed #cdd5df}.tournament-subgame{border:1px solid #dbe2eb;background:#fbfcfe;border-radius:9px;padding:9px}.tournament-subgame.live{border-color:#83acd3;background:#f0f6fc}.tournament-subgame.complete{background:#f1f5f1;border-color:#d2ddd2}.subgame-top{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:11px;color:var(--muted);margin-bottom:6px}.subgame-teams{display:grid;gap:5px}.subgame-team{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#f0f3f7;border-radius:7px;padding:7px 8px;font-size:11px}.subgame-team span{min-width:0;overflow-wrap:anywhere}.subgame-team small{display:block;color:var(--muted);font-size:9px;margin-top:2px}.subgame-team b{font-size:15px;font-variant-numeric:tabular-nums}.subgame-team.winner{background:#e4f1e8;color:#176044;font-weight:800}.tie-summary{margin-top:7px;font-weight:750;color:var(--muted)}
+@media(max-width:700px){.tournament-setup{grid-template-columns:1fr}.bracket-round{width:222px}.tournament-hero{padding:16px}.bracket-edit-grid{grid-template-columns:1fr 1fr}.tournament-roster-form{grid-template-columns:1fr}.tournament-roster-form label.wide{grid-column:auto}.tournament-home-select{grid-template-columns:1fr}.tournament-roster-player{grid-template-columns:minmax(0,1fr) minmax(95px,120px) auto}}
 
 </style>
 </head>
@@ -341,7 +343,7 @@ button.primary{background:#198754;color:#fff}button.primary:hover{background:#14
 <label for="matchGenderMode">Gender matchup</label><select id="matchGenderMode" onchange="changeMatchGenderMode(this.value)"><option value="open">Open · any gender combination</option><option value="girls">Girls only</option><option value="boys">Boys only</option><option value="girls-vs-boys">Girls vs Boys · one team each</option></select>
 <div class="small">Girls vs Boys creates one all-female team against one all-male team. Fixed partners must be the same gender for this format, and every player needs a gender set in the Players tab.</div>
 <label style="display:flex;align-items:center;gap:9px;margin-top:12px"><input id="tournamentMode" type="checkbox" style="width:auto" onchange="changeTournamentMode(this.checked)"> <span><b>Tournament Mode</b></span></label>
-<div class="small">Opens a shared Tournament tab for club-versus-club events. Build a single-elimination bracket, add opponent clubs, enter fixture details and scores, and advance winners. This is separate from normal Open Play matchmaking.</div>
+<div class="small">Opens a public Interclub Tournament tab. Register the players for each club, then generate a seeded knockout bracket containing a doubles game for every compatible duo matchup. Club ties are decided by game wins; winning clubs advance. This is separate from normal Open Play matchmaking.</div>
 <hr><label>Attendance</label><div class="small">Mark players present/available in the Players tab. Only available players are selected.</div>
 <div class="actions"><button class="primary" onclick="generateMatches()">Generate upcoming matches</button><button onclick="clearUpcoming()">Clear upcoming</button></div>
 
@@ -371,7 +373,7 @@ button.primary{background:#198754;color:#fff}button.primary:hover{background:#14
 </main><footer class="club-footer">PICKLEBALL BUDDIES QATAR · PLAY TOGETHER. GET BETTER. BUILD FRIENDSHIPS.</footer>
 <script>
 const BRACKETS=["Beginner","Advance beginner","Novice","Lower intermediate","Intermediate","High intermediate","Advance"];
-function newInterclubTournament(){return {name:"Interclub Tournament",clubs:[{id:"club-home",name:"Pickleball Buddies Qatar",isHome:true}],rounds:[],createdAt:null,championClubId:null};}
+function newInterclubTournament(){return {formatVersion:2,homeRosterInitialized:false,homeRosterAutoEnroll:true,name:"Interclub Tournament",genderMode:"open",clubs:[{id:"club-home",name:"Pickleball Buddies Qatar",isHome:true}],roster:[],rounds:[],createdAt:null,championClubId:null};}
 function freshState(){return {players:[],matches:[],seq:1,session:"Club Open Play",courtCount:2,matchGenderMode:"open",tournamentMode:false,interclubTournament:null};}
 let state=freshState();
 let serverRevision=0;
@@ -803,205 +805,253 @@ function renderPlayers(){
 }
 function tournamentClub(id){return state.interclubTournament?.clubs?.find(c=>String(c.id)===String(id))||null}
 function tournamentRoundName(matchCount){return matchCount===1?"Final":matchCount===2?"Semi-finals":matchCount===4?"Quarter-finals":`Round of ${matchCount*2}`}
-function ensureTournament(){if(!state.interclubTournament)state.interclubTournament=newInterclubTournament();return state.interclubTournament}
+function ensureTournament(){
+ if(!state.interclubTournament)state.interclubTournament=newInterclubTournament();
+ const t=state.interclubTournament;
+ if(!Array.isArray(t.roster))t.roster=[];
+ if(!t.formatVersion){
+  // Preserve the old single-score bracket for reference, but create the new
+  // roster-based multi-game bracket separately.
+  if(Array.isArray(t.rounds)&&t.rounds.length)t.archivedSingleGameBracket=t.rounds;
+  t.rounds=[];t.championClubId=null;t.formatVersion=2;t.homeRosterInitialized=false;t.homeRosterAutoEnroll=true;
+ }
+ if(!t.genderMode)t.genderMode="open";
+ return t;
+}
+function tournamentRosterPlayer(id){return ensureTournament().roster.find(p=>String(p.id)===String(id))||null}
+function syncTournamentHomeRoster(){
+ const t=ensureTournament(),home=t.clubs.find(c=>c.isHome)||t.clubs[0];if(!home||t.rounds.length)return false;
+ let changed=false;
+ if(t.homeRosterInitialized!==true){t.homeRosterInitialized=true;t.homeRosterAutoEnroll=true;changed=true;}
+ if(t.homeRosterAutoEnroll!==false){
+  const registered=state.players;
+  const idMap=new Map(registered.map(p=>[String(p.id),"trp-home-"+String(p.id)]));
+  registered.forEach(p=>{
+   if(!t.roster.some(x=>x.sourcePlayerId===p.id)){
+    t.roster.push({id:idMap.get(String(p.id)),sourcePlayerId:p.id,clubId:home.id,name:p.name,bracket:p.bracket,gender:p.gender||"unspecified",partnerId:null,available:true});changed=true;
+   }
+  });
+  t.roster.filter(p=>p.clubId===home.id&&p.sourcePlayerId).forEach(p=>{
+   const source=player(p.sourcePlayerId),partner=source?.partnerId?idMap.get(String(source.partnerId)):null;
+   if(partner&&t.roster.some(x=>x.id===partner)&&p.partnerId!==partner){p.partnerId=partner;changed=true;}
+  });
+ }
+ t.roster.filter(p=>p.clubId===home.id&&p.sourcePlayerId).forEach(entry=>{
+  const source=player(entry.sourcePlayerId);
+  if(source){const next={name:source.name,bracket:source.bracket,gender:source.gender||"unspecified",available:true};for(const [key,value] of Object.entries(next)){if(entry[key]!==value){entry[key]=value;changed=true;}}}
+  else if(entry.available!==false){entry.available=false;changed=true;}
+ });
+ return changed;
+}
 function setTournamentName(value){const t=ensureTournament();t.name=String(value||"").trim().slice(0,80)||"Interclub Tournament";void save({render:false});document.querySelectorAll("[data-tournament-title],[data-bracket-title]").forEach(el=>el.textContent=t.name+(el.hasAttribute("data-bracket-title")?" · Bracket":""));}
 function setHomeClubName(value){const t=ensureTournament(),home=t.clubs.find(c=>c.isHome)||t.clubs[0];if(!home)return;home.name=String(value||"").trim().slice(0,60)||"Pickleball Buddies Qatar";void save({render:false});const row=document.querySelector(`[data-tournament-club="${CSS.escape(String(home.id))}"] .tournament-club-name`);if(row)row.textContent=home.name;}
 function addTournamentClub(){
  const t=ensureTournament(),input=document.getElementById("newTournamentClub"),name=(input?.value||"").trim();
  if(!name)return alert("Enter the name of the opponent club.");
- if(t.rounds?.length)return alert("The bracket has already been built. Reset the bracket before changing participating clubs.");
+ if(t.rounds?.length)return alert("Reset the bracket before changing participating clubs.");
  if(t.clubs.length>=16)return alert("A maximum of 16 clubs can enter this bracket.");
  if(t.clubs.some(c=>c.name.toLowerCase()===name.toLowerCase()))return alert("That club is already in the tournament.");
- t.clubs.push({id:"club-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,6),name,isHome:false});
- input.value="";save();
+ const id="club-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,6);
+ t.clubs.push({id,name,isHome:false});input.value="";save();
 }
-function removeTournamentClub(id){const t=ensureTournament();if(t.rounds?.length)return alert("Reset the bracket before changing participating clubs.");const club=tournamentClub(id);if(!club||club.isHome)return; if(!confirm(`Remove ${club.name} from the tournament?`))return;t.clubs=t.clubs.filter(c=>c.id!==id);save()}
-function tournamentSeedOrder(size){
- let order=[1,2];
- while(order.length<size){
-  const nextSize=order.length*2;
-  order=order.flatMap(seed=>[seed,nextSize+1-seed]);
+function removeTournamentClub(id){const t=ensureTournament();if(t.rounds?.length)return alert("Reset the bracket before changing participating clubs.");const club=tournamentClub(id);if(!club||club.isHome)return;if(!confirm(`Remove ${club.name} and its tournament roster?`))return;t.roster=t.roster.filter(p=>p.clubId!==id);t.clubs=t.clubs.filter(c=>c.id!==id);save();}
+function toggleTournamentHomePlayer(sourceId,checked){
+ const t=ensureTournament(),home=t.clubs.find(c=>c.isHome)||t.clubs[0];if(!home||t.rounds.length)return;
+ const addSource=id=>{const source=player(id);if(!source)return;let entry=t.roster.find(p=>p.clubId===home.id&&p.sourcePlayerId===id);if(!entry){entry={id:"trp-home-"+String(id),sourcePlayerId:id,clubId:home.id,name:source.name,bracket:source.bracket,gender:source.gender||"unspecified",partnerId:null,available:true};t.roster.push(entry);}return entry;};
+ if(checked){
+  const entry=addSource(sourceId),source=player(sourceId),partnerSource=source?.partnerId?player(source.partnerId):null;
+  if(partnerSource){const partnerEntry=addSource(partnerSource.id);if(entry&&partnerEntry){entry.partnerId=partnerEntry.id;partnerEntry.partnerId=entry.id;}}
+ }else{
+  const entry=t.roster.find(p=>p.clubId===home.id&&p.sourcePlayerId===sourceId);
+  const partnerId=entry?.partnerId;if(partnerId)t.roster=t.roster.filter(p=>p.id!==partnerId);
+  t.roster=t.roster.filter(p=>!(p.clubId===home.id&&p.sourcePlayerId===sourceId));
+  t.roster.forEach(p=>{if(p.partnerId===entry?.id||p.partnerId===partnerId)p.partnerId=null;});
  }
- return order;
+ t.homeRosterInitialized=true;t.homeRosterAutoEnroll=false;save();
+}
+function refreshTournamentRosterPartnerChoices(clubId){
+ const el=document.getElementById("tournamentRosterPartner");if(!el)return;
+ const t=ensureTournament(),keep=el.value;
+ el.innerHTML='<option value="">No fixed partner · pair automatically</option>'+t.roster.filter(p=>p.clubId===clubId&&!p.partnerId&&!p.sourcePlayerId).map(p=>`<option value="${esc(p.id)}">${esc(p.name)} · ${esc(p.bracket)}</option>`).join("");
+ if([...el.options].some(o=>o.value===keep))el.value=keep;
+}
+function addTournamentRosterPlayer(){
+ const t=ensureTournament();if(t.rounds.length)return alert("Reset the bracket before changing tournament rosters.");
+ const clubId=document.getElementById("tournamentRosterClub")?.value,name=(document.getElementById("tournamentRosterName")?.value||"").trim(),bracket=document.getElementById("tournamentRosterBracket")?.value,gender=document.getElementById("tournamentRosterGender")?.value||"unspecified",partnerId=document.getElementById("tournamentRosterPartner")?.value||null;
+ if(!tournamentClub(clubId))return alert("Choose a club first.");if(!name)return alert("Enter the player's name.");if(!BRACKETS.includes(bracket))return alert("Choose a valid skill bracket.");
+ if(t.roster.some(p=>p.clubId===clubId&&p.name.toLowerCase()===name.toLowerCase()))return alert("That player is already registered for this club.");
+ const partner=partnerId?tournamentRosterPlayer(partnerId):null;if(partner&&(partner.clubId!==clubId||partner.partnerId))return alert("Choose an unpaired player from the same club.");
+ if(partner&&!skillCompatibleGroup([{bracket},{bracket:partner.bracket}]))return alert("Beginner players cannot be paired with Lower Intermediate or higher.");
+ const entry={id:"trp-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,6),clubId,name,bracket,gender,partnerId:partner?.id||null,available:true};t.roster.push(entry);if(partner)partner.partnerId=entry.id;save();
+}
+function changeTournamentRosterPartner(id,partnerId){
+ const t=ensureTournament();if(t.rounds.length)return alert("Reset the bracket before changing tournament duos.");const p=tournamentRosterPlayer(id);if(!p)return;
+ const next=partnerId?tournamentRosterPlayer(partnerId):null;
+ if(next&&(next.id===p.id||next.clubId!==p.clubId||next.partnerId))return alert("Choose an unpaired player from the same club.");
+ if(next&&!skillCompatibleGroup([{bracket:p.bracket},{bracket:next.bracket}]))return alert("Beginner players cannot be paired with Lower Intermediate or higher.");
+ const previous=p.partnerId?tournamentRosterPlayer(p.partnerId):null;if(previous)previous.partnerId=null;p.partnerId=null;
+ if(next){const old=next.partnerId?tournamentRosterPlayer(next.partnerId):null;if(old)old.partnerId=null;next.partnerId=p.id;p.partnerId=next.id;}
+ save();
+}
+function removeTournamentRosterPlayer(id){const t=ensureTournament();if(t.rounds.length)return alert("Reset the bracket before changing tournament rosters.");const p=tournamentRosterPlayer(id);if(!p)return;if(p.partnerId){const partner=tournamentRosterPlayer(p.partnerId);if(partner)partner.partnerId=null;}t.roster=t.roster.filter(x=>x.id!==id);save();}
+function changeTournamentGenderMode(value){const t=ensureTournament();if(!["open","girls","boys","girls-vs-boys"].includes(value))return;t.genderMode=value;save();}
+function tournamentSeedOrder(size){let order=[1,2];while(order.length<size){const nextSize=order.length*2;order=order.flatMap(seed=>[seed,nextSize+1-seed]);}return order;}
+function tournamentDuoModeAllowed(pair,mode){
+ if(pair.length!==2||pair.some(p=>!p))return false;
+ if(!skillCompatibleGroup(pair))return false;
+ if(mode==="girls")return pair.every(p=>p.gender==="female");
+ if(mode==="boys")return pair.every(p=>p.gender==="male");
+ if(mode==="girls-vs-boys")return pair.every(p=>p.gender==="female")||pair.every(p=>p.gender==="male");
+ return true;
+}
+function tournamentDuosForClub(clubId,mode){
+ const members=ensureTournament().roster.filter(p=>p.clubId===clubId&&p.available!==false),byId=new Map(members.map(p=>[p.id,p])),used=new Set(),duos=[];
+ members.filter(p=>p.partnerId&&byId.has(p.partnerId)).forEach(p=>{
+  if(used.has(p.id)||used.has(p.partnerId))return;const q=byId.get(p.partnerId);if(q.partnerId!==p.id)return;used.add(p.id);used.add(q.id);const pair=[p,q];if(tournamentDuoModeAllowed(pair,mode))duos.push(pair);
+ });
+ let singles=members.filter(p=>!used.has(p.id)&&!p.partnerId).sort((a,b)=>BRACKETS.indexOf(a.bracket)-BRACKETS.indexOf(b.bracket)||a.name.localeCompare(b.name));
+ while(singles.length>=2){
+  const p=singles.shift();let options=singles.map((q,index)=>({q,index,distance:Math.abs(BRACKETS.indexOf(p.bracket)-BRACKETS.indexOf(q.bracket))})).filter(x=>tournamentDuoModeAllowed([p,x.q],mode)).sort((a,b)=>a.distance-b.distance||a.q.name.localeCompare(b.q.name));
+  if(!options.length)continue;const chosen=options[0];singles.splice(chosen.index,1);duos.push([p,chosen.q]);
+ }
+ return duos;
+}
+function tournamentGameGenderAllowed(duoA,duoB,mode){
+ const all=duoA.concat(duoB);
+ if(mode==="girls")return all.every(p=>p.gender==="female");
+ if(mode==="boys")return all.every(p=>p.gender==="male");
+ if(mode==="girls-vs-boys")return (duoA.every(p=>p.gender==="female")&&duoB.every(p=>p.gender==="male"))||(duoA.every(p=>p.gender==="male")&&duoB.every(p=>p.gender==="female"));
+ return true;
+}
+function tournamentGamesForClubs(clubAId,clubBId,tieId,mode=ensureTournament().genderMode||"open"){
+ const duosA=tournamentDuosForClub(clubAId,mode),duosB=tournamentDuosForClub(clubBId,mode),edges=new Map();
+ duosA.forEach((a,i)=>{
+  const opts=duosB.map((b,j)=>({b,j,distance:Math.abs(BRACKETS.indexOf(a[0].bracket)-BRACKETS.indexOf(b[0].bracket))+Math.abs(BRACKETS.indexOf(a[1].bracket)-BRACKETS.indexOf(b[1].bracket))})).filter(x=>skillCompatibleGroup(a.concat(x.b))&&tournamentGameGenderAllowed(a,x.b,mode)).sort((x,y)=>x.distance-y.distance);
+  edges.set(i,opts);
+ });
+ const assignedB=new Map();function assign(i,visited){for(const option of edges.get(i)||[]){if(visited.has(option.j))continue;visited.add(option.j);if(!assignedB.has(option.j)||assign(assignedB.get(option.j).i,visited)){assignedB.set(option.j,{i,option});return true;}}return false;}
+ duosA.forEach((_,i)=>assign(i,new Set()));
+ const pairs=[...assignedB.values()].sort((x,y)=>x.i-y.i),now=Date.now();
+ return pairs.map((entry,index)=>{const a=duosA[entry.i],b=entry.option.b;return {id:`${tieId}-g${index+1}`,gameNumber:index+1,teamA:a.map(p=>p.id),teamB:b.map(p=>p.id),bracket:[...new Set(a.concat(b).map(p=>p.bracket))].sort((x,y)=>BRACKETS.indexOf(x)-BRACKETS.indexOf(y)).join(" + "),genderMode:mode,status:"scheduled",scoreA:null,scoreB:null,scheduledAt:"",court:"",venue:"",fixtureType:"Doubles",notes:"",createdAt:now};});
+}
+function tournamentPlayerName(id){return tournamentRosterPlayer(id)?.name||"Player";}
+function tournamentFindTie(tieId){return ensureTournament().rounds.flat().find(m=>m.id===tieId)||null;}
+function tournamentFindGame(tieId,gameId){const tie=tournamentFindTie(tieId);return tie?.games?.find(g=>g.id===gameId)||null;}
+function tournamentGameWins(tie){let a=0,b=0;(tie.games||[]).filter(g=>g.status==="complete"&&!g.isTiebreaker).forEach(g=>{if(g.scoreA>g.scoreB)a++;else if(g.scoreB>g.scoreA)b++;});return {a,b};}
+function updateTournamentTieResult(tie){
+ const regular=(tie.games||[]).filter(g=>!g.isTiebreaker);let tieBreak=(tie.games||[]).find(g=>g.isTiebreaker);
+ const wins=tournamentGameWins(tie);tie.gamesWonA=wins.a;tie.gamesWonB=wins.b;
+ const unfinished=regular.some(g=>g.status!=="complete");
+ if(unfinished){tie.status=regular.some(g=>g.status==="in-progress")?"in-progress":"scheduled";tie.winnerClubId=null;tie.scoreA=null;tie.scoreB=null;tie.games=tie.games.filter(g=>!g.isTiebreaker);return;}
+ if(wins.a===wins.b){
+  if(!tieBreak){const first=regular[0];if(!first){tie.status="waiting";return;}tie.games.push({...first,id:`${tie.id}-tb`,gameNumber:tie.games.length+1,isTiebreaker:true,status:"scheduled",scoreA:null,scoreB:null,winnerClubId:null,scheduledAt:"",court:"",venue:"",notes:"Deciding game",startedAt:null,completedAt:null,liveScoreUpdatedAt:null,createdAt:Date.now()});tieBreak=tie.games[tie.games.length-1];}
+  if(tieBreak.status==="complete") {tie.status="complete";tie.winnerClubId=tieBreak.scoreA>tieBreak.scoreB?tie.clubAId:tie.clubBId;}
+  else {tie.status=tieBreak.status==="in-progress"?"in-progress":"scheduled";tie.winnerClubId=null;}
+ }else{
+  if(tieBreak)tie.games=tie.games.filter(g=>!g.isTiebreaker);
+  tie.status="complete";tie.winnerClubId=wins.a>wins.b?tie.clubAId:tie.clubBId;
+ }
+ tie.gamesWonA=wins.a;tie.gamesWonB=wins.b;
+}
+function generateGamesForTie(tie){
+ if(!tie.clubAId||!tie.clubBId)return [];
+ const games=tournamentGamesForClubs(tie.clubAId,tie.clubBId,tie.id,ensureTournament().genderMode||"open");
+ if(games.length)tie.games=games;
+ return games;
 }
 function buildTournamentBracket(){
- const t=ensureTournament();
- if(t.rounds?.length&&!confirm("Replace the current bracket and clear all tournament results?"))return;
- const clubs=t.clubs.filter(c=>c.name.trim());
- if(clubs.length<2)return alert("Add at least one opponent club. A bracket needs at least two clubs.");
- if(clubs.length>16)return alert("A maximum of 16 clubs can enter this bracket.");
- // Registration order is the seed order (home club is seed 1 by default).
- // Standard 2/4/8/16 seed positions keep the highest seeds on opposite sides
- // and give the correct number of first-round byes for non-power-of-two fields.
- const size=2**Math.ceil(Math.log2(clubs.length));
- const seedOrder=tournamentSeedOrder(size);
- const slots=seedOrder.map(seed=>seed<=clubs.length?clubs[seed-1].id:null);
- const firstRoundCount=size/2;
+ const t=ensureTournament();syncTournamentHomeRoster();
+ if(t.rounds?.length&&!confirm("Replace the current bracket and clear all tournament fixtures and results?"))return;
+ const clubs=t.clubs.filter(c=>c.name.trim());if(clubs.length<2)return alert("Add at least one opponent club. A bracket needs at least two clubs.");if(clubs.length>16)return alert("A maximum of 16 clubs can enter this bracket.");
+ // Preflight every possible pairing: any two clubs may meet in a later knockout round.
+ for(let i=0;i<clubs.length;i++)for(let j=i+1;j<clubs.length;j++){
+  const test=tournamentGamesForClubs(clubs[i].id,clubs[j].id,"preview-"+i+"-"+j,t.genderMode||"open");
+  if(!test.length)return alert(`${clubs[i].name} vs ${clubs[j].name}: not enough registered players or compatible doubles pairs. Each club needs at least two eligible players, and the selected gender/skill format must allow a game.`);
+ }
+ const size=2**Math.ceil(Math.log2(clubs.length)),seedOrder=tournamentSeedOrder(size),slots=seedOrder.map(seed=>seed<=clubs.length?clubs[seed-1].id:null);
  let rounds=[],previous=[],seq=1;
  for(let roundIndex=0;roundIndex<Math.log2(size);roundIndex++){
   const matchCount=size/(2**(roundIndex+1)),round=[];
   for(let i=0;i<matchCount;i++){
-   const match={id:`tm-${Date.now().toString(36)}-${seq++}`,round:roundIndex+1,matchNumber:seq-1,
-    clubAId:roundIndex===0?slots[i*2]:null,clubBId:roundIndex===0?slots[i*2+1]:null,
-    sourceA:roundIndex===0?null:previous[i*2]?.id,sourceB:roundIndex===0?null:previous[i*2+1]?.id,
-    status:"waiting",winnerClubId:null,scoreA:null,scoreB:null,scheduledAt:"",court:"",venue:"",fixtureType:"Club tie",notes:""};
-   if(roundIndex===0&&match.clubAId&&!match.clubBId){match.status="bye";match.winnerClubId=match.clubAId;}
-   else if(roundIndex===0&&match.clubBId&&!match.clubAId){match.status="bye";match.winnerClubId=match.clubBId;}
-   else if(match.clubAId&&match.clubBId)match.status="scheduled";
-   round.push(match);
+   const tie={id:`tie-${Date.now().toString(36)}-${seq++}`,round:roundIndex+1,matchNumber:seq-1,clubAId:roundIndex===0?slots[i*2]:null,clubBId:roundIndex===0?slots[i*2+1]:null,sourceA:roundIndex===0?null:previous[i*2]?.id,sourceB:roundIndex===0?null:previous[i*2+1]?.id,status:"waiting",winnerClubId:null,games:[],gamesWonA:0,gamesWonB:0,scheduledAt:"",venue:"",notes:""};
+   if(roundIndex===0&&tie.clubAId&&!tie.clubBId){tie.status="bye";tie.winnerClubId=tie.clubAId;}
+   else if(roundIndex===0&&tie.clubBId&&!tie.clubAId){tie.status="bye";tie.winnerClubId=tie.clubBId;}
+   else if(tie.clubAId&&tie.clubBId){tie.status="scheduled";generateGamesForTie(tie);}
+   round.push(tie);
   }
   rounds.push(round);previous=round;
  }
- // The generated draw must include each entrant exactly once and never create a double-bye.
- const firstRoundEntrants=rounds[0].flatMap(m=>[m.clubAId,m.clubBId].filter(Boolean));
- if(firstRoundEntrants.length!==clubs.length||new Set(firstRoundEntrants).size!==clubs.length||rounds[0].some(m=>!m.clubAId&&!m.clubBId)){
-  return alert("The bracket draw could not be created safely. Please check the club list and try again.");
- }
- t.rounds=rounds;t.createdAt=Date.now();t.championClubId=null;
- syncTournamentBracket();save();
+ const entrants=rounds[0].flatMap(m=>[m.clubAId,m.clubBId].filter(Boolean));
+ if(entrants.length!==clubs.length||new Set(entrants).size!==clubs.length||rounds[0].some(m=>!m.clubAId&&!m.clubBId))return alert("The bracket draw could not be created safely. Please check the club list and try again.");
+ t.rounds=rounds;t.createdAt=Date.now();t.championClubId=null;syncTournamentBracket();save();
 }
 function syncTournamentBracket(){
  const t=state.interclubTournament;if(!t?.rounds?.length)return;
- for(let r=0;r<t.rounds.length;r++){
-  for(const m of t.rounds[r]){
-   let nextA=m.clubAId,nextB=m.clubBId;
-   if(r>0){const prev=t.rounds[r-1]||[],a=prev.find(x=>x.id===m.sourceA),b=prev.find(x=>x.id===m.sourceB);nextA=a?.winnerClubId||null;nextB=b?.winnerClubId||null;}
-   const sidesChanged=String(nextA||"")!==String(m.clubAId||"")||String(nextB||"")!==String(m.clubBId||"");
-   if(sidesChanged){m.clubAId=nextA;m.clubBId=nextB;m.scoreA=null;m.scoreB=null;m.winnerClubId=null;m.status="waiting";}
-   if(r===0&&m.clubAId&&!m.clubBId){m.status="bye";m.winnerClubId=m.clubAId;m.scoreA=null;m.scoreB=null;}
-   else if(r===0&&m.clubBId&&!m.clubAId){m.status="bye";m.winnerClubId=m.clubBId;m.scoreA=null;m.scoreB=null;}
-   else if(m.clubAId&&m.clubBId){if(m.status==="waiting"||m.status==="bye")m.status="scheduled";if(m.status==="complete"&&![m.clubAId,m.clubBId].includes(m.winnerClubId)){m.status="scheduled";m.winnerClubId=null;m.scoreA=null;m.scoreB=null;}}
-   else{m.status="waiting";m.winnerClubId=null;m.scoreA=null;m.scoreB=null;}
-  }
+ for(let r=0;r<t.rounds.length;r++)for(const tie of t.rounds[r]){
+  let nextA=tie.clubAId,nextB=tie.clubBId;
+  if(r>0){const prev=t.rounds[r-1]||[],a=prev.find(x=>x.id===tie.sourceA),b=prev.find(x=>x.id===tie.sourceB);nextA=a?.winnerClubId||null;nextB=b?.winnerClubId||null;}
+  const sidesChanged=String(nextA||"")!==String(tie.clubAId||"")||String(nextB||"")!==String(tie.clubBId||"");
+  if(sidesChanged){tie.clubAId=nextA;tie.clubBId=nextB;tie.games=[];tie.gamesWonA=0;tie.gamesWonB=0;tie.winnerClubId=null;tie.status="waiting";}
+  if(r===0&&tie.clubAId&&!tie.clubBId){tie.status="bye";tie.winnerClubId=tie.clubAId;tie.games=[];}
+  else if(r===0&&tie.clubBId&&!tie.clubAId){tie.status="bye";tie.winnerClubId=tie.clubBId;tie.games=[];}
+  else if(tie.clubAId&&tie.clubBId){if(!Array.isArray(tie.games)||!tie.games.length)generateGamesForTie(tie);if(tie.games.length)updateTournamentTieResult(tie);else{tie.status="waiting";tie.winnerClubId=null;}}
+  else{tie.status="waiting";tie.winnerClubId=null;tie.games=[];}
  }
  const final=t.rounds[t.rounds.length-1]?.[0];t.championClubId=final?.status==="complete"?final.winnerClubId:null;
 }
-function collectTournamentMatchDetails(id,m){
- const editor=document.querySelector(`[data-match-editor="${CSS.escape(String(id))}"]`);
- if(!editor)return;
- editor.querySelectorAll("[data-tournament-field]").forEach(el=>{
-  const field=el.dataset.tournamentField;
-  if(["scheduledAt","court","venue","fixtureType","notes"].includes(field))m[field]=String(el.value||"").slice(0,field==="notes"?500:100);
- });
+function collectTournamentGameDetails(tieId,gameId){
+ const editor=document.querySelector(`[data-match-editor="${CSS.escape(String(gameId))}"]`);if(!editor)return;const game=tournamentFindGame(tieId,gameId);if(!game)return;
+ editor.querySelectorAll("[data-tournament-field]").forEach(el=>{const field=el.dataset.tournamentField;if(["scheduledAt","court","venue","fixtureType","notes"].includes(field))game[field]=String(el.value||"").slice(0,field==="notes"?500:100);});
 }
-function markTournamentEditorDirty(editor){
- const button=editor?.querySelector(".save-match-details");
- if(button){button.disabled=false;button.textContent="Save match details";}
- const status=editor?.querySelector(".match-edit-save-status");
- if(status)status.textContent="Unsaved changes. Save when you are ready; automatic bracket refresh is paused while this editor is open.";
+function markTournamentEditorDirty(editor){const button=editor?.querySelector(".save-match-details");if(button){button.disabled=false;button.textContent="Save match details";}const status=editor?.querySelector(".match-edit-save-status");if(status)status.textContent="Unsaved changes. Save when you are ready; automatic bracket refresh is paused while this editor is open.";}
+function updateTournamentGameMeta(gameId,game){const card=document.querySelector(`.tournament-subgame[data-game-id="${CSS.escape(String(gameId))}"]`);if(!card)return;let meta=card.querySelector(".bracket-meta");const values=[game.fixtureType,game.scheduledAt?new Date(game.scheduledAt).toLocaleString():"",game.court?"Court "+game.court:"",game.venue,game.notes].filter(Boolean);const html=values.map((v,i)=>`<div class="bracket-meta-line">${i===0?"Format: ":""}${esc(v)}</div>`).join("");if(!meta&&html){meta=document.createElement("div");meta.className="bracket-meta";card.insertBefore(meta,card.querySelector(".bracket-edit"));}if(meta)meta.innerHTML=html;}
+async function saveTournamentMatchDetails(tieId,gameId){
+ if(!adminAuthenticated)return alert("Organizer access is required to edit tournament fixtures.");const tie=tournamentFindTie(tieId),game=tournamentFindGame(tieId,gameId);if(!tie||!game)return;collectTournamentGameDetails(tieId,gameId);
+ const button=document.querySelector(`[data-match-editor="${CSS.escape(String(gameId))}"] .save-match-details`);if(button){button.disabled=true;button.textContent="Saving…";}const saved=await save({render:false});if(button){button.disabled=false;button.textContent=saved?"Saved":"Save match details";}if(saved){updateTournamentGameMeta(gameId,game);const status=document.querySelector(`[data-match-editor="${CSS.escape(String(gameId))}"] .match-edit-save-status`);if(status)status.textContent="Match details saved. The editor remains open.";}
 }
-async function saveTournamentMatchDetails(id){
- if(!adminAuthenticated)return alert("Organizer access is required to edit tournament fixtures.");
- const t=ensureTournament(),m=t.rounds.flat().find(x=>x.id===id);if(!m)return;
- collectTournamentMatchDetails(id,m);
- const button=document.querySelector(`[data-match-editor="${CSS.escape(String(id))}"] .save-match-details`);
- if(button){button.disabled=true;button.textContent="Saving…";}
- const saved=await save({render:false});
- if(button){button.disabled=false;button.textContent=saved?"Saved":"Save match details";}
- if(saved){
-  updateTournamentMatchMeta(id,m);
-  const status=document.querySelector(`[data-match-editor="${CSS.escape(String(id))}"] .match-edit-save-status`);
-  if(status)status.textContent="Match details saved. The editor remains open.";
- }
-}
-function updateTournamentMatchMeta(id,m){
- const card=document.querySelector(`.bracket-match[data-match-id="${CSS.escape(String(id))}"]`);if(!card)return;
- let meta=card.querySelector(".bracket-meta");
- const values=[m.fixtureType,m.scheduledAt?new Date(m.scheduledAt).toLocaleString():"",m.court?"Court "+m.court:"",m.venue,m.notes].filter(Boolean);
- const html=values.map((v,i)=>`<div class="bracket-meta-line">${i===0?"Format: ":""}${esc(v)}</div>`).join("");
- if(!meta&&html){meta=document.createElement("div");meta.className="bracket-meta";card.insertBefore(meta,card.querySelector(".bracket-edit"));}
- if(meta)meta.innerHTML=html;
-}
-async function persistTournamentAction(){
- const root=document.getElementById("tournamentView");
- const openEditor=root?.querySelector("details.bracket-edit[open]");
- const openMatchId=openEditor?.dataset.matchEditor||"";
- const scroll=root?.querySelector(".tournament-bracket-scroll");
- const scrollLeft=scroll?.scrollLeft||0,scrollTop=scroll?.scrollTop||0;
- const active=document.activeElement;
- const activeAction=active?.dataset?.tournamentAction||"";
- const activeMatch=active?.closest?.("[data-match-editor]")?.dataset?.matchEditor||openMatchId;
- const saved=await save({render:false});
- if(saved){
-  renderTournament();
-  const nextScroll=root?.querySelector(".tournament-bracket-scroll");
-  if(nextScroll){nextScroll.scrollLeft=scrollLeft;nextScroll.scrollTop=scrollTop;}
-  if(openMatchId){
-   const editor=root?.querySelector(`[data-match-editor="${CSS.escape(String(openMatchId))}"]`);
-   if(editor){editor.open=true;}
-  }
-  if(activeAction&&activeMatch){
-   const action=root?.querySelector(`[data-match-editor="${CSS.escape(String(activeMatch))}"] [data-tournament-action="${CSS.escape(activeAction)}"]`);
-   action?.focus({preventScroll:true});
-  }
- }
+async function persistTournamentAction(gameId){
+ const root=document.getElementById("tournamentView"),openEditor=root?.querySelector("details.bracket-edit[open]"),openGameId=openEditor?.dataset.matchEditor||gameId||"",scroll=root?.querySelector(".tournament-bracket-scroll"),scrollLeft=scroll?.scrollLeft||0,scrollTop=scroll?.scrollTop||0,active=document.activeElement,activeAction=active?.dataset?.tournamentAction||"";
+ const saved=await save({render:false});if(saved){renderTournament();const nextScroll=root?.querySelector(".tournament-bracket-scroll");if(nextScroll){nextScroll.scrollLeft=scrollLeft;nextScroll.scrollTop=scrollTop;}if(openGameId){const editor=root?.querySelector(`[data-match-editor="${CSS.escape(String(openGameId))}"]`);if(editor)editor.open=true;}if(activeAction&&openGameId){const action=root?.querySelector(`[data-match-editor="${CSS.escape(String(openGameId))}"] [data-tournament-action="${CSS.escape(activeAction)}"]`);action?.focus({preventScroll:true});}}
  return saved;
 }
-async function startTournamentFixture(id){
- if(!adminAuthenticated)return alert("Organizer access is required to update tournament fixtures.");
- const t=ensureTournament(),m=t.rounds.flat().find(x=>x.id===id);if(!m||m.status!=="scheduled"||!m.clubAId||!m.clubBId)return;
- collectTournamentMatchDetails(id,m);m.status="in-progress";m.startedAt=Date.now();await persistTournamentAction();
-}
-function tournamentScoreInputs(id){
- const inputA=document.getElementById("tournament-score-a-"+id),inputB=document.getElementById("tournament-score-b-"+id),rawA=inputA?.value.trim()??"",rawB=inputB?.value.trim()??"";
- if(rawA===""||rawB==="")return {error:"Enter whole-number scores for both clubs."};
- const a=Number(rawA),b=Number(rawB);
- if(!Number.isInteger(a)||!Number.isInteger(b)||a<0||b<0)return {error:"Scores must be whole numbers of 0 or higher."};
- if(a>11||b>11)return {error:"Each side can score a maximum of 11 points per fixture."};
- if(a+b>21)return {error:"The combined score for this fixture cannot exceed 21 points."};
- return {a,b};
-}
-async function saveTournamentLiveScore(id){
- if(!adminAuthenticated)return alert("Organizer access is required to update live tournament scores.");
- const t=ensureTournament(),m=t.rounds.flat().find(x=>x.id===id);if(!m||m.status!=="in-progress")return;
- const result=tournamentScoreInputs(id);if(result.error)return alert(result.error);
- collectTournamentMatchDetails(id,m);m.scoreA=result.a;m.scoreB=result.b;m.winnerClubId=null;m.liveScoreUpdatedAt=Date.now();await persistTournamentAction();
-}
-async function recordTournamentResult(id){
- if(!adminAuthenticated)return alert("Organizer access is required to record tournament results.");
- const t=ensureTournament(),m=t.rounds.flat().find(x=>x.id===id);if(!m||!m.clubAId||!m.clubBId)return;
- const result=tournamentScoreInputs(id);if(result.error)return alert(result.error);
- const {a,b}=result;
- if(a===b)return alert("A tournament fixture must have a winner. Tied scores are not accepted.");
- collectTournamentMatchDetails(id,m);m.scoreA=a;m.scoreB=b;m.winnerClubId=a>b?m.clubAId:m.clubBId;m.status="complete";m.completedAt=Date.now();syncTournamentBracket();await persistTournamentAction();
-}
-function resetTournamentBracket(){if(!adminAuthenticated)return;if(!confirm("Reset the bracket and remove all tournament scores and fixture details? The participating club list will be kept."))return;const t=ensureTournament();t.rounds=[];t.createdAt=null;t.championClubId=null;save()}
-function renderTournamentMatch(m,roundIndex){
- const t=state.interclubTournament,a=tournamentClub(m.clubAId),b=tournamentClub(m.clubBId),winner=m.winnerClubId;
- const statusLabel=({waiting:"Waiting for previous round",scheduled:"Scheduled", "in-progress":"LIVE NOW",complete:"Completed",bye:"BYE · Advances automatically"})[m.status]||m.status;
- const hasVisibleScore=(m.status==="complete"||m.status==="in-progress")&&Number.isInteger(m.scoreA)&&Number.isInteger(m.scoreB);
- const team=(club,side)=>{const isWinner=!!(winner&&club?.id===winner);return `<div class="bracket-team ${isWinner?"winner":winner&&club&&club.id!==winner?"loser":""}"><span class="bracket-team-name">${esc(club?.name||(m.status==="bye"?"BYE":m.status==="waiting"?"Winner of previous match":"TBD"))}${isWinner?'<span class="bracket-advances">ADVANCES</span>':""}</span><span class="bracket-score">${hasVisibleScore?(side==="A"?m.scoreA:m.scoreB):""}</span></div>`};
- let html=`<article class="bracket-match ${m.status==="complete"?"match-complete":m.status==="waiting"?"match-waiting":m.status==="in-progress"?"match-live":""} ${m.status==="bye"?"match-bye":""}" data-match-id="${esc(m.id)}"><div class="bracket-match-top"><span>Match ${m.matchNumber}</span><span class="bracket-state-chip ${m.status==="in-progress"?"live":m.status==="complete"?"complete":m.status==="scheduled"?"scheduled":""}">${esc(statusLabel)}</span></div>${team(a,"A")}<div class="bracket-vs">VS</div>${team(b,"B")}${m.status==="in-progress"?'<div class="bracket-live-score-note">LIVE SCORE · Updating during play</div>':m.status==="complete"&&winner?'<div class="bracket-live-score-note" style="color:#176044">RESULT CONFIRMED · Winner advances</div>':""}`;
- const meta=[m.fixtureType,m.scheduledAt?new Date(m.scheduledAt).toLocaleString():"",m.court?"Court "+m.court:"",m.venue,m.notes].filter(Boolean);
- html+=`<div class="bracket-meta">${meta.map((v,i)=>`<div class="bracket-meta-line">${i===0?"Format: ":""}${esc(v)}</div>`).join("")}</div>`;
- if(adminAuthenticated&&a&&b&&m.status!=="bye"){
-  html+=`<details class="bracket-edit" data-match-editor="${esc(m.id)}" oninput="markTournamentEditorDirty(this)"><summary>Edit match details & result</summary><div class="bracket-edit-grid">
-  <label class="wide">Fixture type<select data-tournament-field="fixtureType">${["Club tie","Men's doubles","Women's doubles","Mixed doubles","Open doubles","Singles","Other"].map(v=>`<option value="${esc(v)}" ${m.fixtureType===v?"selected":""}>${esc(v)}</option>`).join("")}</select></label>
-  <label>Scheduled date & time<input data-tournament-field="scheduledAt" type="datetime-local" value="${esc(m.scheduledAt||"")}"></label>
-  <label>Court<input data-tournament-field="court" value="${esc(m.court||"")}" placeholder="e.g. 1"></label>
-  <label class="wide">Venue<input data-tournament-field="venue" value="${esc(m.venue||"")}" placeholder="Club / venue name"></label>
-  <label class="wide">Notes<input data-tournament-field="notes" value="${esc(m.notes||"")}" placeholder="Optional match details"></label>
-  <label>Score · ${esc(a.name)}<input id="tournament-score-a-${m.id}" type="number" min="0" max="11" step="1" inputmode="numeric" value="${m.scoreA??""}" placeholder="0"></label>
-  <label>Score · ${esc(b.name)}<input id="tournament-score-b-${m.id}" type="number" min="0" max="11" step="1" inputmode="numeric" value="${m.scoreB??""}" placeholder="0"></label>
-  </div><div class="bracket-result-actions"><button onclick="saveTournamentMatchDetails('${m.id}')" class="save-match-details" data-tournament-action="save-details">Save match details</button>${m.status==="scheduled"?`<button onclick="startTournamentFixture('${m.id}')" data-tournament-action="start">Mark in progress</button>`:""}${m.status==="in-progress"?`<button onclick="saveTournamentLiveScore('${m.id}')" data-tournament-action="live-score">Save live score</button>`:""}<button class="primary" onclick="recordTournamentResult('${m.id}')" data-tournament-action="record-result">${m.status==="complete"?"Update result":"Record result & advance winner"}</button></div><div class="small match-edit-save-status">Edits are kept in this form until you save. The bracket will not auto-refresh while this editor is open.</div><div class="small">Score limit: 11 per club, 21 combined. Ties are only allowed while a fixture is in progress; a completed match needs a winner.</div></details>`;
- }
+async function startTournamentGame(tieId,gameId){if(!adminAuthenticated)return alert("Organizer access is required to update tournament fixtures.");const tie=tournamentFindTie(tieId),game=tournamentFindGame(tieId,gameId);if(!tie||!game||game.status!=="scheduled")return;collectTournamentGameDetails(tieId,gameId);game.status="in-progress";game.startedAt=Date.now();updateTournamentTieResult(tie);await persistTournamentAction(gameId);}
+function tournamentScoreInputs(gameId){const inputA=document.getElementById("tournament-score-a-"+gameId),inputB=document.getElementById("tournament-score-b-"+gameId),rawA=inputA?.value.trim()??"",rawB=inputB?.value.trim()??"";if(rawA===""||rawB==="")return {error:"Enter whole-number scores for both teams."};const a=Number(rawA),b=Number(rawB);if(!Number.isInteger(a)||!Number.isInteger(b)||a<0||b<0)return {error:"Scores must be whole numbers of 0 or higher."};if(a>11||b>11)return {error:"Each team can score a maximum of 11 points per game."};if(a+b>21)return {error:"The combined score for this game cannot exceed 21 points."};return {a,b};}
+async function saveTournamentLiveScore(tieId,gameId){if(!adminAuthenticated)return alert("Organizer access is required to update tournament scores.");const tie=tournamentFindTie(tieId),game=tournamentFindGame(tieId,gameId);if(!tie||!game||game.status!=="in-progress")return;const result=tournamentScoreInputs(gameId);if(result.error)return alert(result.error);collectTournamentGameDetails(tieId,gameId);game.scoreA=result.a;game.scoreB=result.b;game.winnerClubId=null;game.liveScoreUpdatedAt=Date.now();updateTournamentTieResult(tie);await persistTournamentAction(gameId);}
+async function recordTournamentGameResult(tieId,gameId){if(!adminAuthenticated)return alert("Organizer access is required to record tournament results.");const tie=tournamentFindTie(tieId),game=tournamentFindGame(tieId,gameId);if(!tie||!game)return;const result=tournamentScoreInputs(gameId);if(result.error)return alert(result.error);if(result.a===result.b)return alert("A completed game must have a winner. Tied scores are not accepted.");collectTournamentGameDetails(tieId,gameId);game.scoreA=result.a;game.scoreB=result.b;game.winnerClubId=result.a>result.b?tie.clubAId:tie.clubBId;game.status="complete";game.completedAt=Date.now();updateTournamentTieResult(tie);syncTournamentBracket();await persistTournamentAction(gameId);}
+function resetTournamentBracket(){if(!adminAuthenticated)return;if(!confirm("Reset the bracket and remove all tournament games, scores and fixture details? Club and player registrations will be kept."))return;const t=ensureTournament();t.rounds=[];t.createdAt=null;t.championClubId=null;save();}
+function renderTournamentGame(tie,game){
+ const clubA=tournamentClub(tie.clubAId),clubB=tournamentClub(tie.clubBId),aNames=game.teamA.map(tournamentPlayerName),bNames=game.teamB.map(tournamentPlayerName),statusLabel=({scheduled:"UPCOMING","in-progress":"LIVE NOW",complete:"COMPLETED"})[game.status]||game.status.toUpperCase(),aWon=game.status==="complete"&&game.scoreA>game.scoreB,bWon=game.status==="complete"&&game.scoreB>game.scoreA;
+ const meta=[game.fixtureType,game.scheduledAt?new Date(game.scheduledAt).toLocaleString():"",game.court?"Court "+game.court:"",game.venue,game.notes].filter(Boolean);
+ let html=`<article class="tournament-subgame ${game.status==="complete"?"complete":game.status==="in-progress"?"live":""}" data-game-id="${esc(game.id)}"><div class="subgame-top"><b>Game ${game.gameNumber}${game.isTiebreaker?" · Decider":""}</b><span class="bracket-state-chip ${game.status==="complete"?"complete":game.status==="in-progress"?"live":"scheduled"}">${statusLabel}</span></div><div class="subgame-teams"><div class="subgame-team ${aWon?"winner":""}"><span>${esc(aNames.join(" + "))}<small>${esc(clubA?.name||"Club A")}</small></span><b>${Number.isInteger(game.scoreA)?game.scoreA:"–"}</b></div><div class="subgame-team ${bWon?"winner":""}"><span>${esc(bNames.join(" + "))}<small>${esc(clubB?.name||"Club B")}</small></span><b>${Number.isInteger(game.scoreB)?game.scoreB:"–"}</b></div></div>${aWon||bWon?`<div class="small" style="color:#176044;font-weight:800">${aWon?esc(clubA?.name||"Club A"):esc(clubB?.name||"Club B")} wins this game</div>`:""}${meta.length?`<div class="bracket-meta">${meta.map((v,i)=>`<div class="bracket-meta-line">${i===0?"Format: ":""}${esc(v)}</div>`).join("")}</div>`:""}`;
+ if(adminAuthenticated){html+=`<details class="bracket-edit" data-match-editor="${esc(game.id)}" oninput="markTournamentEditorDirty(this)"><summary>Edit game details & score</summary><div class="bracket-edit-grid"><label class="wide">Game type<select data-tournament-field="fixtureType">${["Women's doubles","Men's doubles","Mixed doubles","Open doubles","Other"].map(v=>`<option value="${esc(v)}" ${game.fixtureType===v?"selected":""}>${esc(v)}</option>`).join("")}</select></label><label>Scheduled date & time<input data-tournament-field="scheduledAt" type="datetime-local" value="${esc(game.scheduledAt||"")}"></label><label>Court<input data-tournament-field="court" value="${esc(game.court||"")}" placeholder="e.g. 1"></label><label class="wide">Venue<input data-tournament-field="venue" value="${esc(game.venue||"")}" placeholder="Club / venue name"></label><label class="wide">Notes<input data-tournament-field="notes" value="${esc(game.notes||"")}" placeholder="Optional game details"></label><label>Score · ${esc(clubA?.name||"Club A")}<input id="tournament-score-a-${game.id}" type="number" min="0" max="11" step="1" inputmode="numeric" value="${game.scoreA??""}" placeholder="0"></label><label>Score · ${esc(clubB?.name||"Club B")}<input id="tournament-score-b-${game.id}" type="number" min="0" max="11" step="1" inputmode="numeric" value="${game.scoreB??""}" placeholder="0"></label></div><div class="bracket-result-actions"><button onclick="saveTournamentMatchDetails('${tie.id}','${game.id}')" class="save-match-details" data-tournament-action="save-details">Save game details</button>${game.status==="scheduled"?`<button onclick="startTournamentGame('${tie.id}','${game.id}')" data-tournament-action="start">Mark in progress</button>`:""}${game.status==="in-progress"?`<button onclick="saveTournamentLiveScore('${tie.id}','${game.id}')" data-tournament-action="live-score">Save live score</button>`:""}<button class="primary" onclick="recordTournamentGameResult('${tie.id}','${game.id}')" data-tournament-action="record-result">${game.status==="complete"?"Update result":"Record game result"}</button></div><div class="small match-edit-save-status">Edits stay in this form until saved. Automatic refresh pauses while the editor is open.</div><div class="small">Maximum 11 per team, 21 combined. A completed game needs a winner.</div></details>`;}
  html+=`</article>`;return html;
 }
-function renderTournament(){
- const root=document.getElementById("tournamentView"),tab=document.getElementById("tournamentTab");if(!root||!tab)return;
- tab.hidden=!state.tournamentMode;
- if(!state.tournamentMode){root.innerHTML='<div class="empty">Interclub Tournament Mode is off. Enable it from Manage session to open the tournament tab.</div>';return;}
- const t=ensureTournament(),clubs=t.clubs||[],rounds=t.rounds||[],matches=rounds.flat(),completed=matches.filter(m=>m.status==="complete").length,scheduled=matches.filter(m=>m.status==="scheduled"||m.status==="in-progress").length,champion=tournamentClub(t.championClubId);
- const adminPanel=adminAuthenticated?`<div class="tournament-setup">
-  <div class="card"><h3>Tournament details</h3><label>Tournament name</label><input value="${esc(t.name||"Interclub Tournament")}" maxlength="80" onchange="setTournamentName(this.value)"><label>Our club name</label><input value="${esc((clubs.find(c=>c.isHome)||clubs[0])?.name||"")}" maxlength="60" onchange="setHomeClubName(this.value)" ${rounds.length?"disabled":""}><div class="small">Add your club first, then register the other clubs entering the event. Up to 16 clubs are supported. Registration order sets the seed order: the first club is seed 1, and first-round byes go to the highest seeds.</div>
-  <div class="tournament-club-list">${clubs.map(c=>`<div class="tournament-club-row ${c.isHome?"home":""}" data-tournament-club="${esc(c.id)}"><div><span class="tournament-club-name">${esc(c.name)}</span>${c.isHome?'<span class="home-tag">OUR CLUB</span>':""}</div>${!c.isHome&&!rounds.length?`<button class="danger" onclick="removeTournamentClub('${c.id}')">Remove</button>`:""}</div>`).join("")}</div>
-  ${!rounds.length?`<div class="row"><input id="newTournamentClub" placeholder="Opponent club name" maxlength="60"><button class="primary fit" onclick="addTournamentClub()">Add club</button></div><div class="actions"><button class="primary" onclick="buildTournamentBracket()">Build single-elimination bracket</button></div>`:`<div class="small">The participating club list is locked while the bracket is active.</div><div class="actions"><button class="danger" onclick="resetTournamentBracket()">Reset bracket & results</button></div>`}
-  </div><div class="card"><h3>How this bracket works</h3><p class="small">Standard seeded single-elimination draw for 2–16 clubs: Round of 16, quarter-finals, semi-finals and final as applicable. Registration order determines seeds; the draw places top seeds on opposite sides and awards the correct number of opening-round byes. Record each fixture's schedule, court, venue and score. Winners advance automatically.</p><div class="statrow"><div class="stat"><b>${clubs.length}</b><span class="small">Clubs entered</span></div><div class="stat"><b>${matches.length}</b><span class="small">Fixtures</span></div><div class="stat"><b>${completed}</b><span class="small">Completed</span></div><div class="stat"><b>${scheduled}</b><span class="small">Pending / live</span></div></div></div>
- </div>`:"";
- const bracketPanel=rounds.length?`<div class="card"><div class="row" style="justify-content:space-between;align-items:center"><div><h2 data-bracket-title>${esc(t.name||"Interclub Tournament")} · Bracket</h2><div class="small">Single elimination · ${clubs.length} clubs</div></div>${champion?`<span class="badge">Champion: ${esc(champion.name)}</span>`:""}</div>${champion?`<div class="tournament-winner-banner">Tournament champion · ${esc(champion.name)}</div>`:""}<div class="tournament-bracket-scroll"><div class="tournament-bracket">${rounds.map((round,i)=>`<div class="bracket-round"><div class="bracket-round-title">${esc(tournamentRoundName(round.length))}</div>${round.map(m=>renderTournamentMatch(m,i)).join("")}</div>`).join("")}</div></div><div class="small">On mobile, swipe horizontally to follow the bracket through each round.</div></div>`: `<div class="card"><h2>Interclub bracket</h2><div class="empty">${adminAuthenticated?"Add at least one opponent club, then build the bracket.":"The organizer is setting up the participating clubs and bracket. The finished bracket, live scores, results, and advancing clubs will appear here for everyone."}</div></div>`;
- root.innerHTML=`<div class="tournament-hero"><div><h2 data-tournament-title>${esc(t.name||"Interclub Tournament")}</h2><div class="small">Club vs club · Single-elimination bracket · Public live updates</div></div><div class="tournament-stats"><div class="tournament-stat"><b>${clubs.length}</b><span>Clubs</span></div><div class="tournament-stat"><b>${matches.length}</b><span>Fixtures</span></div><div class="tournament-stat"><b>${completed}</b><span>Results</span></div></div></div>${adminPanel}${bracketPanel}${!adminAuthenticated?'<div class="small muted" style="margin-top:10px">Match details and results are managed by the organizer.</div>':""}`;
+function renderTournamentMatch(tie,roundIndex){
+ const a=tournamentClub(tie.clubAId),b=tournamentClub(tie.clubBId),wins=tournamentGameWins(tie),winner=tie.winnerClubId,statusLabel=({waiting:"Waiting for previous round",scheduled:"Scheduled", "in-progress":"LIVE NOW",complete:"Club tie completed",bye:"BYE · Advances automatically"})[tie.status]||tie.status;
+ const team=(club,score)=>`<div class="bracket-team ${winner&&club?.id===winner?"winner":winner&&club&&club.id!==winner?"loser":""}"><span class="bracket-team-name">${esc(club?.name||(tie.status==="bye"?"BYE":tie.status==="waiting"?"Winner of previous tie":"TBD"))}${winner&&club?.id===winner?'<span class="bracket-advances">ADVANCES</span>':""}</span><span class="bracket-score">${tie.status==="complete"?score:""}</span></div>`;
+ const games=tie.games||[];
+ return `<article class="bracket-match ${tie.status==="complete"?"match-complete":tie.status==="waiting"?"match-waiting":tie.status==="in-progress"?"match-live":""}" data-match-id="${esc(tie.id)}"><div class="bracket-match-top"><span>${esc(tournamentRoundName((state.interclubTournament.rounds[roundIndex]||[]).length))} · Tie ${tie.matchNumber}</span><span class="bracket-state-chip ${tie.status==="in-progress"?"live":tie.status==="complete"?"complete":tie.status==="scheduled"?"scheduled":""}">${esc(statusLabel)}</span></div>${team(a,wins.a)}<div class="bracket-vs">VS</div>${team(b,wins.b)}<div class="small tie-summary">${games.length} doubles game${games.length===1?"":"s"} · Club tie score ${wins.a}–${wins.b}</div>${tie.status==="complete"&&winner?`<div class="bracket-live-score-note" style="color:#176044">${esc(tournamentClub(winner)?.name||"Winning club")} advances to the next round</div>`:""}${games.length?`<div class="tournament-subgames">${games.map(g=>renderTournamentGame(tie,g)).join("")}</div>`:tie.status!=="bye"?'<div class="empty small">Games will be generated when both clubs are confirmed.</div>':""}</article>`;
 }
-
+function renderTournament(){
+ const root=document.getElementById("tournamentView"),tab=document.getElementById("tournamentTab");if(!root||!tab)return;tab.hidden=!state.tournamentMode;
+ if(!state.tournamentMode){root.innerHTML='<div class="empty">Interclub Tournament Mode is off. Enable it from Manage session to open the tournament tab.</div>';return;}
+ const t=ensureTournament(),rosterChanged=adminAuthenticated?syncTournamentHomeRoster():false;if(rosterChanged)void save({render:false});
+ const clubs=t.clubs||[],roster=t.roster||[],rounds=t.rounds||[],ties=rounds.flat(),games=ties.flatMap(m=>m.games||[]),completed=games.filter(g=>g.status==="complete").length,live=games.filter(g=>g.status==="in-progress").length,scheduled=games.filter(g=>g.status==="scheduled").length,champion=tournamentClub(t.championClubId),home=clubs.find(c=>c.isHome)||clubs[0];
+ const homePlayers=state.players,registeredHome=new Set(roster.filter(p=>p.clubId===home?.id&&p.sourcePlayerId).map(p=>String(p.sourcePlayerId)));
+ const partnerOptions=(p)=>roster.filter(q=>q.clubId===p.clubId&&q.id!==p.id&&(!q.partnerId||q.partnerId===p.id)).map(q=>`<option value="${esc(q.id)}" ${q.id===p.partnerId?"selected":""}>${esc(q.name)}</option>`).join("");
+ const adminPanel=adminAuthenticated?`<div class="tournament-setup">
+  <div class="card"><h3>Tournament details</h3><label>Tournament name</label><input value="${esc(t.name||"Interclub Tournament")}" maxlength="80" onchange="setTournamentName(this.value)"><label>Our club name</label><input value="${esc(home?.name||"")}" maxlength="60" onchange="setHomeClubName(this.value)" ${rounds.length?"disabled":""}><label>Match format</label><select onchange="changeTournamentGenderMode(this.value)" ${rounds.length?"disabled":""}><option value="open" ${t.genderMode==="open"?"selected":""}>Open doubles</option><option value="girls" ${t.genderMode==="girls"?"selected":""}>Girls only</option><option value="boys" ${t.genderMode==="boys"?"selected":""}>Boys only</option><option value="girls-vs-boys" ${t.genderMode==="girls-vs-boys"?"selected":""}>Girls vs Boys</option></select><div class="small">Add the participating clubs and their players. The system automatically pairs unpaired players within each club, while keeping registered fixed duos together. Each club-versus-club tie generates one doubles game for every compatible duo pairing. All games are shown inside the bracket tie; the club winning the most games advances.</div>
+  <h3>Our club players</h3><div class="small">Select registered PBB players for this tournament. All registered players are selected automatically by default, regardless of their Open Play availability.</div><div class="tournament-home-select">${homePlayers.map(p=>`<label><input type="checkbox" ${registeredHome.has(String(p.id))?"checked":""} onchange="toggleTournamentHomePlayer('${p.id}',this.checked)" ${rounds.length?"disabled":""}><span>${esc(p.name)}<small>${esc(p.bracket)} · ${esc(p.gender||"unspecified")}${p.partnerId&&player(p.partnerId)?" · Fixed duo: "+esc(player(p.partnerId).name):""}</small></span></label>`).join("")||'<div class="empty">Add players in the Players directory first.</div>'}</div>
+  <h3>Opponent clubs</h3><div class="tournament-club-list">${clubs.filter(c=>!c.isHome).map(c=>`<div class="tournament-club-row" data-tournament-club="${esc(c.id)}"><span class="tournament-club-name">${esc(c.name)}</span>${!rounds.length?`<button class="danger" onclick="removeTournamentClub('${c.id}')">Remove</button>`:""}</div>`).join("")}</div>${!rounds.length?`<div class="row"><input id="newTournamentClub" placeholder="Opponent club name" maxlength="60"><button class="primary fit" onclick="addTournamentClub()">Add club</button></div>`:""}
+  <h3>Register opponent club players</h3>${!rounds.length?`<div class="tournament-roster-form"><label class="wide">Club<select id="tournamentRosterClub" onchange="refreshTournamentRosterPartnerChoices(this.value)">${clubs.filter(c=>!c.isHome).map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("")}</select></label><label class="wide">Player name<input id="tournamentRosterName" placeholder="Full name" maxlength="80"></label><label>Skill bracket<select id="tournamentRosterBracket">${BRACKETS.map(b=>`<option>${esc(b)}</option>`).join("")}</select></label><label>Gender<select id="tournamentRosterGender"><option value="unspecified">Not set</option><option value="female">Female</option><option value="male">Male</option></select></label><label class="wide">Fixed partner (optional)<select id="tournamentRosterPartner"><option value="">No fixed partner · pair automatically</option>${roster.filter(p=>p.clubId===clubs.find(c=>!c.isHome)?.id&&!p.partnerId&&!p.sourcePlayerId).map(p=>`<option value="${esc(p.id)}">${esc(p.name)} · ${esc(p.bracket)}</option>`).join("")}</select></label></div><button class="primary" onclick="addTournamentRosterPlayer()" ${clubs.filter(c=>!c.isHome).length?"":"disabled"}>Add opponent player</button>`:`<div class="small">Roster is locked while the bracket is active. Reset the bracket to make changes.</div>`}
+  <h3>Registered roster</h3>${clubs.map(c=>{const members=roster.filter(p=>p.clubId===c.id);return `<div class="tournament-roster-club"><b>${esc(c.name)}</b><span class="small">${members.length} players · ${Math.floor(members.length/2)} potential duos</span>${members.length?members.map(p=>`<div class="tournament-roster-player"><span>${esc(p.name)}<small>${esc(p.bracket)} · ${esc(p.gender||"unspecified")}</small></span>${!rounds.length?`<select onchange="changeTournamentRosterPartner('${p.id}',this.value)"><option value="">Auto-pair</option>${partnerOptions(p)}</select><button class="danger" onclick="removeTournamentRosterPlayer('${p.id}')">×</button>`:(p.partnerId?`<small>Partner: ${esc(tournamentRosterPlayer(p.partnerId)?.name||"")}</small>`:"")}</div>`).join(""):'<div class="small muted">No players registered.</div>'}</div>`;}).join("")}
+  ${!rounds.length?`<button class="primary" onclick="buildTournamentBracket()">Generate bracket & all doubles games</button>`:`<div class="small">Club registration and duos are locked while this bracket is active.</div><button class="danger" onclick="resetTournamentBracket()">Reset bracket & results</button>`}
+  </div><div class="card"><h3>How Tournament Mode works</h3><p class="small">Each round pairs two clubs in a club tie. The registered players are split into doubles teams within their own club. One game is generated for every compatible duo matchup, with each player used once per tie (fixed partners stay together). The club with more game wins advances. If the tie is level after all scheduled games, an extra deciding game is added. The club knockout follows standard seeded single-elimination positions for 2–16 clubs, including byes.</p><div class="statrow"><div class="stat"><b>${clubs.length}</b><span class="small">Clubs</span></div><div class="stat"><b>${games.length}</b><span class="small">Doubles games</span></div><div class="stat"><b>${completed}</b><span class="small">Completed</span></div><div class="stat"><b>${live}</b><span class="small">Live now</span></div></div></div>
+ </div>`:"";
+ const archiveNotice=t.archivedSingleGameBracket?.length?`<div class="card" style="border-color:#d7dde5;background:#f5f6f8"><b>Previous bracket archived</b><div class="small">A bracket from the earlier single-score format has been retained for reference. Register club rosters and generate a new multi-game bracket to use the updated format.</div></div>`:"";
+ const bracketPanel=ties.length?`<div class="card"><div class="row" style="justify-content:space-between;align-items:center"><div><h2 data-bracket-title>${esc(t.name||"Interclub Tournament")} · Club bracket</h2><div class="small">Single elimination · ${clubs.length} clubs · ${games.length} doubles games</div></div>${champion?`<span class="badge">Champion: ${esc(champion.name)}</span>`:""}</div>${champion?`<div class="tournament-winner-banner">Tournament champion · ${esc(champion.name)}</div>`:""}<div class="tournament-bracket-scroll"><div class="tournament-bracket">${rounds.map((round,i)=>`<div class="bracket-round"><div class="bracket-round-title">${esc(tournamentRoundName(round.length))}</div>${round.map(tie=>renderTournamentMatch(tie,i)).join("")}</div>`).join("")}</div></div><div class="small">Each club tie contains its generated doubles games. Swipe horizontally on mobile to follow the club bracket.</div></div>`:`<div class="card"><h2>Interclub bracket</h2><div class="empty">${adminAuthenticated?"Register at least two players for every participating club, then generate the bracket and doubles games.":"The organizer is registering participating clubs and players. The bracket and all games will appear here for everyone once generated."}</div></div>`;
+ root.innerHTML=`<div class="tournament-hero"><div><h2 data-tournament-title>${esc(t.name||"Interclub Tournament")}</h2><div class="small">Club vs club · Multi-game doubles ties · Public live bracket</div></div><div class="tournament-stats"><div class="tournament-stat"><b>${clubs.length}</b><span>Clubs</span></div><div class="tournament-stat"><b>${games.length}</b><span>Doubles games</span></div><div class="tournament-stat"><b>${live}</b><span>Live</span></div><div class="tournament-stat"><b>${completed}</b><span>Results</span></div></div></div>${archiveNotice}${adminPanel}${bracketPanel}${!adminAuthenticated?'<div class="small muted" style="margin-top:10px">All registered tournament games and results are visible publicly. Only the organizer can edit them.</div>':""}`;
+}
 function renderAdmin(){document.getElementById("sessionName").value=state.session;document.getElementById("courtCount").value=configuredCourts();document.getElementById("matchGenderMode").value=state.matchGenderMode||"open";document.getElementById("tournamentMode").checked=state.tournamentMode===true;document.getElementById("adminCourts").innerHTML=courtBoard();let active=state.matches.filter(m=>m.status==="playing"),up=state.matches.filter(m=>m.status==="upcoming");document.getElementById("adminMatches").innerHTML="<h3>Playing</h3>"+(active.map(m=>matchCard(m,true)).join("")||'<div class="empty">No active matches.</div>')+"<h3 style='margin-top:15px'>Upcoming queue · "+up.length+"/"+queueLimit()+"</h3>"+(up.map(m=>matchCard(m,true)).join("")||'<div class="empty">Queue is empty.</div>');document.getElementById("scoreEntry").innerHTML=active.length?active.map(m=>`<div class="small">${esc(m.bracket)} · ${esc(m.teamA.map(id=>player(id)?.name).join(" + "))} vs ${esc(m.teamB.map(id=>player(id)?.name).join(" + "))}</div>`).join(""):'<div class="empty">Start a match to enter its score here.</div>'}
 function renderAll(){document.getElementById("newBracket").innerHTML=BRACKETS.map(b=>`<option>${b}</option>`).join("");let filter=document.getElementById("bracketFilter"),previousView=filter.value;filter.innerHTML=`<option value="Overall">Overall · all brackets</option>`+BRACKETS.map(b=>`<option value="${b}">${b}</option>`).join("");filter.value=previousView==="Overall"||BRACKETS.includes(previousView)?previousView:"Overall";renderPublic();renderLeaderboard();renderPlayers();renderAdmin();renderTournament();if(!state.tournamentMode&&document.getElementById("tournament")?.classList.contains("active")){document.getElementById("tournament").classList.remove("active");document.getElementById("public").classList.add("active");document.querySelectorAll(".tab").forEach(tab=>tab.classList.toggle("active",tab.dataset.tab==="public"));}}
 
