@@ -142,6 +142,74 @@ export async function onRequestPost({ request, env }) {
         }
       }
     }
+    if (tournament.rounds.length) {
+      if (tournament.clubs.length < 2) {
+        return json({ error: "A single-elimination bracket needs at least two registered clubs." }, 400);
+      }
+      const bracketSize = 2 ** Math.ceil(Math.log2(tournament.clubs.length));
+      const expectedRounds = Math.log2(bracketSize);
+      if (tournament.rounds.length !== expectedRounds) {
+        return json({ error: "The tournament bracket is incomplete. Rebuild it using the registered club count." }, 400);
+      }
+      const firstRoundEntrants = [];
+      for (let roundIndex = 0; roundIndex < expectedRounds; roundIndex++) {
+        const round = tournament.rounds[roundIndex];
+        const expectedMatches = bracketSize / (2 ** (roundIndex + 1));
+        if (round.length !== expectedMatches) {
+          return json({ error: "The tournament bracket has an incorrect number of fixtures in a round." }, 400);
+        }
+        if (roundIndex === 0) {
+          for (const match of round) {
+            if (Number(match.round) !== 1 || match.sourceA != null || match.sourceB != null) {
+              return json({ error: "First-round tournament fixtures must be direct club entries." }, 400);
+            }
+            const entrants = [match.clubAId, match.clubBId].filter(Boolean).map(String);
+            if (entrants.length === 0) {
+              return json({ error: "A first-round fixture cannot be a double bye." }, 400);
+            }
+            firstRoundEntrants.push(...entrants);
+            if (entrants.length === 1 && (match.status !== "bye" || String(match.winnerClubId) !== entrants[0])) {
+              return json({ error: "A first-round bye must automatically advance its only club." }, 400);
+            }
+            if (entrants.length === 2 && match.status === "bye") {
+              return json({ error: "A bye cannot be assigned when both clubs are present." }, 400);
+            }
+          }
+        } else {
+          const previousRound = tournament.rounds[roundIndex - 1];
+          const previousById = new Map(previousRound.map((match) => [match.id, match]));
+          const usedSources = new Set();
+          for (const match of round) {
+            if (Number(match.round) !== roundIndex + 1 || !previousById.has(String(match.sourceA)) || !previousById.has(String(match.sourceB)) || String(match.sourceA) === String(match.sourceB)) {
+              return json({ error: "Each later-round fixture must connect to two distinct fixtures from the previous round." }, 400);
+            }
+            for (const sourceId of [String(match.sourceA), String(match.sourceB)]) {
+              if (usedSources.has(sourceId)) return json({ error: "A previous-round winner cannot feed multiple fixtures." }, 400);
+              usedSources.add(sourceId);
+            }
+            const expectedA = previousById.get(String(match.sourceA)).winnerClubId || null;
+            const expectedB = previousById.get(String(match.sourceB)).winnerClubId || null;
+            if (String(match.clubAId || "") !== String(expectedA || "") || String(match.clubBId || "") !== String(expectedB || "")) {
+              return json({ error: "Tournament bracket participants must match the winners of their linked previous-round fixtures." }, 400);
+            }
+            if ((!expectedA || !expectedB) && match.status !== "waiting") {
+              return json({ error: "A fixture must wait until both previous-round winners are known." }, 400);
+            }
+            if (expectedA && expectedB && ["waiting", "bye"].includes(match.status)) {
+              return json({ error: "A fixture with both advancing clubs must be available to schedule or play." }, 400);
+            }
+          }
+          if (usedSources.size !== previousRound.length) {
+            return json({ error: "Every previous-round fixture must feed exactly one fixture in the next round." }, 400);
+          }
+        }
+      }
+      const uniqueEntrants = new Set(firstRoundEntrants);
+      if (firstRoundEntrants.length !== tournament.clubs.length || uniqueEntrants.size !== tournament.clubs.length ||
+          tournament.clubs.some((club) => !uniqueEntrants.has(String(club.id)))) {
+        return json({ error: "Every registered club must appear exactly once in the opening round." }, 400);
+      }
+    }
   }
   for (const player of state.players) {
     if (player.gender != null && !["female", "male", "unspecified"].includes(player.gender)) {

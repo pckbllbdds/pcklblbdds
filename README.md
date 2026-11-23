@@ -10,6 +10,8 @@ This is the GitHub-ready Cloudflare Pages version of the Match Center. It follow
 - The Organizer and Players tabs require one shared organizer password. After a successful sign-in, this browser receives a secure, HttpOnly device session cookie that survives page refreshes for up to one year. Other devices must sign in separately; the Logout button clears the current browser's session.
 - Writes include a revision number. If another organizer saves first, the later save is rejected and the browser loads the latest shared state instead of silently overwriting it.
 - The existing match generation, player management, leaderboard, court status and match scoring logic is retained.
+- Interclub Tournament Mode provides a public, read-only tournament tab and an Organizer-only editor. It uses a standard seeded single-elimination bracket for 2–16 clubs, with registration order as seed order, automatic opening-round byes, match details, live scores, winner advancement and champion display.
+- Tournament fixture editing is stable while open: fixture fields are staged and saved explicitly, the 10-second background refresh pauses while a match editor is open, and score/result saves update only the tournament view while preserving the open editor and bracket scroll position.
 - The header now shows only the Organizer action; the redundant Player view button has been removed because the public match board is the default landing view.
 - A minimal “Join us on Facebook” text link appears in the public sidebar and opens the club Facebook page.
 - The Reset Session action remains separated at the bottom of the Organizer view, away from routine session controls. Its existing confirmation prompt and reset behavior are preserved.
