@@ -58,8 +58,8 @@
     .btn:hover { transform: translateY(-2px); box-shadow: 0 9px 22px rgba(0,0,0,.2); }
     .btn-gold { background: var(--gold); color: var(--navy); }
     .btn-outline { border: 1px solid rgba(255,255,255,.72); color: #fff; background: rgba(255,255,255,.05); }
-    .hero-photo { min-height: 390px; position: relative; border-radius: 24px; overflow: hidden; border: 5px solid rgba(255,255,255,.12); box-shadow: 0 22px 55px rgba(0,0,0,.3); background: #243b60; }
-    .hero-photo img { width: 100%; height: 100%; min-height: 390px; object-fit: cover; object-position: center; }
+    .hero-photo { aspect-ratio: 16 / 10; min-height: 0; height: auto; position: relative; border-radius: 24px; overflow: hidden; border: 5px solid rgba(255,255,255,.12); box-shadow: 0 22px 55px rgba(0,0,0,.3); background: #243b60; }
+    .hero-photo img { display:block; width: 100%; height: 100%; min-height: 0; position:absolute; inset:0; object-fit: cover; object-position: center; }
     .hero-photo::after { content: "PBB · QATAR"; position: absolute; left: 0; right: 0; bottom: 0; padding: 16px 18px; background: linear-gradient(transparent, rgba(9,20,39,.85)); color: #fff; font-size: 12px; letter-spacing: .2em; font-weight: 950; }
     .photo-note { position: absolute; z-index: 2; right: 14px; top: 14px; background: var(--gold); color: var(--navy); border-radius: 99px; padding: 7px 11px; font-size: 9px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
 
@@ -90,7 +90,7 @@
     .sponsor-banner { margin-top: 18px; padding: 20px 24px; border-radius: 15px; background: linear-gradient(100deg,var(--navy),var(--burgundy)); color: #fff; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
     .sponsor-banner strong { font-size: 17px; }
     .sponsor-banner p { margin: 3px 0 0; color: #e7e9ef; font-size: 12px; }
-    .sponsor-banner a { flex: 0 0 auto; background: var(--gold); color: var(--navy); text-decoration: none; border-radius: 99px; padding: 10px 15px; font-size: 10px; font-weight: 950; }
+    .sponsor-banner a, .sponsor-banner button { flex: 0 0 auto; border:0; cursor:pointer; background: var(--gold); color: var(--navy); text-decoration: none; border-radius: 99px; padding: 10px 15px; font-size: 10px; font-weight: 950; }
 
     .recognition { position: relative; overflow: hidden; background: var(--burgundy); color: #fff; }
     .recognition::before { content: ""; position: absolute; right: -70px; top: -160px; height: 310px; width: 310px; border: 2px solid rgba(255,255,255,.13); border-radius: 50%; }
@@ -99,14 +99,6 @@
     .recognition h2 { color: #fff; font-size: 25px; margin: 0 0 6px; }
     .recognition p { color: #f1e6eb; font-size: 13px; margin: 0; max-width: 620px; }
     .recognition .btn { border: 1px solid rgba(255,255,255,.8); color: #fff; white-space: nowrap; }
-
-    .connect-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 13px; }
-    .connect-card { display: flex; flex-direction: column; align-items: center; text-align: center; text-decoration: none; padding: 22px 13px; border: 1px solid var(--line); border-radius: 15px; background: #fff; transition: transform .2s, box-shadow .2s; }
-    .connect-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
-    .connect-icon { width: 48px; height: 48px; display: grid; place-items: center; background: var(--navy); color: var(--gold); border-radius: 50%; font-size: 19px; font-weight: 900; margin-bottom: 10px; }
-    .connect-card strong { color: var(--navy); font-size: 13px; }
-    .connect-card span:last-child { color: var(--muted); font-size: 10px; margin-top: 3px; }
-    .connect-card.disabled { opacity: .72; cursor: default; }
 
     .final-cta { background: var(--navy); color: #fff; padding: 47px 0; border-top: 6px solid var(--gold); }
     .final-inner { display: flex; align-items: center; justify-content: space-between; gap: 25px; }
@@ -171,7 +163,8 @@
 
     /* Homepage carousel and photo publishing tools */
     .hero-photo { isolation: isolate; }
-    .hero-photo > img { transition: opacity .3s ease; }
+    .hero-photo > img { transition: opacity .48s ease; }
+    @media (prefers-reduced-motion: reduce) { .hero-photo > img, .sponsor-ad-slide, .community-modal-slide { transition: none !important; } }
     .carousel-arrow { position:absolute; z-index:3; top:50%; transform:translateY(-50%); width:38px; height:38px; border:1px solid rgba(255,255,255,.7); border-radius:50%; background:rgba(16,29,54,.72); color:#fff; font-size:25px; line-height:1; cursor:pointer; display:grid; place-items:center; }
     .carousel-arrow.prev { left:12px; }
     .carousel-arrow.next { right:12px; }
@@ -542,6 +535,15 @@ button, .btn, .nav-admin, .manager-close, .manager-secondary, .manager-primary, 
 }
 
 </style>
+
+<style>
+.hero-photo{aspect-ratio:16/10;height:auto;min-height:0;position:relative}.hero-photo img{position:absolute;inset:0;width:100%;height:100%;min-height:0;object-fit:cover}
+.sponsor-ad-carousel{position:relative;min-height:230px;display:grid;place-items:center;overflow:hidden;border-radius:18px;background:linear-gradient(120deg,#142b49,#451b30);padding:28px 22px;color:#fff}
+.sponsor-ad-slide{grid-area:1/1;width:min(100%,760px);min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;color:#fff;text-decoration:none;opacity:0;visibility:hidden;transition:opacity .9s ease,visibility .9s ease;pointer-events:none}
+.sponsor-ad-slide.active{opacity:1;visibility:visible;pointer-events:auto}.sponsor-ad-brand{font-size:clamp(25px,5vw,42px);font-weight:950;letter-spacing:.04em}.sponsor-ad-slide strong{font-size:clamp(18px,3vw,25px)}.sponsor-ad-slide>span:last-child{color:#e3e8ef;font-size:13px}.sponsor-ad-dots{position:absolute;bottom:13px;display:flex;gap:8px}.sponsor-ad-dots button{width:8px;height:8px;padding:0;border:0;border-radius:50%;background:#ffffff77}.sponsor-ad-dots button.active{background:#f0c75e;transform:scale(1.25)}
+.community-modal[hidden]{display:none}.community-modal{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:18px}.community-modal-backdrop{position:absolute;inset:0;background:#081426bb;backdrop-filter:blur(4px)}.community-modal-panel{position:relative;width:min(100%,520px);padding:30px 24px 22px;border-radius:20px;background:#fff;box-shadow:0 25px 80px #0005;text-align:center}.community-modal-close{position:absolute;right:12px;top:8px;border:0;background:transparent;font-size:30px;color:#536174;cursor:pointer}.community-modal-panel h2{color:#142b49;margin:5px 0}.community-modal-panel>p{color:#647084;font-size:13px}.community-modal-carousel{display:grid;min-height:235px;margin-top:14px}.community-modal-slide{grid-area:1/1;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .65s ease,visibility .65s ease;pointer-events:none}.community-modal-slide.active{opacity:1;visibility:visible;pointer-events:auto}.community-modal-mark{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:#142b49;color:#f0c75e;font-size:26px;font-weight:950}.community-modal-slide h3{margin:13px 0 4px;color:#142b49}.community-modal-slide p{color:#647084;font-size:13px}.community-modal-slide a{display:inline-block;margin-top:10px;padding:12px 18px;border-radius:9px;background:#142b49;color:#fff;text-decoration:none;font-size:12px;font-weight:900}.community-modal-controls{display:flex;align-items:center;justify-content:center;gap:18px}.community-modal-controls button{border:0;border-radius:50%;width:34px;height:34px;background:#eef1f5;color:#142b49;font-size:22px}.community-modal-controls div{display:flex;gap:8px}.community-modal-controls span{width:8px;height:8px;border-radius:50%;background:#cbd2dc}.community-modal-controls span.active{background:#a51f43}
+@media(max-width:600px){.sponsor-ad-carousel{min-height:210px;padding:24px 14px}.community-modal-panel{padding:28px 18px 20px}}
+</style>
 </head>
 <body>
   <header class="topbar">
@@ -559,7 +561,7 @@ button, .btn, .nav-admin, .manager-close, .manager-secondary, .manager-primary, 
         <a href="#community">Community</a>
         <a href="#sponsors">Sponsors</a>
         <a href="#recognition">Recognition</a>
-        <a href="#connect">Connect</a>
+        
         <a href="/match-center/" data-match-center class="nav-cta">Match Center ↗</a>
         <button type="button" class="nav-admin" data-admin-login-open aria-haspopup="dialog" aria-controls="adminLoginModal">Admin Login</button>
         <button type="button" class="nav-admin" data-home-admin-open hidden>Manage Homepage</button>
@@ -618,6 +620,28 @@ button, .btn, .nav-admin, .manager-close, .manager-secondary, .manager-primary, 
             <div class="manager-list" id="homePostList"><div class="post-empty">No announcements published yet.</div></div>
           </div>
         </section>
+        <section class="manager-card" aria-labelledby="homeSponsorsHeading">
+          <h3 id="homeSponsorsHeading">Sponsors &amp; advertisements</h3>
+          <p>Manage the cards shown in the homepage sponsor carousel and the Match Center advertisement carousel. Both use this same shared list.</p>
+          <form id="homeSponsorForm">
+            <input id="homeSponsorId" type="hidden">
+            <div class="manager-form-grid">
+              <div class="manager-field"><label for="homeSponsorName">Brand / partner name</label><input id="homeSponsorName" maxlength="80" required placeholder="e.g. Selkirk"></div>
+              <div class="manager-field"><label for="homeSponsorUrl">Website link</label><input id="homeSponsorUrl" type="url" maxlength="500" required placeholder="https://example.com"></div>
+              <div class="manager-field"><label for="homeSponsorKicker">Category label</label><input id="homeSponsorKicker" maxlength="60" placeholder="Featured brand" required></div>
+              <div class="manager-field"><label for="homeSponsorLogo">Logo text</label><input id="homeSponsorLogo" maxlength="50" required placeholder="SELKIRK"></div>
+              <div class="manager-field full"><label for="homeSponsorHeadline">Advertisement headline</label><input id="homeSponsorHeadline" maxlength="120" required placeholder="Gear up for your next game."></div>
+              <div class="manager-field full"><label for="homeSponsorDescription">Short description</label><textarea id="homeSponsorDescription" maxlength="220" placeholder="A short description for both carousels."></textarea></div>
+              <div class="manager-field full"><label for="homeSponsorCta">Button text</label><input id="homeSponsorCta" maxlength="60" required placeholder="VISIT WEBSITE"></div>
+            </div>
+            <div class="manager-actions"><button type="submit" class="manager-primary" id="homeSponsorSubmit">Add sponsor / advertisement</button><button type="button" class="manager-secondary" id="homeSponsorCancel" hidden>Cancel edit</button></div>
+            <p class="manager-message" id="homeSponsorStatus" role="status" aria-live="polite"></p>
+          </form>
+          <div class="manager-library">
+            <div class="library-heading"><h3>Published sponsors</h3><span class="media-count" id="homeSponsorCount">0 entries</span></div>
+            <div class="manager-list" id="homeSponsorList"><div class="post-empty">Loading sponsor entries…</div></div>
+          </div>
+        </section>
       </div>
     </div>
   </section>
@@ -630,7 +654,7 @@ button, .btn, .nav-admin, .manager-close, .manager-secondary, .manager-primary, 
           <p class="hero-lead">A place to meet, play, learn and enjoy pickleball with friends across Qatar.</p>
           <div class="hero-motto">PICKLEBALL BUDDIES QATAR<br>PLAY TOGETHER. GET BETTER. BUILD FRIENDSHIPS.</div>
           <div class="hero-actions">
-            <a class="btn btn-gold" href="https://reclub.co/clubs/@pbb-pickleball-buddies-qatar-2" target="_blank" rel="noopener noreferrer">Join Our Community <span>↗</span></a>
+            <button class="btn btn-gold" type="button" data-community-open>Join Our Community <span>＋</span></button>
             <a class="btn btn-outline" href="/match-center/" data-match-center>Explore Match Center <span>→</span></a>
           </div>
         </div>
@@ -690,20 +714,13 @@ button, .btn, .nav-admin, .manager-close, .manager-secondary, .manager-primary, 
           <h2 class="rule-title">Our Sponsors &amp; Partners</h2>
           <p>Showcasing the brands and partners that support the pickleball community.</p>
         </div>
-        <div class="sponsor-grid">
-          <a class="sponsor-card" href="https://www.selkirk.com/" target="_blank" rel="noopener noreferrer">
-            <span class="selkirk-mark">SELKIRK</span><small>Featured brand · Visit official website ↗</small>
-          </a>
-          <a class="sponsor-card" href="https://reclub.co/clubs/@pbb-pickleball-buddies-qatar-2" target="_blank" rel="noopener noreferrer">
-            <span class="reclub-mark">Reclub</span><small>Club sessions and community ↗</small>
-          </a>
-          <a class="sponsor-card" href="https://www.dupr.com/" target="_blank" rel="noopener noreferrer">
-            <span class="dupr-mark">DUPR</span><small>Player ratings and pickleball ↗</small>
-          </a>
+        <div class="sponsor-ad-carousel" id="homeSponsorCarousel" aria-label="Sponsor advertisements">
+          <a class="sponsor-ad-slide active" href="https://www.selkirk.com/" target="_blank" rel="noopener noreferrer"><span class="sponsor-ad-brand">SELKIRK</span><strong>Gear up for your next game.</strong><span>Explore pickleball paddles, footwear, balls and gear ↗</span></a>
+          <div class="sponsor-ad-dots" id="homeSponsorDots" aria-label="Sponsor advertisement position"></div>
         </div>
         <div class="sponsor-banner">
           <div><strong>Put your brand in front of the PBB community.</strong><p>Reserved space for sponsor banners, promotions and partner announcements.</p></div>
-          <a href="#connect">Sponsor / Advertise</a>
+          <button type="button" data-community-open>Join Our Community ↗</button>
         </div>
         <p class="small-note">Selkirk is shown as a featured-brand demonstration link, not a claim of an official sponsorship agreement.</p>
       </div>
@@ -717,26 +734,11 @@ button, .btn, .nav-admin, .manager-close, .manager-secondary, .manager-primary, 
           <h2>PBB Achievements &amp; Recognition</h2>
           <p>Celebrate club milestones, tournament participation, player achievements, awards and memorable community events.</p>
         </div>
-        <a class="btn" href="#connect">Share an Achievement ↗</a>
+        <button class="btn" type="button" data-community-open>Share with the community ↗</button>
       </div>
     </section>
 
-    <section class="section" id="connect">
-      <div class="container">
-        <div class="section-head">
-          <div class="section-kicker">Stay in touch</div>
-          <h2 class="rule-title">Connect With PBB</h2>
-          <p>Find our sessions, follow player progress and keep up with the community.</p>
-        </div>
-        <div class="connect-grid">
-          <a class="connect-card" href="https://reclub.co/clubs/@pbb-pickleball-buddies-qatar-2" target="_blank" rel="noopener noreferrer"><span class="connect-icon">R</span><strong>Reclub</strong><span>Find club sessions</span></a>
-          <a class="connect-card" href="https://www.dupr.com/" target="_blank" rel="noopener noreferrer"><span class="connect-icon">D</span><strong>DUPR</strong><span>Check player ratings</span></a>
-          <a class="connect-card" href="https://www.facebook.com/profile.php?id=61590547210671" target="_blank" rel="noopener noreferrer"><span class="connect-icon">f</span><strong>Facebook</strong><span>Join us on Facebook</span></a>
-          <a class="connect-card" href="/match-center/" data-match-center><span class="connect-icon">↗</span><strong>Match Center</strong><span>View live games and rankings</span></a>
-        </div>
-        <p class="small-note">Follow PBB on Facebook or visit the Match Center for live club activity.</p>
-      </div>
-    </section>
+
 <section class="final-cta">
       <div class="container final-inner">
         <div><h2>Ready to play?</h2><p>PLAY TOGETHER. GET BETTER. BUILD FRIENDSHIPS.</p></div>
@@ -754,7 +756,39 @@ button, .btn, .nav-admin, .manager-close, .manager-secondary, .manager-primary, 
       <div class="copyright">© <span id="year"></span> Pickleball Buddies Qatar</div>
     </div>
   </footer>
+
+  <div class="community-modal" id="communityModal" hidden role="dialog" aria-modal="true" aria-labelledby="communityModalTitle"><div class="community-modal-backdrop" data-community-close></div><div class="community-modal-panel"><button class="community-modal-close" type="button" data-community-close aria-label="Close">×</button><div class="section-kicker">Stay connected</div><h2 id="communityModalTitle">Join Our Community</h2><p>Choose how you would like to connect with Pickleball Buddies Qatar.</p><div class="community-modal-carousel" id="communityModalCarousel"><article class="community-modal-slide active"><span class="community-modal-mark">R</span><h3>Join us on Reclub</h3><p>Find club sessions and join the PBB community.</p><a href="https://reclub.co/clubs/@pbb-pickleball-buddies-qatar-2" target="_blank" rel="noopener noreferrer">JOIN PBB ON RECLUB ↗</a></article><article class="community-modal-slide"><span class="community-modal-mark">f</span><h3>Follow us on Facebook</h3><p>Keep up with club updates, photos and announcements.</p><a href="https://www.facebook.com/profile.php?id=61590547210671" target="_blank" rel="noopener noreferrer">JOIN US ON FACEBOOK ↗</a></article><article class="community-modal-slide"><span class="community-modal-mark">D</span><h3>Register with DUPR</h3><p>Create or claim your DUPR account and track your rating.</p><a href="https://dashboard.dupr.com/signup" target="_blank" rel="noopener noreferrer">REGISTER / CLAIM DUPR ↗</a></article></div><div class="community-modal-controls"><button type="button" id="communityPrev" aria-label="Previous option">‹</button><div id="communityModalDots"></div><button type="button" id="communityNext" aria-label="Next option">›</button></div></div></div>
   <script>
+    (() => {
+      const modal=document.getElementById('communityModal');
+      let communityIndex=0, communityTimer=null, communityPaused=false;
+      const communitySlides=[...document.querySelectorAll('.community-modal-slide')];
+      const communityDots=document.getElementById('communityModalDots');
+      function showCommunity(i){
+        communityIndex=(i+communitySlides.length)%communitySlides.length;
+        communitySlides.forEach((el,n)=>el.classList.toggle('active',n===communityIndex));
+        [...communityDots.children].forEach((el,n)=>el.classList.toggle('active',n===communityIndex));
+      }
+      function stopCommunityTimer(){window.clearInterval(communityTimer);communityTimer=null;}
+      function startCommunityTimer(){
+        stopCommunityTimer();
+        if(!modal.hidden&&!communityPaused&&communitySlides.length>1&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+          communityTimer=window.setInterval(()=>showCommunity(communityIndex+1),6500);
+        }
+      }
+      communitySlides.forEach((_,i)=>{const dot=document.createElement('span');dot.addEventListener('click',()=>{showCommunity(i);startCommunityTimer();});communityDots.append(dot);});
+      showCommunity(0);
+      document.querySelectorAll('[data-community-open]').forEach(button=>button.addEventListener('click',()=>{modal.hidden=false;document.body.style.overflow='hidden';communityPaused=false;startCommunityTimer();}));
+      document.querySelectorAll('[data-community-close]').forEach(button=>button.addEventListener('click',()=>{modal.hidden=true;document.body.style.overflow='';stopCommunityTimer();}));
+      document.getElementById('communityPrev').addEventListener('click',()=>{showCommunity(communityIndex-1);startCommunityTimer();});
+      document.getElementById('communityNext').addEventListener('click',()=>{showCommunity(communityIndex+1);startCommunityTimer();});
+      const communityPanel=modal.querySelector('.community-modal-panel');
+      communityPanel.addEventListener('mouseenter',()=>{communityPaused=true;stopCommunityTimer();});
+      communityPanel.addEventListener('mouseleave',()=>{communityPaused=false;startCommunityTimer();});
+      modal.addEventListener('focusin',()=>{communityPaused=true;stopCommunityTimer();});
+      modal.addEventListener('focusout',event=>{if(!modal.contains(event.relatedTarget)){communityPaused=false;startCommunityTimer();}});
+      document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!modal.hidden){modal.hidden=true;document.body.style.overflow='';stopCommunityTimer();}});
+    })();
     (() => {
       const image = document.getElementById('heroCarouselImage');
       const note = document.getElementById('heroPhotoNote');
@@ -772,6 +806,14 @@ button, .btn, .nav-admin, .manager-close, .manager-secondary, .manager-primary, 
       let slides = [defaultHero, ...defaultGallery.map(item => ({src:item.src,alt:item.alt,label:item.title}))];
       let active = 0;
       let timer = null;
+      let heroPaused = false;
+      let imageSwapTimeout = null;
+      const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      function stopHeroTimer(){window.clearInterval(timer);timer=null;}
+      function startHeroTimer(){
+        stopHeroTimer();
+        if(slides.length>1&&!heroPaused&&!reduceMotion())timer=window.setInterval(()=>showSlide(active+1,false),6500);
+      }
 
       const mediaUrl = key => '/media/' + encodeURIComponent(key);
       const makeText = (tag, text, className) => { const el=document.createElement(tag); el.textContent=text || ''; if(className)el.className=className; return el; };
@@ -787,6 +829,42 @@ button, .btn, .nav-admin, .manager-close, .manager-secondary, .manager-primary, 
         });
         if(galleryNote) galleryNote.hidden=!!photos;
       }
+      let sponsorTimer = null;
+      function renderSponsors(content) {
+        const carousel = document.getElementById('homeSponsorCarousel');
+        const dots = document.getElementById('homeSponsorDots');
+        if (!carousel || !dots) return;
+        const sponsors = Array.isArray(content.sponsors) ? content.sponsors : [];
+        carousel.querySelectorAll('.sponsor-ad-slide').forEach(node => node.remove());
+        dots.replaceChildren();
+        if (!sponsors.length) {
+          const empty = document.createElement('div'); empty.className = 'post-empty'; empty.textContent = 'Sponsor advertisements will appear here.';
+          carousel.insertBefore(empty, dots);
+          window.clearInterval(sponsorTimer); return;
+        }
+        sponsors.forEach((sponsor, index) => {
+          const link = document.createElement('a'); link.className = 'sponsor-ad-slide' + (index === 0 ? ' active' : '');
+          link.href = sponsor.url; link.target = '_blank'; link.rel = 'noopener noreferrer';
+          const brand = makeText('span', sponsor.logo || sponsor.name, 'sponsor-ad-brand');
+          const headline = makeText('strong', sponsor.headline);
+          const description = makeText('span', (sponsor.description || '') + ' ↗');
+          link.append(brand, headline, description);
+          carousel.insertBefore(link, dots);
+          const dot = document.createElement('button'); dot.type = 'button';
+          dot.setAttribute('aria-label', 'Show sponsor ' + (index + 1));
+          dot.addEventListener('click', () => showSponsor(index)); dots.append(dot);
+        });
+        let active = 0;
+        function showSponsor(index) {
+          active = (index + sponsors.length) % sponsors.length;
+          const slides = [...carousel.querySelectorAll('.sponsor-ad-slide')];
+          slides.forEach((slide, n) => slide.classList.toggle('active', n === active));
+          [...dots.children].forEach((dot, n) => dot.classList.toggle('active', n === active));
+        }
+        showSponsor(0); window.clearInterval(sponsorTimer);
+        if (sponsors.length > 1 && !reduceMotion()) sponsorTimer = window.setInterval(() => showSponsor(active + 1), 6500);
+      }
+
       function renderPosts(content) {
         postsGrid.replaceChildren();
         const posts=Array.isArray(content.posts)?content.posts:[];
@@ -814,26 +892,36 @@ button, .btn, .nav-admin, .manager-close, .manager-secondary, .manager-primary, 
         document.getElementById('heroPrev').hidden=slides.length<2;
         document.getElementById('heroNext').hidden=slides.length<2;
         dots.hidden=slides.length<2;
-        showSlide(0);
-        window.clearInterval(timer);
-        if(slides.length>1) timer=window.setInterval(()=>showSlide(active+1),6500);
+        showSlide(0,false);
+        startHeroTimer();
       }
-      function showSlide(index) {
-        active=(index+slides.length)%slides.length; const slide=slides[active];
-        image.style.opacity='0.35';
-        window.setTimeout(()=>{image.src=slide.src;image.alt=slide.alt;note.textContent=slide.label;image.style.opacity='1';},100);
+      function showSlide(index, resetTimer=true) {
+        active=(index+slides.length)%slides.length;
+        const slide=slides[active];
+        window.clearTimeout(imageSwapTimeout);
+        image.style.opacity='0';
+        imageSwapTimeout=window.setTimeout(()=>{
+          image.src=slide.src;
+          image.alt=slide.alt;
+          note.textContent=slide.label;
+          requestAnimationFrame(()=>{image.style.opacity='1';});
+        },240);
         [...dots.children].forEach((dot,i)=>{dot.classList.toggle('active',i===active);dot.setAttribute('aria-pressed',String(i===active));});
+        if(resetTimer)startHeroTimer();
       }
+      const heroFrame=document.getElementById('heroCarousel');
       document.getElementById('heroPrev').addEventListener('click',()=>showSlide(active-1));
       document.getElementById('heroNext').addEventListener('click',()=>showSlide(active+1));
-      document.getElementById('heroCarousel').addEventListener('mouseenter',()=>window.clearInterval(timer));
-      document.getElementById('heroCarousel').addEventListener('mouseleave',()=>{window.clearInterval(timer);if(slides.length>1)timer=window.setInterval(()=>showSlide(active+1),6500);});
+      heroFrame.addEventListener('mouseenter',()=>{heroPaused=true;stopHeroTimer();});
+      heroFrame.addEventListener('mouseleave',()=>{heroPaused=false;startHeroTimer();});
+      heroFrame.addEventListener('focusin',()=>{heroPaused=true;stopHeroTimer();});
+      heroFrame.addEventListener('focusout',event=>{if(!heroFrame.contains(event.relatedTarget)){heroPaused=false;startHeroTimer();}});
       document.getElementById('year').textContent=new Date().getFullYear();
       const menuButton=document.querySelector('.menu-btn'); const nav=document.getElementById('site-nav');
       menuButton.addEventListener('click',()=>{const open=nav.classList.toggle('open');menuButton.setAttribute('aria-expanded',String(open));menuButton.setAttribute('aria-label',open?'Close navigation':'Open navigation');menuButton.textContent=open?'×':'☰';});
       nav.querySelectorAll('a').forEach(link=>link.addEventListener('click',()=>{nav.classList.remove('open');menuButton.setAttribute('aria-expanded','false');menuButton.setAttribute('aria-label','Open navigation');menuButton.textContent='☰';}));
       window.PBBHomepage = {
-        setContent(content){ const safe=content&&typeof content==='object'?content:{}; renderGallery(safe);renderPosts(safe);renderCarousel(safe); }
+        setContent(content){ const safe=content&&typeof content==='object'?content:{}; renderGallery(safe);renderPosts(safe);renderCarousel(safe);renderSponsors(safe); }
       };
       fetch('/api/home-content',{cache:'no-store'}).then(response=>response.ok?response.json():Promise.reject(new Error('Homepage content unavailable'))).then(payload=>window.PBBHomepage.setContent(payload.content||{})).catch(()=>window.PBBHomepage.setContent({}));
     })();
@@ -847,7 +935,7 @@ button, .btn, .nav-admin, .manager-close, .manager-secondary, .manager-primary, 
       <button type="button" class="admin-login-close" data-admin-login-close aria-label="Close admin login">×</button>
       <div class="admin-login-kicker">Pickleball Buddies Qatar</div>
       <h2 id="adminLoginTitle">Admin Login</h2>
-      <p id="adminLoginDescription">Sign in to manage homepage photos and announcements, plus club sessions, players, matchmaking and interclub tournaments.</p>
+      <p id="adminLoginDescription">Sign in to open the Match Center Organizer tools. You can return to the homepage to manage photos, announcements and sponsor advertisements.</p>
       <form id="adminLoginForm">
         <label for="adminLoginPassword">Organizer password</label>
         <input id="adminLoginPassword" name="password" type="password" autocomplete="current-password" required placeholder="Enter organizer password">
@@ -872,12 +960,14 @@ button, .btn, .nav-admin, .manager-close, .manager-secondary, .manager-primary, 
       const menuButton=document.querySelector('.menu-btn');
       const photoForm=document.getElementById('homePhotoForm');
       const postForm=document.getElementById('homePostForm');
+      const sponsorForm=document.getElementById('homeSponsorForm');
       const photoStatus=document.getElementById('homePhotoStatus');
       const postStatus=document.getElementById('homePostStatus');
+      const sponsorStatus=document.getElementById('homeSponsorStatus');
       const mediaList=document.getElementById('homeMediaList');
       const postList=document.getElementById('homePostList');
       let authenticated=false;
-      let content={heroImages:[],galleryImages:[],posts:[]};
+      let content={heroImages:[],galleryImages:[],posts:[],sponsors:[]};
       const clone=value=>JSON.parse(JSON.stringify(value));
       const mediaUrl=key=>'/media/'+encodeURIComponent(key);
       const setMessage=(el,message,type='')=>{el.textContent=message;el.className='manager-message'+(type?' '+type:'');};
@@ -891,7 +981,7 @@ button, .btn, .nav-admin, .manager-close, .manager-secondary, .manager-primary, 
         const response=await fetch('/api/home-content',{cache:'no-store',credentials:'same-origin'});
         const payload=await response.json().catch(()=>({}));
         if(!response.ok)throw new Error(payload.error||'Could not load homepage content.');
-        content=payload.content||{heroImages:[],galleryImages:[],posts:[]};
+        content=payload.content||{heroImages:[],galleryImages:[],posts:[],sponsors:[]};
         if(window.PBBHomepage)window.PBBHomepage.setContent(content);
         renderManagerLists();
       }
@@ -962,7 +1052,28 @@ button, .btn, .nav-admin, .manager-close, .manager-secondary, .manager-primary, 
           const copy=el('div',undefined,'manager-list-copy');copy.append(el('strong',post.title),el('span',(post.body||'').slice(0,150)));
           const actions=el('div',undefined,'manager-post-actions');const edit=el('button','Edit');edit.type='button';edit.addEventListener('click',()=>editPost(post.id));
           const remove=el('button','Delete');remove.type='button';remove.addEventListener('click',()=>removePost(post.id));actions.append(edit,remove);item.append(copy,actions);postList.append(item);
+        });        const sponsors=content.sponsors||[];const sponsorList=document.getElementById('homeSponsorList');sponsorList.replaceChildren();document.getElementById('homeSponsorCount').textContent=sponsors.length+' entries';
+        if(!sponsors.length)sponsorList.append(el('div','No sponsors or advertisements published.','post-empty'));
+        sponsors.forEach(sponsor=>{
+          const item=el('div',undefined,'manager-list-item');const copy=el('div',undefined,'manager-list-copy');
+          copy.append(el('strong',sponsor.name),el('span',(sponsor.kicker||'')+' · '+(sponsor.headline||'')));
+          const actions=el('div',undefined,'manager-post-actions');const edit=el('button','Edit');edit.type='button';edit.addEventListener('click',()=>editSponsor(sponsor.id));
+          const remove=el('button','Delete');remove.type='button';remove.addEventListener('click',()=>removeSponsor(sponsor.id));actions.append(edit,remove);item.append(copy,actions);sponsorList.append(item);
         });
+      }
+      function resetSponsorForm(){sponsorForm.reset();document.getElementById('homeSponsorId').value='';document.getElementById('homeSponsorSubmit').textContent='Add sponsor / advertisement';document.getElementById('homeSponsorCancel').hidden=true;}
+      function editSponsor(id){
+        const sponsor=(content.sponsors||[]).find(item=>item.id===id);if(!sponsor)return;
+        document.getElementById('homeSponsorId').value=sponsor.id;document.getElementById('homeSponsorName').value=sponsor.name||'';document.getElementById('homeSponsorUrl').value=sponsor.url||'';
+        document.getElementById('homeSponsorKicker').value=sponsor.kicker||'';document.getElementById('homeSponsorLogo').value=sponsor.logo||'';document.getElementById('homeSponsorHeadline').value=sponsor.headline||'';
+        document.getElementById('homeSponsorDescription').value=sponsor.description||'';document.getElementById('homeSponsorCta').value=sponsor.cta||'';
+        document.getElementById('homeSponsorSubmit').textContent='Save sponsor / advertisement';document.getElementById('homeSponsorCancel').hidden=false;setMessage(sponsorStatus,'Editing '+sponsor.name+'. Save to update both carousels.');
+        document.getElementById('homeSponsorName').focus();
+      }
+      async function removeSponsor(id){
+        const sponsor=(content.sponsors||[]).find(item=>item.id===id);if(!sponsor||!confirm('Remove '+sponsor.name+' from both sponsor carousels?'))return;
+        try{const next=clone(content);next.sponsors=(next.sponsors||[]).filter(item=>item.id!==id);await saveContent(next);setMessage(sponsorStatus,'Sponsor removed from both carousels.','ok');if(document.getElementById('homeSponsorId').value===id)resetSponsorForm();}
+        catch(error){setMessage(sponsorStatus,error.message,'error');}
       }
       async function removeMedia(key){
         if(!confirm('Remove this image from the homepage and delete its uploaded file?'))return;
@@ -997,7 +1108,7 @@ button, .btn, .nav-admin, .manager-close, .manager-secondary, .manager-primary, 
       form.addEventListener('submit',async event=>{
         event.preventDefault();const password=passwordInput.value;if(!password)return;
         submitButton.disabled=true;submitButton.textContent='Signing in…';loginStatus.textContent='Checking administrator access…';loginStatus.className='admin-login-status';
-        try{const response=await fetch('/api/auth',{method:'POST',headers:{'X-Admin-Password':password},credentials:'same-origin',cache:'no-store'});const payload=await response.json().catch(()=>({}));if(!response.ok)throw new Error(payload.error||'The organizer password was not accepted.');passwordInput.value='';updateAuthUI(true);closeModal();await fetchContent().catch(error=>{setMessage(photoStatus,error.message,'error');});openManager();}
+        try{const response=await fetch('/api/auth',{method:'POST',headers:{'X-Admin-Password':password},credentials:'same-origin',cache:'no-store'});const payload=await response.json().catch(()=>({}));if(!response.ok)throw new Error(payload.error||'The organizer password was not accepted.');passwordInput.value='';loginStatus.textContent='Signed in. Opening Organizer tools…';updateAuthUI(true);closeModal();window.location.assign('/match-center/?organizer=1');}
         catch(error){loginStatus.textContent=error.message||'Could not sign in. Please try again.';loginStatus.className='admin-login-status error';passwordInput.focus();}
         finally{submitButton.disabled=false;submitButton.textContent='Sign in to Organizer';}
       });
@@ -1028,6 +1139,19 @@ button, .btn, .nav-admin, .manager-close, .manager-secondary, .manager-primary, 
         }catch(error){if(uploadedKey)await deleteImage(uploadedKey).catch(()=>{});setMessage(postStatus,error.message,'error');}
         finally{submit.disabled=false;submit.textContent=document.getElementById('homePostId').value?'Save announcement':'Publish announcement';}
       });
+      sponsorForm.addEventListener('submit',async event=>{
+        event.preventDefault();if(!authenticated)return;
+        const submit=document.getElementById('homeSponsorSubmit');submit.disabled=true;
+        try{
+          const id=document.getElementById('homeSponsorId').value;
+          const sponsor={id:id||crypto.randomUUID(),name:document.getElementById('homeSponsorName').value.trim(),url:document.getElementById('homeSponsorUrl').value.trim(),kicker:document.getElementById('homeSponsorKicker').value.trim(),logo:document.getElementById('homeSponsorLogo').value.trim(),headline:document.getElementById('homeSponsorHeadline').value.trim(),description:document.getElementById('homeSponsorDescription').value.trim(),cta:document.getElementById('homeSponsorCta').value.trim()};
+          const parsedUrl=new URL(sponsor.url);if(!['https:','http:'].includes(parsedUrl.protocol))throw new Error('Use a valid http:// or https:// website link.');
+          const next=clone(content);next.sponsors=next.sponsors||[];const index=next.sponsors.findIndex(item=>item.id===sponsor.id);if(index>=0)next.sponsors[index]=sponsor;else next.sponsors.push(sponsor);
+          await saveContent(next);resetSponsorForm();setMessage(sponsorStatus,'Sponsor saved. The homepage and Match Center now use the updated shared list.','ok');
+        }catch(error){setMessage(sponsorStatus,error.message,'error');}
+        finally{submit.disabled=false;submit.textContent=document.getElementById('homeSponsorId').value?'Save sponsor / advertisement':'Add sponsor / advertisement';}
+      });
+      document.getElementById('homeSponsorCancel').addEventListener('click',resetSponsorForm);
       document.getElementById('homePostCancel').addEventListener('click',resetPostForm);
       fetch('/api/auth',{cache:'no-store',credentials:'same-origin'}).then(response=>response.ok?response.json():{authenticated:false}).then(payload=>{
         updateAuthUI(!!payload.authenticated);
