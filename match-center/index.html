@@ -816,7 +816,7 @@ function partnerLayoutValid(m){
  if(m.tournament){if(teamA.size!==2||teamB.size!==2)return false;const a=[...teamA].map(player),b=[...teamB].map(player);if(!isFixedDuo(a[0],a[1])||!isFixedDuo(b[0],b[1]))return false;}
  return true;
 }
-function selectGenerationGroup(pool,count=4,quotas=null){
+function selectGenerationGroup(pool,count=4,quotas=null,onPartnerBlocked=null){
  const byId=new Map(pool.map(p=>[p.id,p])),units=[],seen=new Set();
  for(const p of pool){if(seen.has(p.id))continue;const q=fixedPartner(p);
   if(p.partnerId){if(!q||!byId.has(q.id))continue;seen.add(p.id);seen.add(q.id);units.push([p,q]);}
@@ -824,8 +824,16 @@ function selectGenerationGroup(pool,count=4,quotas=null){
  }
  const keys=quotas?Object.keys(quotas):[],counts=Object.fromEntries(keys.map(k=>[k,0]));let visited=0;
  function find(index,chosen,current){
-  if(++visited>12000)return null;
-  if(chosen.length===count){if(quotas&&!keys.every(k=>current[k]===quotas[k]))return null;return genderGroupCompatible(chosen,state.matchGenderMode||"open")?chosen:null;}
+  if(++visited>50000)return null;
+  if(chosen.length===count){
+   if(quotas&&!keys.every(k=>current[k]===quotas[k]))return null;
+   const mode=state.matchGenderMode||"open";
+   if(!skillCompatibleGroup(chosen)||!genderGroupCompatible(chosen,mode))return null;
+   // Do not stop at the first four players when their teammate history makes
+   // every split illegal. Keep searching for another compatible group.
+   if(!generatedTeamOptions(chosen,mode).length){if(onPartnerBlocked)onPartnerBlocked();return null;}
+   return chosen;
+  }
   if(index>=units.length)return null;
   const unit=units[index],unitCounts={};unit.forEach(p=>unitCounts[p.bracket]=(unitCounts[p.bracket]||0)+1);
   const quotaFits=!quotas||Object.entries(unitCounts).every(([k,n])=>Object.prototype.hasOwnProperty.call(quotas,k)&&current[k]+n<=quotas[k]);
@@ -887,7 +895,16 @@ function generatedTeamOptions(group,mode){
   return teamPairingAllowed(option.teamA)&&teamPairingAllowed(option.teamB);
  });
 }
-function generateMatches(){
+async function generateMatches(){
+ if(!databaseReady){
+  setDatabaseStatus("Match generation is unavailable because the shared database is not connected. Check the connection before trying again.","error");
+  alert("The shared club database is not connected. Match generation was not started.");
+  return;
+ }
+ if(!(await requireAdminAccess()))return;
+ // Work from the newest shared state so a stale organizer tab cannot build
+ // matches from an old attendance list or overwrite another organizer's work.
+ await refreshFromDatabase();
  let busy=busyIds(),made=0,blockedByTeammateLimit=0;
  let target=generationSlots(),bracketMade=Object.fromEntries(BRACKETS.map(b=>[b,0]));
  const genderMode=state.matchGenderMode||"open";
@@ -901,6 +918,7 @@ function generateMatches(){
   let lower=BRACKETS.indexOf(bracket)<BRACKETS.indexOf(otherBracket);
   return pool.slice().sort((a,b)=>{if(lower){let x=performance(a),y=performance(b);return y.winRate-x.winRate||y.pointDiffPerGame-x.pointDiffPerGame||activeCount(a)-activeCount(b)||idle(b)-idle(a)||a.name.localeCompare(b.name);}return activeCount(a)-activeCount(b)||idle(b)-idle(a)||a.name.localeCompare(b.name);});
  }
+ function partnerBlocked(){blockedByTeammateLimit++;}
  while(made<target){
   let pools=Object.fromEntries(BRACKETS.map(bracket=>{
    let pool=state.players.filter(p=>p.available&&!busy.has(p.id)&&p.bracket===bracket&&(genderMode==="open"||(genderMode==="girls"&&p.gender==="female")||(genderMode==="boys"&&p.gender==="male")||(genderMode==="girls-vs-boys"&&(p.gender==="female"||p.gender==="male"))));
@@ -918,28 +936,28 @@ function generateMatches(){
    candidates.push({brackets,bracket:brackets.join(" + "),group,teamOptions,mixed:brackets.length>1,distance:brackets.length>1?Math.max(...brackets.map(b=>BRACKETS.indexOf(b)))-Math.min(...brackets.map(b=>BRACKETS.indexOf(b))):0,
     avgGames:games.reduce((a,b)=>a+b,0)/4,maxGames:Math.max(...games),maxIdle:Math.max(...waits),avgIdle:waits.reduce((a,b)=>a+b,0)/4,queued:brackets.reduce((n,b)=>n+bracketMade[b],0)});
   }
-  for(let bracket of BRACKETS){let group=selectGenerationGroup(pools[bracket],4,{[bracket]:4});if(group.length)addCandidate(group,[bracket],false,0);}
+  for(let bracket of BRACKETS){let group=selectGenerationGroup(pools[bracket],4,{[bracket]:4},partnerBlocked);if(group.length)addCandidate(group,[bracket],false,0);}
   // Underfilled categories can borrow from a surplus category, while duo units stay intact.
   for(let i=0;i<BRACKETS.length;i++){
    let stranded=pools[BRACKETS[i]];if(stranded.length<1||stranded.length>3)continue;
    for(let j=0;j<BRACKETS.length;j++){
     if(i===j)continue;let donor=pools[BRACKETS[j]];if(donor.length<2)continue;
     let combined=mixedPool(stranded,BRACKETS[i],BRACKETS[j]).concat(mixedPool(donor,BRACKETS[j],BRACKETS[i]));
-    let group=selectGenerationGroup(combined,4,{[BRACKETS[i]]:stranded.length,[BRACKETS[j]]:4-stranded.length});if(group.length)addCandidate(group,[BRACKETS[i],BRACKETS[j]],true,Math.abs(i-j));
+    let group=selectGenerationGroup(combined,4,{[BRACKETS[i]]:stranded.length,[BRACKETS[j]]:4-stranded.length},partnerBlocked);if(group.length)addCandidate(group,[BRACKETS[i],BRACKETS[j]],true,Math.abs(i-j));
    }
   }
   // Pair underfilled brackets and consider controlled mixes from two surplus brackets.
   for(let i=0;i<BRACKETS.length;i++)for(let j=i+1;j<BRACKETS.length;j++){
    let a=pools[BRACKETS[i]],b=pools[BRACKETS[j]];if(a.length+b.length<4||!a.length||!b.length)continue;
    let takeA=Math.min(3,a.length),takeB=4-takeA;if(takeB>b.length){takeB=Math.min(3,b.length);takeA=4-takeB;}
-   let group=selectGenerationGroup(mixedPool(a,BRACKETS[i],BRACKETS[j]).concat(mixedPool(b,BRACKETS[j],BRACKETS[i])),4,{[BRACKETS[i]]:takeA,[BRACKETS[j]]:takeB});
+   let group=selectGenerationGroup(mixedPool(a,BRACKETS[i],BRACKETS[j]).concat(mixedPool(b,BRACKETS[j],BRACKETS[i])),4,{[BRACKETS[i]]:takeA,[BRACKETS[j]]:takeB},partnerBlocked);
    if(group.length)addCandidate(group,[BRACKETS[i],BRACKETS[j]],true,j-i);
   }
   for(let i=0;i<BRACKETS.length;i++)for(let j=i+1;j<BRACKETS.length;j++){
    let a=pools[BRACKETS[i]],b=pools[BRACKETS[j]];if(a.length<5||b.length<5)continue;
    for(let takeA=1;takeA<=3;takeA++){
     let takeB=4-takeA;if(a.length-takeA<4||b.length-takeB<4)continue;
-    let group=selectGenerationGroup(mixedPool(a,BRACKETS[i],BRACKETS[j]).concat(mixedPool(b,BRACKETS[j],BRACKETS[i])),4,{[BRACKETS[i]]:takeA,[BRACKETS[j]]:takeB});
+    let group=selectGenerationGroup(mixedPool(a,BRACKETS[i],BRACKETS[j]).concat(mixedPool(b,BRACKETS[j],BRACKETS[i])),4,{[BRACKETS[i]]:takeA,[BRACKETS[j]]:takeB},partnerBlocked);
     if(group.length)addCandidate(group,[BRACKETS[i],BRACKETS[j]],true,j-i);
    }
   }
@@ -951,15 +969,28 @@ function generateMatches(){
   let m={id:"m"+state.seq++,bracket:chosen.bracket,brackets:chosen.brackets.slice(),teamA:teams.teamA.map(p=>p.id),teamB:teams.teamB.map(p=>p.id),status:"upcoming",court:null,scoreA:null,scoreB:null,createdAt:Date.now(),genderMode};
   state.matches.push(m);m.teamA.concat(m.teamB).forEach(id=>busy.add(id));made++;chosen.brackets.forEach(b=>bracketMade[b]++);
  }
- if(made<target&&blockedByTeammateLimit){
-  const prefix=made?`Generated ${made} match${made===1?"":"es"}. `:"";
-  alert(prefix+"The remaining compatible combinations would make a non-fixed pair teammates for a third consecutive match. The two-in-a-row limit is being enforced; try again after players have rotated with different partners. Fixed partner luggages are exempt.");
- }else if(!made){
-  if(target===0)alert("The match limit is full. Active and upcoming matches together cannot exceed total courts + 3.");
-  else if(genderMode==="girls"||genderMode==="boys"||genderMode==="girls-vs-boys")alert("Not enough available players with the required gender settings for this match format. Check each player's gender in the Players tab.");
-  else alert("Not enough available, unassigned players for the selected skill format. Fixed partners must be available together.");
+ if(!made){
+  if(target===0){alert("The match limit is full. Active and upcoming matches together cannot exceed total courts + 3.");return;}
+  const available=state.players.filter(p=>p.available&&!busy.has(p.id));
+  if(genderMode==="girls"||genderMode==="boys"||genderMode==="girls-vs-boys"){
+   alert(`No match was generated. There are ${available.length} available, unassigned players; the selected gender format and fixed-partner requirements must allow four compatible players.`);
+  }else if(available.length<4){
+   alert(`No match was generated. Only ${available.length} players are available and unassigned. At least four are needed.`);
+  }else if(blockedByTeammateLimit){
+   alert("No match was generated because the available groups would repeat a non-fixed teammate pairing for a third consecutive match. The generator checked alternate player combinations. Try again after more players have rotated.");
+  }else{
+   alert("No compatible group of four was found. Check player availability, fixed-partner registrations, and skill brackets. Beginner players cannot be matched with Lower intermediate or higher players.");
+  }
+  return;
  }
- save();
+ const saved=await save();
+ if(!saved){
+  alert(`Generated ${made} match${made===1?"":"es"} locally, but the database has not confirmed the save yet. Keep this page open and check the database status message before generating again.`);
+  return;
+ }
+ if(made<target&&blockedByTeammateLimit){
+  alert(`Generated and saved ${made} match${made===1?"":"es"}. Remaining groups were blocked by the two-consecutive-match teammate rule; alternate player combinations were checked and fixed partner luggages remain exempt.`);
+ }
 }
 function clearUpcoming(){if(!confirm("Remove all upcoming matches?"))return;state.matches=state.matches.filter(m=>m.status!=="upcoming");save()}
 function startMatch(id){let m=state.matches.find(x=>x.id===id);if(!m||m.status!=="upcoming")return;let ids=[...m.teamA,...m.teamB],members=ids.map(player);if(ids.length!==4||new Set(ids).size!==4||members.some(p=>!p||!p.available)){alert("This match needs four different available players. Replace or add the missing player before starting.");return;}if(!skillCompatibleGroup(members)){alert("Skill mismatch: Beginner players cannot be matched with Lower intermediate or higher players. Adjust the player brackets or regenerate this match.");return;}if(!partnerLayoutValid(m)){alert(m.tournament?"Tournament match must contain two complete registered duos, with each duo on its own team.":"Fixed partners must stay together on the same team. Adjust the match before starting.");return;}if(!matchGenderCompatible(m)){alert("This match does not meet its selected gender format. Adjust the teams before starting.");return;}let courts=configuredCourts(),occupied=new Set(state.matches.filter(x=>x.status==="playing").map(x=>Number(x.court)).filter(n=>Number.isInteger(n)&&n>0));if(occupied.size>=courts){alert("All "+courts+" courts are currently in use. Finish an active match before starting another match.");return;}let freeCourt=Array.from({length:courts},(_,i)=>i+1).find(n=>!occupied.has(n));if(!freeCourt){alert("No court is currently available.");return;}m.status="playing";m.court=freeCourt;m.startedAt=Date.now();save()}
