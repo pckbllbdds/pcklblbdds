@@ -65,7 +65,8 @@ function validSponsors(items) {
     typeof item.logo === "string" && item.logo.trim().length > 0 && item.logo.length <= 50 &&
     typeof item.headline === "string" && item.headline.trim().length > 0 && item.headline.length <= 120 &&
     typeof item.description === "string" && item.description.length <= 220 &&
-    typeof item.cta === "string" && item.cta.trim().length > 0 && item.cta.length <= 60
+    typeof item.cta === "string" && item.cta.trim().length > 0 && item.cta.length <= 60 &&
+    (item.imageKey == null || validKey(item.imageKey))
   );
 }
 
