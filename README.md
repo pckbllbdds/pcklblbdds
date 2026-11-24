@@ -5,28 +5,28 @@ This is the GitHub-ready Cloudflare Pages site for Pickleball Buddies Qatar. The
 ## Public homepage and Match Center routes
 
 - `/` serves the new Pickleball Buddies Qatar public homepage with the hero carousel, community gallery, shared announcements, a static sponsor/partner card grid, achievements section, Facebook and Reclub links, and Match Center calls-to-action.
-- `/match-center/` serves the existing interactive Match Center. The Match Center header includes a Home link back to `/`.
-- Homepage Match Center links use the same-site `/match-center/` route. API calls remain at `/api/state` and `/api/auth`, so the Cloudflare Pages Functions and device-specific Organizer cookie continue to work without a D1 change.
-- The homepage includes an Organizer-only Homepage Manager. Signed-in organizers can upload and remove hero-carousel/gallery photos, publish/edit/delete announcements, and add/edit/delete shared sponsor and advertisement entries. The sponsor list appears as a static card grid on the homepage and drives the rotating/fading advertisement carousel in the Match Center. Image files and homepage content are stored using the existing D1 binding. The media API automatically creates a separate `homepage_media` table on first use; there is no second Worker, Pages project, R2 bucket, or extra Cloudflare binding to configure. Public visitors see the same shared images and announcements.
+- `/match-center/` serves the supplied Match Center v12 page. Public visitors can view the match board, player search, leaderboards and any published tournament bracket.
+- Homepage Match Center links use the same-site `/match-center/` route. The homepage Admin Login is the only sign-in flow: after login it redirects to `/match-center/?organizer=1`. Match Center checks the existing HttpOnly organizer cookie and opens Manage session; it never asks for the password a second time. API calls remain at `/api/state` and `/api/auth`, so no D1 change is required.
+- The homepage includes an Organizer-only Homepage Manager. Signed-in organizers can upload and remove hero-carousel/gallery photos, publish/edit/delete announcements, and add/edit/delete shared sponsor and advertisement entries. The sponsor list appears as a static card grid on the homepage. The supplied Match Center v12 contains its own featured-brand sidebar. Image files and homepage content are stored using the existing D1 binding. The media API automatically creates a separate `homepage_media` table on first use; there is no second Worker, Pages project, R2 bucket, or extra Cloudflare binding to configure. Public visitors see the same shared images and announcements.
 
 ## What changed from the supplied Match Center HTML
 
 - The old browser-only `localStorage` persistence has been removed.
 - Shared match data is loaded from and saved to Cloudflare D1 through Pages Functions.
 - The public match board refreshes from D1 every 10 seconds.
-- The Organizer and Players tabs require one shared organizer password. After a successful sign-in, this browser receives a secure, HttpOnly device session cookie that survives page refreshes for up to one year. Other devices must sign in separately; the Logout button clears the current browser's session.
+- The Manage session and Players tabs are hidden from visitors and shown only when Match Center verifies the organizer cookie issued by the homepage. There is no Match Center password prompt or logout control; sign-in and logout remain on the homepage.
 - Writes include a revision number. If another organizer saves first, the later save is rejected and the browser loads the latest shared state instead of silently overwriting it.
 - The existing match generation, player management, leaderboard, court status and match scoring logic is retained.
 - Interclub Tournament Mode provides a public, read-only club bracket and an Organizer-only setup/editor. Each club-vs-club bracket tie contains multiple generated doubles games based on the registered players for both clubs; each eligible duo matchup becomes a game. Club tie winners are decided by game wins and advance through a standard seeded 2–16-club single-elimination bracket.
 - Tournament fixture editing is stable while open: fixture fields are staged and saved explicitly, the 10-second background refresh pauses while a match editor is open, and score/result saves update only the tournament view while preserving the open editor and bracket scroll position.
-- The header now shows only the Organizer action; the redundant Player view button has been removed because the public match board is the default landing view.
+- The public Match Center opens on the Match board. Its organizer tools are opened by the homepage login redirect, not by a separate Organizer button in the Match Center header.
 - A minimal “Join us on Facebook” text link appears in the public sidebar and opens the club Facebook page.
 - The Reset Session action remains separated at the bottom of the Organizer view, away from routine session controls. Its existing confirmation prompt and reset behavior are preserved.
-- The interface has been refined for phones: the header actions and navigation use consistent touch-friendly layouts, court cards reflow into a grid, player and leaderboard tables scroll within their own containers, and score-entry and organizer controls stack cleanly on narrow screens. The wider desktop layout is retained.
+- The interface has been refined for phones: the navigation uses touch-friendly layouts, court cards reflow into a grid, player and leaderboard tables scroll within their own containers, and score-entry and organizer controls stack cleanly on narrow screens. The wider desktop layout is retained.
 
 ## Organizer device sign-in
 
-A successful password check creates a browser-specific, signed session cookie. The cookie is `HttpOnly`, `Secure`, and `SameSite=Strict`; it is not exposed to page JavaScript or stored in local storage. Refreshing the page keeps the device signed in. The Logout button calls `DELETE /api/auth` to clear that browser's cookie. Changing the Cloudflare `ADMIN_PASSWORD` invalidates previously issued device cookies. No D1 migration is required for this feature.
+The homepage performs the password check and creates a browser-specific, signed session cookie. The cookie is `HttpOnly`, `Secure`, and `SameSite=Strict`; it is not exposed to page JavaScript or stored in local storage. Match Center only verifies that cookie and opens its organizer tools when the homepage redirects with `?organizer=1`. Use the homepage logout control to clear the browser's cookie. Changing the Cloudflare `ADMIN_PASSWORD` invalidates previously issued device cookies. No D1 migration is required for this feature.
 
 ## Files
 
@@ -109,9 +109,9 @@ Cloudflare Pages Git integration will deploy future commits pushed to the produc
 
 The binding name must be `DB`. The API code uses `env.DB`; a different binding name will make the database appear disconnected.
 
-## 6. Set the organizer password
+## 6. Set the homepage organizer password
 
-The public match board is readable by visitors, but the Organizer and Players tabs require the shared organizer password.
+The public match board is readable by visitors. The homepage Admin Login uses the shared organizer password; Match Center receives the resulting session cookie and does not request the password again.
 
 1. Open the Pages project in Cloudflare.
 2. Go to **Settings → Variables and Secrets**.
@@ -133,7 +133,7 @@ Open the deployed `*.pages.dev` URL to see the public homepage. Select **Match C
 
 - In Match Center, the status strip near the top should say that the shared database is connected.
 - The public view should load even when no players have been added yet.
-- Click **Manage session** or **Players** and enter the organizer password.
+- Use **Admin Login** on the homepage. After successful sign-in, the homepage opens Match Center directly in **Manage session**. The **Players** tab is also available during that authenticated session.
 - Add a test player, then open the site in another browser/device. The public view should show the updated player/match data after the next refresh cycle (within about 10 seconds).
 
 If the status strip reports a D1 problem, verify that the D1 binding is named `DB`, that it points to `pickleball-buddies-qatar`, and that the `schema.sql` statements were successfully executed in that database's SQL Console. If writes are disabled, verify that the Production secret `ADMIN_PASSWORD` exists and redeploy.
@@ -141,7 +141,7 @@ If the status strip reports a D1 problem, verify that the D1 binding is named `D
 ## Important notes
 
 - The public API intentionally allows read access. Do not store private or sensitive personal information in player names or match records.
-- The organizer password is a shared password, not individual accounts or role-based access. Anyone who knows it can manage the roster, results and reset the session.
+- The organizer password is a shared password, not individual accounts or role-based access. Anyone who knows it can use the homepage Admin Login to manage the roster, results and reset the session.
 - This version stores the entire app state as one JSON document. A revision check protects against silent concurrent overwrites, but simultaneous edits by multiple organizers may cause one save to be rejected. The affected browser will load the newest data and ask the organizer to re-apply the change.
 - D1 starts with a clean session. Data previously stored by the old browser-only version is not automatically uploaded to the new database.
 
@@ -205,9 +205,9 @@ When Tournament Mode is enabled, visitors can open the Interclub Tournament tab 
 
 
 ### Homepage administrator entry point and content management
-- The public homepage navigation includes **Admin Login**. After the shared Organizer password is accepted, the homepage redirects to the Match Center's protected Organizer tools using the same authenticated device session. Returning to the homepage on that device also reveals the private **Homepage Manager** panel.
-- The Homepage Manager controls hero-carousel photos, static community-gallery photos, announcements shown in PBB Updates & Moments, and sponsor/advertisement entries shared by the homepage and Match Center. The homepage sponsor section is a static card grid (not a carousel); sponsor advert artwork can be uploaded per sponsor and appears on its homepage card and in the Match Center rotating advertisement. Organizers can upload photos and choose Hero carousel / Gallery (not carousel) / Both placement. The published media library labels whether each image is used in a carousel or in a static placement. Announcement photos are not added to the homepage photo carousel. The Join Our Community popup rotates its Reclub, Facebook and DUPR options while open.
+- The public homepage navigation includes **Admin Login**. After the shared Organizer password is accepted, the homepage redirects to Match Center with `?organizer=1`; Match Center validates the existing device session and opens its protected Manage session tab. Returning to the homepage on that device also reveals the private **Homepage Manager** panel.
+- The Homepage Manager controls hero-carousel photos, static community-gallery photos, announcements shown in PBB Updates & Moments, and sponsor/advertisement entries displayed on the homepage. The homepage sponsor section is a static card grid (not a carousel); sponsor advert artwork can be uploaded per sponsor and appears on its homepage card. The supplied Match Center v12 retains its separate featured-brand sidebar. Organizers can upload photos and choose Hero carousel / Gallery (not carousel) / Both placement. The published media library labels whether each image is used in a carousel or in a static placement. Announcement photos are not added to the homepage photo carousel. The Join Our Community popup rotates its Reclub, Facebook and DUPR options while open.
 - Public visitors receive the same published homepage content. The homepage loads content from `/api/home-content`; only the authenticated Organizer can save it.
 - Homepage images are stored in the self-initializing `homepage_media` table in the existing D1 database and served by `/media/:key`. Photos are automatically compressed in the browser to 1.7 MB or less (D1 permits a maximum 2,000,000-byte BLOB or row); animated GIFs are preserved if they already fit. JPEG, PNG, WebP and GIF are supported; SVG is rejected.
 - Announcement text and image-key metadata are stored under `homepageContent` in the existing D1 state JSON. The Match Center state API preserves this field when older clients submit normalized session state. No D1 schema migration is required.
-- The same existing HttpOnly device session, Organizer password, and `/api/auth` Pages Function are used. No second login system or new secret is introduced.
+- The same existing HttpOnly device session, homepage Organizer password, and `/api/auth` Pages Function are used. Match Center has no separate login or logout flow. No second login system or new secret is introduced.
