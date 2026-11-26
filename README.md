@@ -147,6 +147,8 @@ If the status strip reports a D1 problem, verify that the D1 binding is named `D
 
 
 ## Leaderboard update
+- Skill hierarchy is Beginner → Advanced beginner → Novice → Lower intermediate → Intermediate → High intermediate → Advance. The existing D1 value `Advance beginner` is retained internally for compatibility and displayed as “Advanced beginner”.
+- Normal-match leaderboards exclude Tournament Mode results and rank players by most wins, fewest losses, highest total points scored, then fewest total points conceded. Points for and points against are both shown. Players still tied after all four criteria share the same rank. Games count completed matches only; win rate is not used.
 - Leaderboards include an overall ranking across all skill brackets, individual bracket views, and completed games played alongside wins and losses.
 
 
