@@ -7,7 +7,7 @@ function json(data, status = 200) {
   });
 }
 
-function validateRoundRobinTournament(tournament) {
+function validateRoundRobinTournament(tournament, regularMatches = []) {
   const fail = (message) => message;
   const brackets = ["Beginner", "Advance beginner", "Novice", "Lower intermediate", "Intermediate", "High intermediate", "Advance"];
   if (!Array.isArray(tournament.roster) || tournament.roster.length > 1000 || !["open", "girls", "boys", "girls-vs-boys"].includes(tournament.genderMode || "open")) return fail("The tournament roster or gender format is invalid.");
@@ -30,6 +30,9 @@ function validateRoundRobinTournament(tournament) {
   }
   if (!Array.isArray(tournament.rounds) || tournament.rounds.length > 16) return fail("The round-robin schedule has an invalid number of rounds.");
   const tieIds = new Set(), gameIds = new Set(), expectedRounds = clubs.size % 2 ? clubs.size : clubs.size - 1, expectedTiesPerRound = Math.floor(clubs.size / 2), pairings = new Set();
+  // Scheduled/completed fixtures may reuse the same duo across all-pairs round-robin games.
+  // Only simultaneous live games must reserve a player globally across both queues.
+  const livePlayerKeys = new Set((regularMatches || []).filter(match => match?.status === "playing").flatMap(match => [...(match.teamA || []), ...(match.teamB || [])].map(id => "p:" + String(id))));
   if (tournament.rounds.length && (clubs.size < 2 || tournament.rounds.length !== expectedRounds)) return fail("A single round-robin schedule must include every required round.");
   for (let roundIndex = 0; roundIndex < tournament.rounds.length; roundIndex++) {
     const round = tournament.rounds[roundIndex];
@@ -44,7 +47,7 @@ function validateRoundRobinTournament(tournament) {
       const pairKey = [clubA, clubB].sort().join("|");
       if (pairings.has(pairKey)) return fail("Every pair of clubs may meet only once in a single round robin.");
       pairings.add(pairKey);
-      const regularUsed = new Set(); let winsA = 0, winsB = 0, unfinished = false, live = false;
+      let winsA = 0, winsB = 0, unfinished = false, live = false;
       for (const game of tie.games) {
         if (!game || typeof game.id !== "string" || !game.id || gameIds.has(game.id) || !["scheduled", "in-progress", "complete"].includes(game.status) || !Array.isArray(game.teamA) || !Array.isArray(game.teamB) || game.teamA.length !== 2 || game.teamB.length !== 2 || new Set([...game.teamA, ...game.teamB].map(String)).size !== 4 || game.isTiebreaker) return fail("Each round-robin doubles game must contain four unique registered players and a valid status.");
         gameIds.add(game.id);
@@ -56,6 +59,8 @@ function validateRoundRobinTournament(tournament) {
           const sameTeam = (game.teamA.includes(person.id) && game.teamA.includes(person.partnerId)) || (game.teamB.includes(person.id) && game.teamB.includes(person.partnerId));
           if (!sameTeam) return fail("A fixed tournament duo cannot be split across teams or games.");
         }
+        const physicalPlayerKeys = people.map(person => person.sourcePlayerId != null ? "p:" + String(person.sourcePlayerId) : "t:" + String(person.id));
+        if (new Set(physicalPlayerKeys).size !== 4) return fail("A player cannot appear twice in the same doubles game.");
         const mode = game.genderMode || tournament.genderMode || "open";
         if (!["open", "girls", "boys", "girls-vs-boys"].includes(mode)) return fail("A tournament game has an invalid gender format.");
         if (mode === "girls" && !people.every(person => person.gender === "female")) return fail("A girls-only game must contain four female players.");
@@ -64,7 +69,12 @@ function validateRoundRobinTournament(tournament) {
           const aGirls = game.teamA.every(id => roster.get(String(id)).gender === "female"), aBoys = game.teamA.every(id => roster.get(String(id)).gender === "male"), bGirls = game.teamB.every(id => roster.get(String(id)).gender === "female"), bBoys = game.teamB.every(id => roster.get(String(id)).gender === "male");
           if (!((aGirls && bBoys) || (aBoys && bGirls))) return fail("Girls vs Boys games must place two female players against two male players.");
         }
-        for (const id of [...game.teamA, ...game.teamB].map(String)) { if (regularUsed.has(id)) return fail("A player may appear only once in the doubles games of a club matchup."); regularUsed.add(id); }
+        if (game.status === "in-progress") {
+          for (const key of physicalPlayerKeys) {
+            if (livePlayerKeys.has(key)) return fail("A player cannot be assigned to multiple live games at the same time.");
+            livePlayerKeys.add(key);
+          }
+        }
         if (game.status === "scheduled") {
           if (game.scoreA != null || game.scoreB != null || game.winnerClubId != null) return fail("An upcoming tournament game cannot contain a score or winner.");
           unfinished = true;
@@ -179,7 +189,7 @@ export async function onRequestPost({ request, env }) {
       return json({ error: "The interclub tournament setup is invalid. Use between 1 and 16 clubs." }, 400);
     }
     if (tournament.formatVersion === 3) {
-      const roundRobinError = validateRoundRobinTournament(tournament);
+      const roundRobinError = validateRoundRobinTournament(tournament, state.matches);
       if (roundRobinError) return json({ error: roundRobinError }, 400);
     } else if (tournament.formatVersion === 2) {
       const brackets = ["Beginner", "Advance beginner", "Novice", "Lower intermediate", "Intermediate", "High intermediate", "Advance"];
