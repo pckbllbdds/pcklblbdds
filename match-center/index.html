@@ -348,6 +348,169 @@ button.primary{background:#198754;color:#fff}button.primary:hover{background:#14
 @media(min-width:701px){
   .bracket-section-view [data-bracket-key]{display:block!important}
 }
+
+
+/* Expand the Match Center canvas and keep every skill bracket independently readable. */
+@media (min-width:701px) {
+  main {
+    width:calc(100% - 32px);
+    max-width:2200px;
+    box-sizing:border-box;
+  }
+  main:has(#tournament.active) {
+    max-width:2200px;
+  }
+  header {
+    padding-left:max(30px, calc((100% - 2200px) / 2 + 14px));
+    padding-right:max(30px, calc((100% - 2200px) / 2 + 14px));
+  }
+
+  .bracket-columns-viewport {
+    width:100%;
+    max-width:100%;
+    min-width:0;
+  }
+  .match-bracket-groups,
+  .tournament-bracket-groups,
+  .waiting-bracket-groups {
+    gap:12px;
+  }
+  .tournament-bracket-groups {
+    grid-template-columns:repeat(7, minmax(200px, 1fr));
+    min-width:1472px;
+    width:100%;
+  }
+  .tournament-bracket-group {
+    align-self:start;
+    min-width:0;
+    width:100%;
+    box-sizing:border-box;
+    overflow:visible;
+    padding:12px;
+  }
+  .tournament-round-tie,
+  .tournament-subgames,
+  .tournament-subgame {
+    min-width:0;
+    max-width:100%;
+    box-sizing:border-box;
+    overflow:visible;
+  }
+  .tournament-subgame {
+    width:100%;
+    height:auto;
+    padding:10px;
+  }
+  .tournament-bracket-group .bracket-edit,
+  .tournament-bracket-group .bracket-edit[open] {
+    display:block;
+    position:static;
+    width:100%;
+    min-width:0;
+    max-width:100%;
+    height:auto;
+    max-height:none;
+    overflow:visible;
+    box-sizing:border-box;
+  }
+  .tournament-bracket-group .bracket-edit[open] {
+    padding:10px;
+    margin-top:10px;
+  }
+  .tournament-bracket-group .bracket-edit summary {
+    line-height:1.4;
+    overflow-wrap:anywhere;
+  }
+  .tournament-bracket-group .bracket-edit-grid {
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    gap:10px;
+    width:100%;
+    min-width:0;
+    box-sizing:border-box;
+  }
+  .tournament-bracket-group .bracket-edit-grid label,
+  .tournament-bracket-group .bracket-edit-grid label.wide {
+    display:block;
+    grid-column:1;
+    width:100%;
+    min-width:0;
+    margin:0;
+    box-sizing:border-box;
+    overflow-wrap:anywhere;
+    font-size:11px;
+  }
+  .tournament-bracket-group .bracket-edit-grid input,
+  .tournament-bracket-group .bracket-edit-grid select {
+    display:block;
+    width:100%;
+    max-width:100%;
+    min-width:0;
+    min-height:40px;
+    box-sizing:border-box;
+    font-size:13px;
+  }
+  .tournament-bracket-group .bracket-edit-grid input[type="datetime-local"] {
+    padding-left:5px;
+    padding-right:5px;
+    font-size:12px;
+  }
+  .tournament-bracket-group .bracket-result-actions {
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    gap:8px;
+    width:100%;
+    min-width:0;
+    box-sizing:border-box;
+  }
+  .tournament-bracket-group .bracket-result-actions button {
+    display:block;
+    width:100%;
+    min-width:0;
+    max-width:100%;
+    box-sizing:border-box;
+    white-space:normal;
+    overflow-wrap:anywhere;
+    line-height:1.35;
+    padding:9px 8px;
+  }
+  .tournament-bracket-group .match-edit-save-status {
+    line-height:1.45;
+    overflow-wrap:anywhere;
+    margin-top:9px;
+  }
+}
+@media (max-width:700px) {
+  main:has(#tournament.active) {
+    max-width:100%;
+    width:100%;
+  }
+  .tournament-bracket-group .bracket-edit-grid {
+    grid-template-columns:minmax(0,1fr);
+    gap:9px;
+  }
+  .tournament-bracket-group .bracket-edit-grid .wide {
+    grid-column:1;
+  }
+  .tournament-bracket-group .bracket-edit-grid label,
+  .tournament-bracket-group .bracket-edit-grid input,
+  .tournament-bracket-group .bracket-edit-grid select {
+    width:100%;
+    min-width:0;
+    max-width:100%;
+    box-sizing:border-box;
+  }
+  .tournament-bracket-group .bracket-result-actions {
+    display:grid;
+    grid-template-columns:1fr;
+    gap:8px;
+  }
+  .tournament-bracket-group .bracket-result-actions button {
+    width:100%;
+    white-space:normal;
+    line-height:1.35;
+  }
+}
 </style>
 </head>
 <body class="db-loading">
