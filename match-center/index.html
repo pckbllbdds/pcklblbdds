@@ -494,6 +494,8 @@ button.primary{background:#198754;color:#fff}button.primary:hover{background:#14
 .deployment-queue-panel,.deployment-courts-panel{border:1px solid var(--line);border-radius:13px;padding:14px;background:#fbfcfe;min-width:0}
 .deployment-panel-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
 .deployment-panel-heading h3{margin:0}
+.deployment-court-controls{display:flex;align-items:center;justify-content:flex-end;gap:6px;flex-wrap:wrap}
+.deployment-court-controls button{padding:7px 10px;font-size:11px;white-space:nowrap}
 .deployment-next-card{border:1px solid #b9cbe0;border-radius:12px;background:#fff;padding:13px;box-shadow:0 3px 10px #14243a0b;cursor:grab}
 .deployment-next-card:active{cursor:grabbing}
 .deployment-next-card.is-blocked{border-color:#e6c4bf;background:#fffafa;cursor:not-allowed}
@@ -640,6 +642,7 @@ let saveRunning=null;
 let pendingSave=false;
 let deploymentMode="regular";
 let deploymentDraft={};
+let deploymentDraftOrder=[];
 
 function normalizeState(candidate){
  if(!candidate||typeof candidate!=="object"||!Array.isArray(candidate.players)||!Array.isArray(candidate.matches))return freshState();
@@ -885,7 +888,14 @@ function activeCourtItems(){
 function freeCourtNumbers(){const occupied=new Set(activeCourtItems().map(x=>x.courtNo).filter(Boolean));return Array.from({length:configuredCourts()},(_,i)=>i+1).filter(n=>!occupied.has(n));}
 function queueLimit(){return Math.max(0,configuredCourts()+3-activeCourtItems().length)}
 function generationSlots(){return Math.max(0,configuredCourts()+3-activeCourtItems().length-state.matches.filter(m=>m.status==="upcoming").length)}
-function updateCourtCount(value){let next=Math.max(1,Math.min(30,Math.floor(Number(value)||1))),active=activeCourtItems();if(active.some(item=>item.courtNo>next)){alert("Court count cannot be reduced below a court currently in use. Finish the affected match first.");document.getElementById("courtCount").value=state.courtCount;return;}state.courtCount=next;save()}
+function updateCourtCount(value){
+ let next=Math.max(1,Math.min(30,Math.floor(Number(value)||1))),active=activeCourtItems(),assignedAbove=deploymentDraftEntries().some(entry=>entry.court>next);
+ if(active.some(item=>item.courtNo>next)){alert("Court count cannot be reduced below a court currently in use. Finish the affected match first.");document.getElementById("courtCount").value=configuredCourts();return false;}
+ if(assignedAbove){alert("Remove the unsaved game assignment from the higher-numbered court before reducing the court count.");document.getElementById("courtCount").value=configuredCourts();return false;}
+ if(next===configuredCourts())return true;
+ state.courtCount=next;save();return true;
+}
+function adjustDeploymentCourtCount(delta){const next=configuredCourts()+Number(delta);if(!Number.isInteger(next)||next<1||next>30)return;updateCourtCount(next);}
 function deploymentPlayerNames(item,side){const ids=item.game[side]||[];return ids.map(id=>item.kind==="regular"?(player(id)?.name||"Missing player"):tournamentPlayerName(id));}
 function deploymentItemLabel(item){if(item.kind==="regular")return "Regular match";const a=tournamentClub(item.tie?.clubAId),b=tournamentClub(item.tie?.clubBId);return `${a?.name||"Club A"} vs ${b?.name||"Club B"}`;}
 function courtBoard(){const active=activeCourtItems(),count=configuredCourts(),normalQueued=state.matches.filter(m=>m.status==="upcoming").length,tournamentQueued=tournamentGamesFlat().filter(x=>x.game.status==="scheduled").length;return `<div class="statrow" style="margin-bottom:12px"><div class="stat"><b>${count}</b><span class="small">Total courts</span></div><div class="stat"><b>${active.length}</b><span class="small">Occupied</span></div><div class="stat"><b>${Math.max(0,count-active.length)}</b><span class="small">Available</span></div><div class="stat"><b>${normalQueued+tournamentQueued}</b><span class="small">Queued games</span></div></div><div class="court-grid">${Array.from({length:count},(_,i)=>{let n=i+1,item=active.find(x=>x.courtNo===n),game=item?.game;const a=item?deploymentPlayerNames(item,"teamA"):[],b=item?deploymentPlayerNames(item,"teamB"):[];return `<div class="card" style="padding:10px;background:${item?'#fff3d6':'#e8f1ed'}"><b>Court ${n}</b><div class="small" style="color:${item?'#8a5b08':'#176044'}">${item?'IN USE':'AVAILABLE'}</div>${item?`<div class="small">${esc(bracketLabel(game.bracket||""))}${item.kind==="tournament"?` · ${esc(deploymentItemLabel(item))}`:""}<br>${esc(a.concat(b).join(" · "))}</div>`:''}</div>`}).join('')}</div>`}
@@ -921,32 +931,36 @@ function validateDeploymentItem(item){
  return {ok:true,message:"Ready to deploy."};
 }
 function deploymentDraftEntries(){return Object.entries(deploymentDraft).map(([court,ref])=>({court:Number(court),ref,item:deploymentResolveRef(ref)})).filter(entry=>entry.item).sort((a,b)=>a.court-b.court);}
-function pruneDeploymentDraft(){const activeCourts=new Set(activeCourtItems().map(item=>item.courtNo).filter(Boolean));for(const [court,ref] of Object.entries(deploymentDraft)){if(Number(court)>configuredCourts()||activeCourts.has(Number(court))||!deploymentResolveRef(ref))delete deploymentDraft[court];}}
+function deploymentOrderedDraftEntries(){const entries=deploymentDraftEntries(),byRef=new Map(entries.map(entry=>[entry.ref,entry])),ordered=[];for(const ref of deploymentDraftOrder){const entry=byRef.get(ref);if(entry){ordered.push(entry);byRef.delete(ref);}}return ordered.concat([...byRef.values()]);}
+function pruneDeploymentDraft(){const activeCourts=new Set(activeCourtItems().map(item=>item.courtNo).filter(Boolean));for(const [court,ref] of Object.entries(deploymentDraft)){if(Number(court)>configuredCourts()||activeCourts.has(Number(court))||!deploymentResolveRef(ref))delete deploymentDraft[court];}const valid=new Set(Object.values(deploymentDraft));deploymentDraftOrder=deploymentDraftOrder.filter(ref=>valid.has(ref));for(const ref of valid)if(!deploymentDraftOrder.includes(ref))deploymentDraftOrder.push(ref);}
 function deploymentBracketKey(item){return item.kind==="regular"?matchBracketGroupKey(item.game):String(item.game.bracket||"Unclassified");}
 function deploymentPartnershipKeys(item){const game=item.game||{},teams=[game.teamA||[],game.teamB||[]];return teams.filter(team=>team.length===2).map(team=>team.map(id=>{if(item.kind==="regular")return "p:"+String(id);const person=tournamentRosterPlayer(id);return person?.sourcePlayerId?"p:"+String(person.sourcePlayerId):"t:"+String(id);}).sort().join("~"));}
-function deploymentPreviousGame(){
- const drafts=deploymentDraftEntries();if(drafts.length)return drafts[drafts.length-1].item;
+function deploymentLastPlayedGame(){
  const played=[];state.matches.filter(game=>game.status==="playing"||game.status==="done").forEach(game=>played.push({kind:"regular",game}));tournamentGamesFlat().filter(item=>item.game.status==="in-progress"||item.game.status==="complete").forEach(item=>played.push(item));
  played.sort((a,b)=>Number(b.game.startedAt||b.game.completedAt||b.game.createdAt||0)-Number(a.game.startedAt||a.game.completedAt||a.game.createdAt||0));return played[0]||null;
 }
-function deploymentNextCandidate(){
- pruneDeploymentDraft();const free=freeCourtNumbers().filter(court=>!deploymentDraft[court]);if(!free.length)return {item:null,reason:"All courts are occupied or already assigned in this deployment."};
- const queue=deploymentQueueItems(),assignedRefs=new Set(Object.values(deploymentDraft)),busy=deploymentLivePlayerKeys();deploymentDraftEntries().forEach(entry=>deploymentPlayerKeys(entry.item).forEach(key=>busy.add(key)));
- const previous=deploymentPreviousGame(),previousPairs=new Set(previous?deploymentPartnershipKeys(previous):[]),counts=new Map();
- activeCourtItems().forEach(item=>{const key=deploymentBracketKey(item);counts.set(key,(counts.get(key)||0)+1);});
- deploymentDraftEntries().forEach(entry=>{const key=deploymentBracketKey(entry.item);counts.set(key,(counts.get(key)||0)+1);});
+function deploymentPreviousGame(){const drafts=deploymentOrderedDraftEntries();return drafts.length?drafts[drafts.length-1].item:deploymentLastPlayedGame();}
+function deploymentFindCandidate(queue,assignedRefs,busy,previousPairs,counts){
  let skippedBusy=0,skippedPartner=0;const eligible=[];
  for(const item of queue){if(assignedRefs.has(item.ref))continue;const keys=deploymentPlayerKeys(item);if(keys.some(key=>busy.has(key))){skippedBusy++;continue;}const pairs=deploymentPartnershipKeys(item);if(pairs.some(pair=>previousPairs.has(pair))){skippedPartner++;continue;}eligible.push({item,validation:validateDeploymentItem(item),bracketCount:counts.get(deploymentBracketKey(item))||0});}
  eligible.sort((a,b)=>a.bracketCount-b.bracketCount||a.item.position-b.item.position);
- if(eligible.length){const chosen=eligible[0];return {item:chosen.item,validation:chosen.validation,skipped:skippedBusy+skippedPartner,skippedBusy,skippedPartner,queueLength:queue.length};}
- const skipped=skippedBusy+skippedPartner;
+ return {chosen:eligible[0]||null,skippedBusy,skippedPartner,skipped:skippedBusy+skippedPartner};
+}
+function deploymentNextCandidate(){
+ pruneDeploymentDraft();const free=freeCourtNumbers().filter(court=>!deploymentDraft[court]);if(!free.length)return {item:null,reason:"All courts are occupied or already assigned in this deployment."};
+ const queue=deploymentQueueItems(),drafts=deploymentOrderedDraftEntries(),assignedRefs=new Set(drafts.map(entry=>entry.ref)),busy=deploymentLivePlayerKeys();drafts.forEach(entry=>deploymentPlayerKeys(entry.item).forEach(key=>busy.add(key)));
+ const previous=deploymentPreviousGame(),previousPairs=new Set(previous?deploymentPartnershipKeys(previous):[]),counts=new Map();
+ activeCourtItems().forEach(item=>{const key=deploymentBracketKey(item);counts.set(key,(counts.get(key)||0)+1);});
+ drafts.forEach(entry=>{const key=deploymentBracketKey(entry.item);counts.set(key,(counts.get(key)||0)+1);});
+ const result=deploymentFindCandidate(queue,assignedRefs,busy,previousPairs,counts),{chosen,skippedBusy,skippedPartner,skipped}=result;
+ if(chosen)return {item:chosen.item,validation:chosen.validation,skipped,skippedBusy,skippedPartner,queueLength:queue.length};
  if(deploymentMode==="tournament"){
   const rounds=state.interclubTournament?.rounds||[],current=rounds.find(round=>(round||[]).some(tie=>(tie.games||[]).some(game=>game.status!=="complete"))),liveInRound=(current||[]).flatMap(tie=>tie.games||[]).some(game=>game.status==="in-progress");
   return {item:null,skipped,skippedBusy,skippedPartner,reason:skippedPartner&&!skippedBusy?"The remaining queued games repeat a partnership from the most recently deployed game. They will be reconsidered after another duo plays.":liveInRound?"The remaining fixtures in this tournament round share players with live games or repeat the last partnership. They will become eligible when the queue can rotate safely.":"No tournament fixtures are ready in the current round. Complete the current round to unlock the next one."};
  }
  return {item:null,skipped,skippedBusy,skippedPartner,reason:skippedPartner&&!skippedBusy?"The remaining queued games repeat a partnership from the most recently deployed game. They will be reconsidered after another duo plays.":queue.length?"The remaining queued games are waiting for players who are currently on court or for a different partnership to take the next turn.":"The regular matchmaking queue is empty. Generate upcoming matches from Manage Session."};
 }
-function deploymentChangeMode(value){if(!["regular","tournament"].includes(value))return;if(value!==deploymentMode&&Object.keys(deploymentDraft).length){if(!confirm("Switching queues will clear the unsaved court assignments. Continue?")){const select=document.getElementById("deploymentMode");if(select)select.value=deploymentMode;return;}deploymentDraft={};}deploymentMode=value;renderAdmin();}
+function deploymentChangeMode(value){if(!["regular","tournament"].includes(value))return;if(value!==deploymentMode&&Object.keys(deploymentDraft).length){if(!confirm("Switching queues will clear the unsaved court assignments. Continue?")){const select=document.getElementById("deploymentMode");if(select)select.value=deploymentMode;return;}deploymentDraft={};deploymentDraftOrder=[];}deploymentMode=value;renderAdmin();}
 function deploymentGameMarkup(item,blocked=false,message="",availableCourts=[]){
  const a=deploymentPlayerNames(item,"teamA"),b=deploymentPlayerNames(item,"teamB"),bracket=item.game.bracket||"Unclassified",title=item.kind==="regular"?"Regular match":deploymentItemLabel(item),subtitle=item.kind==="regular"?genderModeLabel(item.game.genderMode||"open"):`Round ${item.roundNumber||1} · ${deploymentItemLabel(item)}`;
  const targetOptions=availableCourts.map(court=>`<option value="${court}">Court ${court}</option>`).join("");
@@ -965,7 +979,7 @@ function renderCourtDeployment(){
  if(mode&&mode.value==="tournament"&&!state.interclubTournament?.rounds?.length)html+=`<div class="deployment-alert">Generate the Interclub round-robin schedule first. Its fixtures will then appear here in round order.</div>`;
  html+=`<div class="deployment-workspace"><div class="deployment-queue-panel"><div class="deployment-panel-heading"><h3>Next in queue</h3><span class="deployment-chip">${mode?.value==="tournament"?"Interclub":"Open Play"}</span></div>`;
  if(candidate.item){html+=deploymentGameMarkup(candidate.item,!candidate.validation.ok,candidate.validation.message,available);if(candidate.skipped)html+=`<div class="deployment-queue-note">${candidate.skipped} earlier queued fixture${candidate.skipped===1?" was":"s were"} skipped for now${candidate.skippedBusy?` (${candidate.skippedBusy} conflict${candidate.skippedBusy===1?"":"s"} with players already on court or selected)`:""}${candidate.skippedPartner?` (${candidate.skippedPartner} repeat-partnership match${candidate.skippedPartner===1?"":"es"})`:""}. Their queue positions are retained.</div>`;}else html+=`<div class="empty">${esc(candidate.reason||"No eligible game is ready to deploy.")}</div>`;
- html+=`<div class="deployment-queue-note">Court allocation rotates toward the least-represented skill bracket among active and selected games. If a queued game repeats either teammate pair from the most recently deployed game, it is skipped until another duo gets a turn. Player conflicts are also skipped without changing queue order.</div></div><div class="deployment-courts-panel"><div class="deployment-panel-heading"><h3>Courts</h3><span class="deployment-chip">${available.length} available</span></div><div class="deployment-courts">${Array.from({length:configuredCourts()},(_,i)=>i+1).map(court=>deploymentCourtCardMarkup(court,activeByCourt.get(court),draftByCourt.get(court))).join("")}</div></div></div>`;
+ html+=`<div class="deployment-queue-note">Court allocation rotates toward the least-represented skill bracket among active and selected games. If a queued game repeats either teammate pair from the most recently deployed game, it is skipped until another duo gets a turn. Player conflicts are also skipped without changing queue order.</div></div><div class="deployment-courts-panel"><div class="deployment-panel-heading"><h3>Courts</h3><div class="deployment-court-controls"><span class="deployment-chip">${available.length} available</span><button onclick="adjustDeploymentCourtCount(1)" ${configuredCourts()>=30?"disabled":""}>+ Add court</button><button onclick="adjustDeploymentCourtCount(-1)" ${configuredCourts()<=1||active.some(item=>item.courtNo===configuredCourts())||Boolean(deploymentDraft[configuredCourts()])?"disabled":""}>− Remove last</button></div></div><div class="deployment-courts">${Array.from({length:configuredCourts()},(_,i)=>i+1).map(court=>deploymentCourtCardMarkup(court,activeByCourt.get(court),draftByCourt.get(court))).join("")}</div></div></div>`;
  html+=`<div class="deployment-footer"><div class="small">${assignedCount?`${assignedCount} game${assignedCount===1?"":"s"} assigned. Deploying starts every selected game and its 15-minute warning timer together.`:"Assign one or more queued games to available courts. No game starts until you press Deploy."}</div><div class="row" style="flex:0 0 auto;flex-wrap:wrap"><button onclick="autoFillDeploymentCourts()" ${available.length&&candidate.item&&candidate.validation?.ok?"":"disabled"}>Auto-fill open courts</button><button onclick="clearDeploymentAssignments()" ${assignedCount?"":"disabled"}>Clear assignments</button><button class="primary deployment-deploy-button" onclick="deployCourtAssignments()" ${assignedCount?"":"disabled"}>Deploy ${assignedCount?assignedCount+" game"+(assignedCount===1?"":"s"):"selected games"} & start</button></div></div>`;
  target.innerHTML=html;
 }
@@ -974,28 +988,36 @@ function allowDeploymentDrop(event){event.preventDefault();if(event.dataTransfer
 function dropDeploymentGame(event,court){event.preventDefault();const ref=event.dataTransfer?.getData("text/plain");if(ref)assignDeploymentGame(ref,court);}
 function assignDeploymentGame(ref,court){
  court=Number(court);if(!Number.isInteger(court)||court<1||court>configuredCourts())return;if(activeCourtItems().some(item=>item.courtNo===court))return alert("That court is already in use.");
- const currentCourt=Object.keys(deploymentDraft).find(key=>deploymentDraft[key]===ref);if(currentCourt){if(Number(currentCourt)===court)return;if(deploymentDraft[court])return alert("That court already has a game assigned. Remove it first.");delete deploymentDraft[currentCourt];deploymentDraft[court]=ref;renderAdmin();return;}
- if(deploymentDraft[court])return alert("That court already has a game assigned. Remove it first.");const next=deploymentNextCandidate();if(!next.item||next.item.ref!==ref||!next.validation?.ok)return alert(next.validation?.message||"Only the next eligible game in the queue can be assigned.");deploymentDraft[court]=ref;renderAdmin();
+ const currentCourt=Object.keys(deploymentDraft).find(key=>deploymentDraft[key]===ref);if(currentCourt){if(Number(currentCourt)===court)return;if(deploymentDraft[court])return alert("That court already has a game assigned. Remove it first.");delete deploymentDraft[currentCourt];deploymentDraft[court]=ref;if(!deploymentDraftOrder.includes(ref))deploymentDraftOrder.push(ref);renderAdmin();return;}
+ if(deploymentDraft[court])return alert("That court already has a game assigned. Remove it first.");const next=deploymentNextCandidate();if(!next.item||next.item.ref!==ref||!next.validation?.ok)return alert(next.validation?.message||"Only the next eligible game in the queue can be assigned.");deploymentDraft[court]=ref;deploymentDraftOrder.push(ref);renderAdmin();
 }
 function assignNextDeploymentGame(ref){const court=freeCourtNumbers().find(number=>!deploymentDraft[number]);if(!court)return alert("There is no free court available to receive another game.");assignDeploymentGame(ref,court);}
 function autoFillDeploymentCourts(){
  const open=freeCourtNumbers().filter(court=>!deploymentDraft[court]);let assigned=0;
- for(const court of open){const candidate=deploymentNextCandidate();if(!candidate.item)break;if(!candidate.validation?.ok){if(!assigned)alert(candidate.validation?.message||"The next queued game is not ready to deploy.");break;}deploymentDraft[court]=candidate.item.ref;assigned++;}
+ for(const court of open){const candidate=deploymentNextCandidate();if(!candidate.item)break;if(!candidate.validation?.ok){if(!assigned)alert(candidate.validation?.message||"The next queued game is not ready to deploy.");break;}deploymentDraft[court]=candidate.item.ref;deploymentDraftOrder.push(candidate.item.ref);assigned++;}
  if(assigned)renderAdmin();else if(!open.length)alert("There are no open courts left in this deployment.");else alert("There are no additional non-conflicting games ready for the available courts.");
 }
 function assignSelectedDeploymentGame(ref){const select=document.getElementById("deploymentTargetCourt"),court=Number(select?.value);if(!court)return alert("Choose an available court first.");assignDeploymentGame(ref,court);}
-function removeDeploymentAssignment(court){delete deploymentDraft[Number(court)];renderAdmin();}
-function clearDeploymentAssignments(){deploymentDraft={};renderAdmin();}
+function removeDeploymentAssignment(court){const ref=deploymentDraft[Number(court)];delete deploymentDraft[Number(court)];deploymentDraftOrder=deploymentDraftOrder.filter(item=>item!==ref);renderAdmin();}
+function clearDeploymentAssignments(){deploymentDraft={};deploymentDraftOrder=[];renderAdmin();}
 async function deployCourtAssignments(){
- if(!await requireAdminAccess())return;if(!databaseReady)return alert("The shared database is not connected. No games were deployed.");pruneDeploymentDraft();const entries=deploymentDraftEntries();if(!entries.length)return alert("Assign at least one queued game to a court first.");
+ if(!await requireAdminAccess())return;if(!databaseReady)return alert("The shared database is not connected. No games were deployed.");pruneDeploymentDraft();const entries=deploymentOrderedDraftEntries();if(!entries.length)return alert("Assign at least one queued game to a court first.");
  const active=activeCourtItems(),occupiedCourts=new Set(active.map(item=>item.courtNo).filter(Boolean)),busy=deploymentLivePlayerKeys(),queue=deploymentQueueItems(),byRef=new Map(queue.map(item=>[item.ref,item]));
  if(entries.some(entry=>!entry.item||!byRef.has(entry.ref)))return alert("The queue changed after these assignments were made. Refresh the board and assign the current next game again.");
  const courtSet=new Set();for(const entry of entries){if(entry.court>configuredCourts()||occupiedCourts.has(entry.court)||courtSet.has(entry.court))return alert("A selected court is no longer available. Refresh the board and assign the games again.");courtSet.add(entry.court);}
- const entriesByRef=new Map(entries.map(entry=>[entry.ref,entry])),toDeploy=[];
- for(const item of queue){const keys=deploymentPlayerKeys(item);if(keys.some(key=>busy.has(key)))continue;if(!entriesByRef.has(item.ref)){if(toDeploy.length<entries.length)return alert("Queue order changed or an earlier eligible game was skipped. Assign the next game in the queue before deploying later fixtures.");continue;}const validation=validateDeploymentItem(item);if(!validation.ok)return alert(validation.message);const entry=entriesByRef.get(item.ref);toDeploy.push({item,court:entry.court});keys.forEach(key=>busy.add(key));if(toDeploy.length===entries.length)break;}
+ const toDeploy=[],assignedRefs=new Set(),previous=deploymentLastPlayedGame(),counts=new Map();let previousPairs=new Set(previous?deploymentPartnershipKeys(previous):[]);
+ active.forEach(item=>{const key=deploymentBracketKey(item);counts.set(key,(counts.get(key)||0)+1);});
+ for(const entry of entries){
+  const candidate=deploymentFindCandidate(queue,assignedRefs,busy,previousPairs,counts).chosen;
+  if(!candidate)return alert("The selected games no longer match the fair queue. Clear the assignments and use Next in queue or Auto-fill to rebuild them.");
+  if(candidate.item.ref!==entry.ref)return alert("Bracket rotation or the no-consecutive-partner rule changed the eligible order. Clear the assignments and use Next in queue or Auto-fill to rebuild them.");
+  if(!candidate.validation.ok)return alert(candidate.validation.message);
+  const keys=deploymentPlayerKeys(candidate.item);toDeploy.push({item:candidate.item,court:entry.court});keys.forEach(key=>busy.add(key));assignedRefs.add(candidate.item.ref);
+  const bracket=deploymentBracketKey(candidate.item);counts.set(bracket,(counts.get(bracket)||0)+1);previousPairs=new Set(deploymentPartnershipKeys(candidate.item));
+ }
  if(toDeploy.length!==entries.length)return alert("One or more assigned games are no longer eligible. Review the deployment board and try again.");
- const now=Date.now(),changedTies=new Set();for(const entry of toDeploy){const {item,court}=entry;if(item.kind==="regular"){item.game.status="playing";item.game.court=court;item.game.startedAt=now;}else{item.game.status="in-progress";item.game.court=String(court);item.game.startedAt=now;changedTies.add(item.tie);}}changedTies.forEach(updateTournamentTieResult);
- const count=toDeploy.length,saved=await save({render:false});if(saved){deploymentDraft={};renderAll();setDatabaseStatus(`${count} game${count===1?" was":"s were"} deployed successfully. Court assignments and timers are now live in the shared database.`,"ok");}else renderAll();
+ const now=Date.now(),changedTies=new Set();toDeploy.forEach((entry,index)=>{const {item,court}=entry,startedAt=now+index;if(item.kind==="regular"){item.game.status="playing";item.game.court=court;item.game.startedAt=startedAt;}else{item.game.status="in-progress";item.game.court=String(court);item.game.startedAt=startedAt;changedTies.add(item.tie);}});changedTies.forEach(updateTournamentTieResult);
+ const count=toDeploy.length,saved=await save({render:false});if(saved){deploymentDraft={};deploymentDraftOrder=[];renderAll();setDatabaseStatus(`${count} game${count===1?" was":"s were"} deployed successfully. Court assignments and timers are now live in the shared database.`,"ok");}else renderAll();
 }
 
 function removePlayer(id){let p=player(id);if(!p)return;if(state.matches.some(m=>m.status!=="done"&&(m.teamA.includes(id)||m.teamB.includes(id))))return alert("Remove this player from active/upcoming matches first.");if(confirm("Delete this player and their directory record? Historical match results remain.")){if(p.partnerId&&player(p.partnerId))player(p.partnerId).partnerId=null;state.players=state.players.filter(x=>x.id!==id);save()}}
@@ -1594,7 +1616,7 @@ function renderTournament(){
 
  root.querySelectorAll(".bracket-section-view").forEach(applyBracketSectionVisibility);
 }
-function openTournamentDeployment(){if(deploymentMode!=="tournament"){if(Object.keys(deploymentDraft).length&&!confirm("Switching queues will clear the unsaved court assignments. Continue?"))return;deploymentDraft={};deploymentMode="tournament";}void showTab("deployment");}
+function openTournamentDeployment(){if(deploymentMode!=="tournament"){if(Object.keys(deploymentDraft).length&&!confirm("Switching queues will clear the unsaved court assignments. Continue?"))return;deploymentDraft={};deploymentDraftOrder=[];deploymentMode="tournament";}void showTab("deployment");}
 function renderAdmin(){document.getElementById("sessionName").value=state.session;document.getElementById("courtCount").value=configuredCourts();document.getElementById("matchGenderMode").value=state.matchGenderMode||"open";document.getElementById("tournamentMode").checked=state.tournamentMode===true;document.getElementById("adminCourts").innerHTML=courtBoard();let active=state.matches.filter(m=>m.status==="playing"),up=state.matches.filter(m=>m.status==="upcoming");document.getElementById("adminMatches").innerHTML="<h3>Playing</h3>"+bracketGroupedMatchMarkup(active,true,"No active matches.")+"<h3 style='margin-top:15px'>Upcoming queue · "+up.length+"/"+queueLimit()+"</h3>"+bracketGroupedMatchMarkup(up,true,"Queue is empty.");document.getElementById("scoreEntry").innerHTML=active.length?active.map(m=>`<div class="small">${esc(bracketLabel(m.bracket))} · ${esc(m.teamA.map(id=>player(id)?.name).join(" + "))} vs ${esc(m.teamB.map(id=>player(id)?.name).join(" + "))}</div>`).join(""):'<div class="empty">Start a match to enter its score here.</div>';renderCourtDeployment();}
 function renderAll(){document.getElementById("newBracket").innerHTML=BRACKETS.map(b=>`<option value="${esc(b)}">${esc(bracketLabel(b))}</option>`).join("");let filter=document.getElementById("bracketFilter"),previousView=filter.value;filter.innerHTML=`<option value="Overall">Overall · all brackets</option>`+BRACKETS.map(b=>`<option value="${esc(b)}">${esc(bracketLabel(b))}</option>`).join("");filter.value=previousView==="Overall"||BRACKETS.includes(previousView)?previousView:"Overall";renderPublic();renderLeaderboard();renderPlayers();renderAdmin();renderTournament();if(!state.tournamentMode&&document.getElementById("tournament")?.classList.contains("active")){document.getElementById("tournament").classList.remove("active");document.getElementById("public").classList.add("active");document.querySelectorAll(".tab").forEach(tab=>tab.classList.toggle("active",tab.dataset.tab==="public"));}}
 
