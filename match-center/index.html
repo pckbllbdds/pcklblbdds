@@ -91,13 +91,9 @@ button.primary{background:#198754;color:#fff}button.primary:hover{background:#14
 @media(max-width:520px){.club-clock{font-size:10px;gap:5px}.club-clock strong{font-size:13px}}
 
 
-/* Match board and live player-list layout; promotional content lives on the homepage. */
-.public-layout{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:16px;align-items:start}
-.public-main-column{min-width:0}
-.player-sidebar{min-width:0;align-self:start}
-.player-sidebar-inner{position:sticky;top:16px;box-sizing:border-box;display:flex;flex-direction:column;align-items:stretch;gap:12px;min-width:0}
-@media(max-width:1479px){.public-layout{grid-template-columns:minmax(0,1fr);gap:14px}.player-sidebar-inner{position:static}}
-@media(max-width:680px){.public-layout{grid-template-columns:minmax(0,1fr)}.player-sidebar-inner{display:block}}
+/* The regular Match Center uses the full content canvas; Interclub roster sits in Tournament setup. */
+.public-layout{display:block;width:100%;min-width:0}
+.public-main-column{width:100%;min-width:0}
 
 .database-status{margin:0 0 14px;padding:10px 12px;border-radius:9px;background:#e8efff;color:#244caa;font-size:12px;font-weight:700}
 .database-status.status-ok{background:#e8f5ee;color:#176044}
@@ -194,6 +190,9 @@ button.primary{background:#198754;color:#fff}button.primary:hover{background:#14
 }
 
 
+
+
+
 /* Interclub tournament bracket */
 .tournament-hero{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;background:linear-gradient(125deg,#142b49,#274866);color:#fff;border-radius:15px;padding:20px;margin-bottom:14px}
 .tournament-hero h2{color:#fff;margin:0 0 5px}.tournament-hero .small{color:#d8e3ef}
@@ -205,54 +204,11 @@ button.primary{background:#198754;color:#fff}button.primary:hover{background:#14
 @media(max-width:700px){.tournament-setup{grid-template-columns:1fr}.bracket-round{width:222px}.tournament-hero{padding:16px}.bracket-edit-grid{grid-template-columns:1fr 1fr}.tournament-roster-form{grid-template-columns:1fr}.tournament-roster-form label.wide{grid-column:auto}.tournament-home-select{grid-template-columns:1fr}.tournament-roster-grid,.tournament-roster-pair-grid{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}}
 
 
-/* Keep seven distinct brackets in the main canvas and use the right rail for a live roster. */
-@media(min-width:1480px){
-  .public-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(285px,330px);gap:18px;align-items:start}
-  .public-main-column{width:100%;min-width:0}
-  .player-sidebar{margin:0;min-width:0;align-self:start}
-  .player-sidebar-inner{position:sticky;top:14px;display:flex;flex-direction:column;gap:12px;align-items:stretch}
-  .player-availability-card{max-height:min(72vh,820px);display:flex;flex-direction:column;min-height:0}
-  .player-availability-list{min-height:0;max-height:430px;overflow-y:auto;overscroll-behavior:contain;padding-right:3px}
-}
-@media(max-width:1479px){
-  .public-layout{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
-  .player-sidebar-inner{position:static;display:block}
-}
-@media(max-width:680px){.player-sidebar-inner{display:block}}
-
-/* Compact live player list for the desktop right rail. */
-.player-availability-card{min-width:0;padding:14px;border:1px solid #dce4ed;background:#fff;box-shadow:0 5px 18px rgba(20,43,73,.07)}
-.player-availability-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-.player-availability-heading h3{margin:0 0 3px;font-size:17px}
-.player-availability-heading p{margin:0;font-size:11px;line-height:1.4}
-.player-availability-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:12px 0 7px}
-.player-availability-stat{min-width:0;padding:8px 9px;border-radius:9px;background:#f4f7fa;border:1px solid #e7edf3}
-.player-availability-stat b{display:block;font-size:19px;line-height:1.05;color:#142b49;font-variant-numeric:tabular-nums}
-.player-availability-stat span{display:block;margin-top:3px;font-size:10px;line-height:1.25;color:#667487}
-.player-availability-list{min-width:0;overflow-y:auto;overscroll-behavior:contain}
-.player-roster-bracket{border-top:1px solid #e8edf2;padding:8px 0}
-.player-roster-bracket:first-child{border-top:0}
-.player-roster-bracket summary{display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;list-style:none;font-size:12px;font-weight:850;color:#142b49}
-.player-roster-bracket summary::-webkit-details-marker{display:none}
-.player-roster-bracket summary:after{content:"+";color:#7b163e;font-size:16px;line-height:1}
-.player-roster-bracket[open] summary:after{content:"−"}
-.player-roster-count{font-size:10px;color:#667487;font-weight:700;text-align:right}
-.player-roster-players{display:grid;gap:2px;margin-top:6px}
-.player-roster-row{display:flex;align-items:center;justify-content:space-between;gap:7px;padding:5px 0;border-top:1px solid #f0f3f6;min-width:0}
-.player-roster-row:first-child{border-top:0}
-.player-roster-name{min-width:0;overflow-wrap:anywhere;font-size:11px;font-weight:700;color:#26384d}
-.player-roster-state{flex:0 0 auto;padding:3px 6px;border-radius:20px;font-size:9px;font-weight:800;white-space:nowrap;background:#f1f3f5;color:#647184}
-.player-roster-state.waiting{background:#e7f5ee;color:#176044}
-.player-roster-state.playing{background:#fff0df;color:#98530c}
-.player-roster-state.queued{background:#e8efff;color:#244caa}
+/* Bracket visibility controls. */
 .bracket-section-controls{display:flex;justify-content:flex-end;align-items:center;margin:0 0 5px}
 .bracket-hide-empty-control{display:inline-flex;align-items:center;gap:7px;margin:0;font-size:11px;font-weight:750;color:#526175;cursor:pointer}
 .bracket-hide-empty-control input{width:16px;height:16px;min-height:16px;accent-color:#198754}
-@media(max-width:700px){
- .player-availability-card{max-height:none}
- .player-availability-list{max-height:420px}
- .bracket-section-controls{justify-content:flex-start;margin:0 0 7px}
-}
+@media(max-width:700px){.bracket-section-controls{justify-content:flex-start;margin:0 0 7px}}
 
 #waitingList{display:block}
 .bracket-section-view{display:block;margin-top:10px;min-width:0;width:100%}
@@ -508,6 +464,25 @@ button.primary{background:#198754;color:#fff}button.primary:hover{background:#14
     line-height:1.35;
   }
 }
+
+/* Use the otherwise empty Interclub Tournament right column for the live registered roster. */
+.tournament-setup{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);align-items:stretch}
+.tournament-side-column{display:grid;grid-template-rows:auto minmax(0,1fr);align-content:stretch;gap:14px;min-width:0}
+.tournament-side-column>.card{min-width:0}
+.tournament-registered-roster{min-width:0;align-self:stretch}
+.tournament-roster-panel-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.tournament-roster-panel-heading h3{margin:0 0 3px}
+.tournament-roster-summary{display:flex;gap:7px;flex-wrap:wrap}
+.tournament-roster-summary>div{display:flex;align-items:baseline;gap:4px;padding:5px 8px;border:1px solid #e4eaf0;border-radius:8px;background:#f6f8fa;white-space:nowrap}
+.tournament-roster-summary b{font-size:15px;color:#142b49;font-variant-numeric:tabular-nums}
+.tournament-roster-summary span{font-size:10px;color:#667487}
+.tournament-registered-roster .tournament-roster-club{margin:8px 0;padding:8px}
+.tournament-registered-roster .tournament-roster-grid,.tournament-registered-roster .tournament-roster-pair-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,245px),1fr));gap:6px;margin-top:6px}
+.tournament-registered-roster .tournament-roster-player{grid-template-columns:minmax(0,1fr) minmax(112px,.9fr);align-items:center;gap:7px;padding:7px}
+.tournament-registered-roster .tournament-roster-actions select{width:100%;min-width:0}
+.tournament-registered-roster .tournament-roster-pair{padding:7px;gap:5px}
+@media(max-width:900px){.tournament-setup{grid-template-columns:minmax(0,1fr)}.tournament-side-column{grid-template-rows:auto auto}.tournament-registered-roster .tournament-roster-player{grid-template-columns:minmax(0,1fr) minmax(112px,.85fr)}}
+@media(max-width:700px){.tournament-registered-roster .tournament-roster-player{grid-template-columns:minmax(0,1fr)}.tournament-roster-panel-heading{display:block}.tournament-roster-summary{margin-top:9px}}
 </style>
 </head>
 <body class="db-loading">
@@ -534,15 +509,6 @@ button.primary{background:#198754;color:#fff}button.primary:hover{background:#14
    <div class="card span12"><div class="row"><div><h2>Match board</h2><div class="muted small">Current matches, upcoming games and recent results.</div></div><div class="fit"><span class="badge" id="liveBadge">Ready</span></div></div><div id="publicMatches"></div></div>
   </div>
  </div>
- <aside class="player-sidebar" aria-label="Live player list">
-  <div class="player-sidebar-inner">
-   <section class="card player-availability-card" aria-label="Live player list">
-    <div class="player-availability-heading"><div><h3>Player list</h3><p class="small muted">Live availability by skill bracket.</p></div><span class="badge blue">LIVE</span></div>
-    <div id="playerAvailabilitySummary" class="player-availability-summary"></div>
-    <div id="playerAvailabilityList" class="player-availability-list"><div class="small muted">Loading player list…</div></div>
-   </section>
-  </div>
- </aside>
 </div>
 </section>
 
@@ -1159,23 +1125,7 @@ function matchCard(m,admin=false){let names=arr=>arr.map(id=>player(id)?.name||"
  }
  if(admin&&m.status==="playing")html+=`<div class="actions"><button onclick="deleteMatch('${m.id}')">Cancel match</button></div><div class="small" style="margin:5px 0 8px">Score limit: max 11 points per team and 21 points combined per match.</div><div class="score-entry-row"><div><label>Team A score</label><input id="sa-${m.id}" type="number" min="0" max="11" step="1" inputmode="numeric" placeholder="11"></div><div><label>Team B score</label><input id="sb-${m.id}" type="number" min="0" max="11" step="1" inputmode="numeric" placeholder="8"></div><div class="fit" style="align-self:end"><button class="primary" onclick="finishMatch('${m.id}')">Record result</button></div></div>`;
  return html+"</div>"}
-function renderPlayerAvailabilityPanel(){
- const summary=document.getElementById("playerAvailabilitySummary"),list=document.getElementById("playerAvailabilityList");
- if(!summary||!list)return;
- const players=state.players||[],playingIds=new Set(state.matches.filter(m=>m.status==="playing").flatMap(m=>[...m.teamA,...m.teamB])),queuedIds=new Set(state.matches.filter(m=>m.status==="upcoming").flatMap(m=>[...m.teamA,...m.teamB]));
- const statusOf=p=>playingIds.has(p.id)?"playing":queuedIds.has(p.id)?"queued":p.available?"waiting":"inactive";
- const waitingCount=players.filter(p=>statusOf(p)==="waiting").length,playingCount=players.filter(p=>statusOf(p)==="playing").length,queuedCount=players.filter(p=>statusOf(p)==="queued").length;
- summary.innerHTML=`<div class="player-availability-stat"><b>${players.length}</b><span>Registered</span></div><div class="player-availability-stat"><b>${waitingCount}</b><span>Available</span></div><div class="player-availability-stat"><b>${playingCount}</b><span>Playing now</span></div><div class="player-availability-stat"><b>${queuedCount}</b><span>Queued next</span></div>`;
- const groups=BRACKETS.map(bracket=>[bracket,players.filter(p=>p.bracket===bracket).sort((a,b)=>a.name.localeCompare(b.name))]).filter(([,group])=>group.length);
- if(!groups.length){list.innerHTML='<div class="empty">No registered players yet.</div>';return;}
- let opened=false;
- list.innerHTML=groups.map(([bracket,group])=>{
-  const waiting=group.filter(p=>statusOf(p)==="waiting").length;
-  const open=!opened;opened=true;
-  return `<details class="player-roster-bracket" ${open?"open":""}><summary><span>${esc(bracketLabel(bracket))}</span><span class="player-roster-count">${group.length} players · ${waiting} available</span></summary><div class="player-roster-players">${group.map(p=>{const status=statusOf(p),label=status==="waiting"?"Available":status==="playing"?"Playing":status==="queued"?"Queued":"Not queued";return `<div class="player-roster-row"><span class="player-roster-name">${esc(p.name)}</span><span class="player-roster-state ${status}">${label}</span></div>`}).join("")}</div></details>`;
- }).join("");
-}
-function renderPublic(){let active=state.matches.filter(m=>m.status==="playing"),up=state.matches.filter(m=>m.status==="upcoming"),done=state.matches.filter(m=>m.status==="done").slice(-4).reverse();document.getElementById("liveBadge").textContent=active.length+" live · "+up.length+" queued · "+(active.length+up.length)+"/"+(configuredCourts()+3)+" total";document.getElementById("publicCourts").innerHTML=courtBoard();let h="<h3>Currently playing</h3>"+bracketGroupedMatchMarkup(active,false,"No matches currently playing.")+"<h3 style='margin-top:16px'>Upcoming matches</h3>"+bracketGroupedMatchMarkup(up,false,"No upcoming matches yet.")+"<h3 style='margin-top:16px'>Recent results</h3>"+(done.map(m=>matchCard(m)).join("")||'<div class="empty">No completed matches yet.</div>');document.getElementById("publicMatches").innerHTML=h;document.querySelectorAll("#publicMatches .bracket-section-view").forEach(applyBracketSectionVisibility);renderPlayerAvailabilityPanel();
+function renderPublic(){let active=state.matches.filter(m=>m.status==="playing"),up=state.matches.filter(m=>m.status==="upcoming"),done=state.matches.filter(m=>m.status==="done").slice(-4).reverse();document.getElementById("liveBadge").textContent=active.length+" live · "+up.length+" queued · "+(active.length+up.length)+"/"+(configuredCourts()+3)+" total";document.getElementById("publicCourts").innerHTML=courtBoard();let h="<h3>Currently playing</h3>"+bracketGroupedMatchMarkup(active,false,"No matches currently playing.")+"<h3 style='margin-top:16px'>Upcoming matches</h3>"+bracketGroupedMatchMarkup(up,false,"No upcoming matches yet.")+"<h3 style='margin-top:16px'>Recent results</h3>"+(done.map(m=>matchCard(m)).join("")||'<div class="empty">No completed matches yet.</div>');document.getElementById("publicMatches").innerHTML=h;document.querySelectorAll("#publicMatches .bracket-section-view").forEach(applyBracketSectionVisibility);
  let busy=busyIds(),waiting=state.players.filter(p=>p.available&&!busy.has(p.id));waiting.sort((a,b)=>stats(a).games-stats(b).games||idle(b)-idle(a)||a.name.localeCompare(b.name));
  const waitingGroups=BRACKETS.map(bracket=>[bracket,waiting.filter(p=>p.bracket===bracket)]);
  document.getElementById("waitingList").innerHTML=waiting.length?`<div class="bracket-section-view">${bracketSectionFilterMarkup(waitingGroups)}<div class="bracket-columns-viewport"><div class="waiting-bracket-groups">${waitingGroups.map(([bracket,group])=>`<section class="waiting-category" data-bracket-key="${esc(bracket)}"><div class="waiting-category-head"><span class="waiting-category-name">${esc(bracketLabel(bracket))}</span><span class="waiting-category-count">${group.length} waiting</span></div>${group.length?group.map(p=>{let partner=p.partnerId?player(p.partnerId):null,partnerNote=partner?(partner.available&&!busy.has(partner.id)?"Fixed duo with "+partner.name:"Waiting for "+partner.name+" to become available"):"Available for matchmaking";return `<div class="row waiting-player-row"><div><b>${esc(p.name)}</b><div class="small">${esc(partnerNote)}</div></div><div class="small" style="text-align:right">${stats(p).games} games · idle ${idle(p)}m</div></div>`}).join(""):'<div class="bracket-column-empty">No players waiting.</div>'}</section>`).join("")}</div></div></div>`:'<div class="empty">No available players waiting.</div>';
@@ -1446,14 +1396,18 @@ function renderTournament(){
  const clubs=t.clubs||[],roster=t.roster||[],rounds=t.rounds||[],ties=rounds.flat(),games=ties.flatMap(m=>m.games||[]),completed=games.filter(g=>g.status==="complete").length,live=games.filter(g=>g.status==="in-progress").length,scheduled=games.filter(g=>g.status==="scheduled").length,standings=tournamentClubStandings(),allGamesComplete=games.length>0&&completed===games.length,topWins=standings[0]?.wins??0,leaders=standings.filter(row=>row.wins===topWins),home=clubs.find(c=>c.isHome)||clubs[0];
  const homePlayers=state.players,registeredHome=new Set(roster.filter(p=>p.clubId===home?.id&&p.sourcePlayerId).map(p=>String(p.sourcePlayerId)));
  const partnerOptions=(p)=>roster.filter(q=>q.clubId===p.clubId&&q.id!==p.id&&(!q.partnerId||q.partnerId===p.id)).map(q=>`<option value="${esc(q.id)}" ${q.id===p.partnerId?"selected":""}>${esc(q.name)}</option>`).join("");
+ const totalTournamentDuos=clubs.reduce((sum,c)=>sum+tournamentDuosForClub(c.id,t.genderMode).length,0);
+ const registeredRosterPanel=`<div class="card tournament-registered-roster">
+  <div class="tournament-roster-panel-heading"><div><h3>Registered roster</h3><div class="small">Players and doubles partners by participating club.</div></div><div class="tournament-roster-summary"><div><b>${roster.length}</b><span>Players</span></div><div><b>${totalTournamentDuos}</b><span>${rounds.length?"Doubles pairs":"Potential duos"}</span></div><div><b>${clubs.length}</b><span>Clubs</span></div></div></div>
+  ${clubs.map(c=>{const members=roster.filter(p=>p.clubId===c.id),duos=tournamentDuosForClub(c.id,t.genderMode),pairedIds=new Set(duos.flat().map(p=>String(p.id))),unpaired=members.filter(p=>!pairedIds.has(String(p.id)));const rosterMarkup=rounds.length?`<div class="tournament-roster-pair-grid">${duos.map(([a,b])=>`<div class="tournament-roster-pair"><div class="tournament-roster-pair-member">${esc(a.name)}<small>${esc(bracketLabel(a.bracket))} · ${esc(a.gender||"unspecified")}</small></div><div class="tournament-roster-pair-plus" aria-hidden="true">+</div><div class="tournament-roster-pair-member">${esc(b.name)}<small>${esc(bracketLabel(b.bracket))} · ${esc(b.gender||"unspecified")}</small></div></div>`).join("")}${unpaired.map(p=>`<div class="tournament-roster-unpaired">${esc(p.name)} · ${esc(bracketLabel(p.bracket))} · No eligible partner in this format</div>`).join("")}</div>`:`<div class="tournament-roster-grid">${members.map(p=>`<div class="tournament-roster-player"><div class="tournament-roster-person">${esc(p.name)}<small>${esc(bracketLabel(p.bracket))} · ${esc(p.gender||"unspecified")}</small></div><div class="tournament-roster-actions"><select aria-label="Fixed partner for ${esc(p.name)}" onchange="changeTournamentRosterPartner('${p.id}',this.value)"><option value="">Auto-pair</option>${partnerOptions(p)}</select><button class="danger" aria-label="Remove ${esc(p.name)}" onclick="removeTournamentRosterPlayer('${p.id}')">×</button></div></div>`).join("")}</div>`;return `<div class="tournament-roster-club"><div class="tournament-roster-club-heading"><b>${esc(c.name)}</b><span class="small">${members.length} players · ${duos.length} potential duos</span></div>${members.length?rosterMarkup:'<div class="small muted">No players registered.</div>'}</div>`;}).join("")}
+ </div>`;
  const adminPanel=adminAuthenticated?`<div class="tournament-setup">
   <div class="card"><h3>Tournament details</h3><label>Tournament name</label><input value="${esc(t.name||"Interclub Tournament")}" maxlength="80" onchange="setTournamentName(this.value)"><label>Our club name</label><input value="${esc(home?.name||"")}" maxlength="60" onchange="setHomeClubName(this.value)" ${rounds.length?"disabled":""}><label>Match format</label><select onchange="changeTournamentGenderMode(this.value)" ${rounds.length?"disabled":""}><option value="open" ${t.genderMode==="open"?"selected":""}>Open doubles</option><option value="girls" ${t.genderMode==="girls"?"selected":""}>Girls only</option><option value="boys" ${t.genderMode==="boys"?"selected":""}>Boys only</option><option value="girls-vs-boys" ${t.genderMode==="girls-vs-boys"?"selected":""}>Girls vs Boys</option></select><div class="small">Add the participating clubs and their players. The system automatically pairs unpaired players within each club, while keeping registered fixed duos together. Every club plays every other club exactly once. Within each matching skill-bracket composition, every eligible duo faces every opposing duo. Each completed game adds one win to the winning club's tournament total. The club with the most wins overall finishes first.</div>
   <h3>Our club players</h3><div class="small">Select registered PBB players for this tournament. All registered players are selected automatically by default, regardless of their Open Play availability.</div><div class="tournament-home-select">${homePlayers.map(p=>`<label><input type="checkbox" ${registeredHome.has(String(p.id))?"checked":""} onchange="toggleTournamentHomePlayer('${p.id}',this.checked)" ${rounds.length?"disabled":""}><span>${esc(p.name)}<small>${esc(bracketLabel(p.bracket))} · ${esc(p.gender||"unspecified")}${p.partnerId&&player(p.partnerId)?" · Fixed duo: "+esc(player(p.partnerId).name):""}</small></span></label>`).join("")||'<div class="empty">Add players in the Players directory first.</div>'}</div>
   <h3>Opponent clubs</h3><div class="tournament-club-list">${clubs.filter(c=>!c.isHome).map(c=>`<div class="tournament-club-row" data-tournament-club="${esc(c.id)}"><span class="tournament-club-name">${esc(c.name)}</span>${!rounds.length?`<button class="danger" onclick="removeTournamentClub('${c.id}')">Remove</button>`:""}</div>`).join("")}</div>${!rounds.length?`<div class="row"><input id="newTournamentClub" placeholder="Opponent club name" maxlength="60"><button class="primary fit" onclick="addTournamentClub()">Add club</button></div>`:""}
   <h3>Register opponent club players</h3>${!rounds.length?`<div class="tournament-roster-form"><label class="wide">Club<select id="tournamentRosterClub" onchange="refreshTournamentRosterPartnerChoices(this.value)">${clubs.filter(c=>!c.isHome).map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("")}</select></label><label class="wide">Player name<input id="tournamentRosterName" placeholder="Full name" maxlength="80"></label><label>Skill bracket<select id="tournamentRosterBracket">${BRACKETS.map(b=>`<option value="${esc(b)}">${esc(bracketLabel(b))}</option>`).join("")}</select></label><label>Gender<select id="tournamentRosterGender"><option value="unspecified">Not set</option><option value="female">Female</option><option value="male">Male</option></select></label><label class="wide">Fixed partner (optional)<select id="tournamentRosterPartner"><option value="">No fixed partner · pair automatically</option>${roster.filter(p=>p.clubId===clubs.find(c=>!c.isHome)?.id&&!p.partnerId&&!p.sourcePlayerId).map(p=>`<option value="${esc(p.id)}">${esc(p.name)} · ${esc(bracketLabel(p.bracket))}</option>`).join("")}</select></label></div><button class="primary" onclick="addTournamentRosterPlayer()" ${clubs.filter(c=>!c.isHome).length?"":"disabled"}>Add opponent player</button>`:`<div class="small">Roster is locked while the bracket is active. Reset the bracket to make changes.</div>`}
-  <h3>Registered roster</h3>${clubs.map(c=>{const members=roster.filter(p=>p.clubId===c.id),duos=tournamentDuosForClub(c.id,t.genderMode),pairedIds=new Set(duos.flat().map(p=>String(p.id))),unpaired=members.filter(p=>!pairedIds.has(String(p.id)));const rosterMarkup=rounds.length?`<div class="tournament-roster-pair-grid">${duos.map(([a,b])=>`<div class="tournament-roster-pair"><div class="tournament-roster-pair-member">${esc(a.name)}<small>${esc(bracketLabel(a.bracket))} · ${esc(a.gender||"unspecified")}</small></div><div class="tournament-roster-pair-plus" aria-hidden="true">+</div><div class="tournament-roster-pair-member">${esc(b.name)}<small>${esc(bracketLabel(b.bracket))} · ${esc(b.gender||"unspecified")}</small></div></div>`).join("")}${unpaired.map(p=>`<div class="tournament-roster-unpaired">${esc(p.name)} · ${esc(bracketLabel(p.bracket))} · No eligible partner in this format</div>`).join("")}</div>`:`<div class="tournament-roster-grid">${members.map(p=>`<div class="tournament-roster-player"><div class="tournament-roster-person">${esc(p.name)}<small>${esc(bracketLabel(p.bracket))} · ${esc(p.gender||"unspecified")}</small></div><div class="tournament-roster-actions"><select aria-label="Fixed partner for ${esc(p.name)}" onchange="changeTournamentRosterPartner('${p.id}',this.value)"><option value="">Auto-pair</option>${partnerOptions(p)}</select><button class="danger" aria-label="Remove ${esc(p.name)}" onclick="removeTournamentRosterPlayer('${p.id}')">×</button></div></div>`).join("")}</div>`;return `<div class="tournament-roster-club"><div class="tournament-roster-club-heading"><b>${esc(c.name)}</b><span class="small">${members.length} players · ${duos.length} potential duos</span></div>${members.length?rosterMarkup:'<div class="small muted">No players registered.</div>'}</div>`;}).join("")}
   ${!rounds.length?`<button class="primary" onclick="buildTournamentBracket()">Generate round-robin schedule & games</button>`:`<div class="small">Club registration and duos are locked while the round-robin schedule is active.</div><button class="danger" onclick="resetTournamentBracket()">Reset schedule & results</button>`}
-  </div><div class="card"><h3>How Tournament Mode works</h3><p class="small">Single round robin: every club faces every other club exactly once. The registered players are split into doubles teams within their own club. Within each matching skill-bracket composition, every eligible duo faces every opposing duo, so each pair can play multiple games in the same club matchup. Fixed partner duos stay together. Every completed doubles game adds one win to the winning club. The club with the most completed game wins across the full tournament finishes first. There is no elimination or advancing to another round. With an odd number of clubs, one club has a bye each round.</p><div class="statrow"><div class="stat"><b>${clubs.length}</b><span class="small">Clubs</span></div><div class="stat"><b>${games.length}</b><span class="small">Doubles games</span></div><div class="stat"><b>${completed}</b><span class="small">Completed</span></div><div class="stat"><b>${live}</b><span class="small">Live now</span></div></div></div>
+  </div><div class="tournament-side-column"><div class="card"><h3>How Tournament Mode works</h3><p class="small">Single round robin: every club faces every other club exactly once. The registered players are split into doubles teams within their own club. Within each matching skill-bracket composition, every eligible duo faces every opposing duo, so each pair can play multiple games in the same club matchup. Fixed partner duos stay together. Every completed doubles game adds one win to the winning club. The club with the most completed game wins across the full tournament finishes first. There is no elimination or advancing to another round. With an odd number of clubs, one club has a bye each round.</p><div class="statrow"><div class="stat"><b>${clubs.length}</b><span class="small">Clubs</span></div><div class="stat"><b>${games.length}</b><span class="small">Doubles games</span></div><div class="stat"><b>${completed}</b><span class="small">Completed</span></div><div class="stat"><b>${live}</b><span class="small">Live now</span></div></div></div>${registeredRosterPanel}</div>
  </div>`:"";
  const archiveNotice=(t.archivedSingleEliminationBracket?.length||(t.formatVersion===2&&rounds.length))?`<div class="card" style="border-color:#d7dde5;background:#f5f6f8"><b>Previous single-elimination bracket archived</b><div class="small">The previous single-elimination schedule is retained for reference. Reset it to create the new single round-robin schedule.</div></div>`:"";
  const standingsPanel=t.formatVersion===3&&rounds.length?`<div class="card"><h2>Tournament standings</h2><div class="small">Ranked by total completed doubles-game wins. Clubs with the same number of wins share the same standing. The number of games can vary by roster size and compatibility, so check Games played alongside Wins.</div><div class="leaderboard-table-wrap"><table><thead><tr><th>Rank</th><th>Club</th><th>Games played</th><th>Wins</th><th>Losses</th><th>Points for</th><th>Against</th></tr></thead><tbody>${standings.map((row,i)=>{const rank=standings.findIndex(other=>other.wins===row.wins)+1;return `<tr><td><b>#${rank}</b></td><td><b>${esc(row.club.name)}</b></td><td>${row.played}</td><td><b>${row.wins}</b></td><td>${row.losses}</td><td>${row.pointsFor}</td><td>${row.pointsAgainst}</td></tr>`;}).join("")}</tbody></table></div>${allGamesComplete?`<div class="tournament-winner-banner">${leaders.length===1?`Tournament winner · ${esc(leaders[0].club.name)} (${leaders[0].wins} wins)`: `Tournament tied · ${leaders.map(row=>esc(row.club.name)).join(" and ")} (${topWins} wins each)`}</div>`:completed>0&&leaders.length?`<div class="small" style="margin-top:9px">Current leader${leaders.length>1?"s":""}: ${leaders.map(row=>esc(row.club.name)).join(", ")} · ${topWins} wins</div>`:""}</div>`:"";
