@@ -548,6 +548,19 @@ button.primary{background:#198754;color:#fff}button.primary:hover{background:#14
 .deployment-court.court-tone-green,.deployment-court.court-tone-yellow,.deployment-court.court-tone-red{border-style:solid}
 @media(max-width:420px){.court-score-entry{grid-template-columns:repeat(2,minmax(0,1fr))}.court-score-entry button{min-height:40px}}
 
+
+.recent-results-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:16px}
+.recent-results-head h3{margin:0}
+.recent-results-clear{font-size:11px;padding:7px 10px;background:#fff0ef;color:#9b1c13;border:1px solid #efc7c4}
+.court-warning-overlay{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(15,23,42,.64)}
+.court-warning-overlay[hidden]{display:none!important}
+.court-warning-dialog{width:min(460px,100%);background:#fff;border:2px solid #b42318;border-radius:16px;padding:22px;box-shadow:0 22px 70px rgba(0,0,0,.28)}
+.court-warning-kicker{display:inline-flex;align-items:center;gap:7px;padding:5px 9px;border-radius:30px;background:#fee4e2;color:#9b1c13;font-size:10px;font-weight:900;letter-spacing:.06em;text-transform:uppercase}
+.court-warning-dialog h2{margin:12px 0 7px;color:#9b1c13;font-size:21px}
+.court-warning-dialog p{margin:0 0 9px;color:#263548}
+.court-warning-detail{padding:10px 11px;margin:12px 0 15px;border-radius:9px;background:#f5f6f8;color:#475569;font-size:12px;line-height:1.5;overflow-wrap:anywhere}
+.court-warning-dialog button{width:100%;min-height:42px}
+
 </style>
 </head>
 <body class="db-loading">
@@ -644,13 +657,22 @@ button.primary{background:#198754;color:#fff}button.primary:hover{background:#14
 </section>
 <p class="small" style="margin:18px 3px">Shared club session: match data is stored in Cloudflare D1. Public pages refresh from the shared database automatically; organizer access is managed from the homepage.</p>
 </main><footer class="club-footer">PICKLEBALL BUDDIES QATAR · PLAY TOGETHER. GET BETTER. BUILD FRIENDSHIPS.</footer>
+<div class="court-warning-overlay" id="courtWarningOverlay" hidden>
+ <section class="court-warning-dialog" role="alertdialog" aria-modal="true" aria-labelledby="courtWarningTitle" aria-describedby="courtWarningMessage">
+  <span class="court-warning-kicker">Court time alert · 20 minutes</span>
+  <h2 id="courtWarningTitle">20-minute court warning</h2>
+  <p id="courtWarningMessage">This game has reached 20 minutes. Please check the court and update the score or result.</p>
+  <div class="court-warning-detail" id="courtWarningDetails"></div>
+  <button type="button" class="primary" id="courtWarningAcknowledge" onclick="dismissTwentyMinuteWarning()">Acknowledge</button>
+ </section>
+</div>
 <script>
 // Skill hierarchy (low to high): Beginner → Advanced beginner → Novice → Lower intermediate → Intermediate → High intermediate → Advance.
 // "Advance beginner" remains the internal value so existing D1 registrations remain compatible.
 const BRACKETS=["Beginner","Advance beginner","Novice","Lower intermediate","Intermediate","High intermediate","Advance"];
 function bracketLabel(bracket){return String(bracket??"").split(" + ").map(level=>level==="Advance beginner"?"Advanced beginner":level).join(" + ")}
 function newInterclubTournament(){return {formatVersion:3,competitionFormat:"single-round-robin",homeRosterInitialized:false,homeRosterAutoEnroll:true,name:"Interclub Tournament",genderMode:"open",clubs:[{id:"club-home",name:"Pickleball Buddies Qatar",isHome:true}],roster:[],rounds:[],createdAt:null,championClubId:null};}
-function freshState(){return {players:[],matches:[],seq:1,session:"Club Open Play",courtCount:2,matchGenderMode:"open",tournamentMode:false,interclubTournament:null};}
+function freshState(){return {players:[],matches:[],seq:1,recentResultsClearedAt:0,session:"Club Open Play",courtCount:2,matchGenderMode:"open",tournamentMode:false,interclubTournament:null};}
 let state=freshState();
 let serverRevision=0;
 let databaseReady=false;
@@ -660,6 +682,9 @@ let pendingSave=false;
 let deploymentMode="regular";
 let deploymentDraft={};
 let deploymentDraftOrder=[];
+const twentyMinuteWarningQueue=[];
+const twentyMinuteWarningPending=new Set();
+let currentTwentyMinuteWarning=null;
 
 function normalizeState(candidate){
  if(!candidate||typeof candidate!=="object"||!Array.isArray(candidate.players)||!Array.isArray(candidate.matches))return freshState();
@@ -667,6 +692,7 @@ function normalizeState(candidate){
   ...candidate,
   players:candidate.players.map(p=>({...p,gender:["female","male"].includes(p.gender)?p.gender:"unspecified",partnerId:typeof p.partnerId==="string"&&p.partnerId?p.partnerId:null})),
   seq:Number.isInteger(candidate.seq)&&candidate.seq>0?candidate.seq:1,
+  recentResultsClearedAt:Number.isFinite(Number(candidate.recentResultsClearedAt))?Math.max(0,Number(candidate.recentResultsClearedAt)):0,
   session:typeof candidate.session==="string"?candidate.session:"Club Open Play",
   courtCount:Number.isInteger(candidate.courtCount)&&candidate.courtCount>=1?Math.min(30,candidate.courtCount):2,
   matchGenderMode:["open","girls","boys","girls-vs-boys"].includes(candidate.matchGenderMode)?candidate.matchGenderMode:"open",
@@ -760,6 +786,19 @@ async function refreshFromDatabase(){
   console.warn("D1 refresh failed:",err);
  }
 }
+// Hides completed regular-match cards from the public Recent Results section without
+// deleting match records used by the leaderboard, player statistics, or audit history.
+async function clearRecentResults(){
+ if(!adminAuthenticated)return alert("Organizer access is required to clear Recent Results.");
+ const cutoff=Number(state.recentResultsClearedAt||0);
+ const visible=state.matches.filter(match=>match.status==="done"&&Number(match.finishedAt||match.createdAt||0)>cutoff);
+ if(!visible.length)return alert("There are no recent results to clear.");
+ if(!confirm("Clear the Recent Results section for everyone? This only hides past result cards. Match history, player statistics, and leaderboard totals will be preserved."))return;
+ state.recentResultsClearedAt=Date.now();
+ const saved=await save();
+ if(saved)setDatabaseStatus("Recent Results cleared from the Match Board. Historical matches and leaderboard statistics are preserved.","ok");
+}
+
 // Existing matches are preserved; generation is capped by active + upcoming matches.
 async function resetSession(){
  if(!confirm("Reset the entire shared session? This permanently removes all players, matches, scores, rankings, and session data for everyone."))return;
@@ -1347,7 +1386,7 @@ function matchCard(m,admin=false){let names=arr=>arr.map(id=>player(id)?.name||"
  }
  if(admin&&m.status==="playing")html+=`<div class="actions"><button onclick="deleteMatch('${m.id}')">Cancel match</button></div><div class="small" style="margin:5px 0 8px">Score limit: max 11 points per team and 21 points combined per match.</div><div class="score-entry-row"><div><label>Team A score</label><input id="sa-${m.id}" type="number" min="0" max="11" step="1" inputmode="numeric" placeholder="11"></div><div><label>Team B score</label><input id="sb-${m.id}" type="number" min="0" max="11" step="1" inputmode="numeric" placeholder="8"></div><div class="fit" style="align-self:end"><button class="primary" onclick="finishMatch('${m.id}')">Record result</button></div></div>`;
  return html+"</div>"}
-function renderPublic(){let active=state.matches.filter(m=>m.status==="playing"),up=state.matches.filter(m=>m.status==="upcoming"),done=state.matches.filter(m=>m.status==="done").slice(-4).reverse();document.getElementById("liveBadge").textContent=active.length+" live · "+up.length+" queued · "+(active.length+up.length)+"/"+(configuredCourts()+3)+" total";document.getElementById("publicCourts").innerHTML=courtBoard();let h="<h3>Currently playing</h3>"+bracketGroupedMatchMarkup(active,false,"No matches currently playing.")+"<h3 style='margin-top:16px'>Upcoming matches</h3>"+bracketGroupedMatchMarkup(up,false,"No upcoming matches yet.")+"<h3 style='margin-top:16px'>Recent results</h3>"+(done.map(m=>matchCard(m)).join("")||'<div class="empty">No completed matches yet.</div>');document.getElementById("publicMatches").innerHTML=h;document.querySelectorAll("#publicMatches .bracket-section-view").forEach(applyBracketSectionVisibility);
+function renderPublic(){let active=state.matches.filter(m=>m.status==="playing"),up=state.matches.filter(m=>m.status==="upcoming"),cutoff=Number(state.recentResultsClearedAt||0),done=state.matches.filter(m=>m.status==="done"&&Number(m.finishedAt||m.createdAt||0)>cutoff).slice(-4).reverse();document.getElementById("liveBadge").textContent=active.length+" live · "+up.length+" queued · "+(active.length+up.length)+"/"+(configuredCourts()+3)+" total";document.getElementById("publicCourts").innerHTML=courtBoard();let recentHeader=`<div class="recent-results-head"><h3>Recent results</h3>${adminAuthenticated?'<button type="button" class="recent-results-clear" onclick="clearRecentResults()">Clear recent results</button>':""}</div>`;let h="<h3>Currently playing</h3>"+bracketGroupedMatchMarkup(active,false,"No matches currently playing.")+"<h3 style='margin-top:16px'>Upcoming matches</h3>"+bracketGroupedMatchMarkup(up,false,"No upcoming matches yet.")+recentHeader+(done.map(m=>matchCard(m)).join("")||'<div class="empty">No recent results to show.</div>');document.getElementById("publicMatches").innerHTML=h;document.querySelectorAll("#publicMatches .bracket-section-view").forEach(applyBracketSectionVisibility);
  let busy=busyIds(),waiting=state.players.filter(p=>p.available&&!busy.has(p.id));waiting.sort((a,b)=>stats(a).games-stats(b).games||idle(b)-idle(a)||a.name.localeCompare(b.name));
  const waitingGroups=BRACKETS.map(bracket=>[bracket,waiting.filter(p=>p.bracket===bracket)]);
  document.getElementById("waitingList").innerHTML=waiting.length?`<div class="bracket-section-view">${bracketSectionFilterMarkup(waitingGroups)}<div class="bracket-columns-viewport"><div class="waiting-bracket-groups">${waitingGroups.map(([bracket,group])=>`<section class="waiting-category" data-bracket-key="${esc(bracket)}"><div class="waiting-category-head"><span class="waiting-category-name">${esc(bracketLabel(bracket))}</span><span class="waiting-category-count">${group.length} waiting</span></div>${group.length?group.map(p=>{let partner=p.partnerId?player(p.partnerId):null,partnerNote=partner?(partner.available&&!busy.has(partner.id)?"Fixed duo with "+partner.name:"Waiting for "+partner.name+" to become available"):"Available for matchmaking";return `<div class="row waiting-player-row"><div><b>${esc(p.name)}</b><div class="small">${esc(partnerNote)}</div></div><div class="small" style="text-align:right">${stats(p).games} games · idle ${idle(p)}m</div></div>`}).join(""):'<div class="bracket-column-empty">No players waiting.</div>'}</section>`).join("")}</div></div></div>`:'<div class="empty">No available players waiting.</div>';
@@ -1676,6 +1715,56 @@ setInterval(()=>{
  if(pendingSave&&adminAuthenticated&&!saveRunning)void save({render:false});
  else void refreshFromDatabase();
 },10000);
+
+function twentyMinuteWarningStorageKey(warningKey){return "pbb-court-20m-warning:"+warningKey;}
+function twentyMinuteWarningWasShown(warningKey){try{return localStorage.getItem(twentyMinuteWarningStorageKey(warningKey))==="1";}catch(_){return false;}}
+function showNextTwentyMinuteWarning(){
+ if(currentTwentyMinuteWarning||!adminAuthenticated)return;
+ while(twentyMinuteWarningQueue.length){
+  const warning=twentyMinuteWarningQueue.shift();
+  const stillLive=warning.kind==="regular"?state.matches.some(game=>String(game.id)===warning.gameId&&game.status==="playing"):tournamentGamesFlat().some(item=>String(item.game.id)===warning.gameId&&item.game.status==="in-progress");
+  if(!stillLive){twentyMinuteWarningPending.delete(warning.key);continue;}
+  currentTwentyMinuteWarning=warning;
+  try{localStorage.setItem(twentyMinuteWarningStorageKey(warning.key),"1");}catch(_){}
+  const overlay=document.getElementById("courtWarningOverlay");
+  const message=document.getElementById("courtWarningMessage");
+  const details=document.getElementById("courtWarningDetails");
+  if(!overlay||!message||!details){currentTwentyMinuteWarning=null;alert("20-minute court warning: Court "+warning.courtNo+" has reached 20 minutes. Please check the game.");continue;}
+  message.textContent="Court "+warning.courtNo+" has reached 20:00 and is now marked red. Please check the game and update the live score or record the result when appropriate.";
+  details.textContent=warning.details+(warning.score?" · Live score: "+warning.score:"");
+  overlay.hidden=false;
+  document.getElementById("courtWarningAcknowledge")?.focus();
+  return;
+ }
+}
+function queueTwentyMinuteWarning(item,elapsed){
+ if(!adminAuthenticated||elapsed<1200)return;
+ const game=item.game,startedAt=Number(game.startedAt||game.createdAt||0),key=item.kind+":"+String(game.id)+":"+startedAt;
+ if(twentyMinuteWarningPending.has(key)||twentyMinuteWarningWasShown(key))return;
+ twentyMinuteWarningPending.add(key);
+ const players=deploymentPlayerNames(item,"teamA").concat(deploymentPlayerNames(item,"teamB")).join(" · ");
+ const details="Court "+item.courtNo+" · "+bracketLabel(game.bracket||"")+(item.kind==="tournament"?" · "+deploymentItemLabel(item):"")+(players?" · "+players:"");
+ const score=game.scoreA!=null&&game.scoreB!=null?game.scoreA+" – "+game.scoreB:"";
+ twentyMinuteWarningQueue.push({key,kind:item.kind,gameId:String(game.id),courtNo:item.courtNo,details,score});
+ showNextTwentyMinuteWarning();
+}
+function dismissTwentyMinuteWarning(){
+ const overlay=document.getElementById("courtWarningOverlay");
+ if(overlay)overlay.hidden=true;
+ currentTwentyMinuteWarning=null;
+ showNextTwentyMinuteWarning();
+}
+window.addEventListener("storage",event=>{
+ const prefix="pbb-court-20m-warning:";
+ if(!event.key||!event.key.startsWith(prefix)||event.newValue!=="1")return;
+ const key=event.key.slice(prefix.length);
+ if(currentTwentyMinuteWarning?.key===key){const overlay=document.getElementById("courtWarningOverlay");if(overlay)overlay.hidden=true;currentTwentyMinuteWarning=null;}
+ const index=twentyMinuteWarningQueue.findIndex(item=>item.key===key);
+ if(index>=0)twentyMinuteWarningQueue.splice(index,1);
+ twentyMinuteWarningPending.delete(key);
+ showNextTwentyMinuteWarning();
+});
+
 function updateLiveGameTimers(){
  document.querySelectorAll("[data-court-live-timer]").forEach(el=>{const start=Number(el.dataset.startedAt||Date.now()),elapsed=Math.max(0,Math.floor((Date.now()-start)/1000)),tone=courtToneForElapsed(elapsed),card=el.closest(".deployment-court");el.textContent=formatDuration(elapsed);if(card){card.classList.remove("court-tone-green","court-tone-yellow","court-tone-red");card.classList.add("court-tone-"+tone);const note=card.querySelector(".deployment-queue-note");if(note)note.textContent=courtToneLabel(elapsed);}});
  document.querySelectorAll(".court-status-card[data-court-start]").forEach(card=>{const elapsed=Math.max(0,Math.floor((Date.now()-Number(card.dataset.courtStart))/1000)),tone=courtToneForElapsed(elapsed);card.classList.remove("court-tone-green","court-tone-yellow","court-tone-red");card.classList.add("court-tone-"+tone);const timer=card.querySelector(".court-live-time");if(timer)timer.textContent=formatDuration(elapsed);});
@@ -1689,6 +1778,9 @@ function updateLiveGameTimers(){
   if(elapsed===null)return;el.textContent=formatDuration(elapsed);
   const warning=el.closest(".match,.tournament-subgame")?.querySelector(".live-duration-warning");if(warning)warning.hidden=elapsed<900;
  });
+ if(adminAuthenticated){
+  activeCourtItems().forEach(item=>{const elapsed=item.kind==="regular"?currentDuration(item.game):tournamentGameDuration(item.game);queueTwentyMinuteWarning(item,elapsed);});
+ }
 }
 setInterval(updateLiveGameTimers,1000);
 </script>
