@@ -260,38 +260,90 @@ button.primary{background:#198754;color:#fff}button.primary:hover{background:#14
 @media(max-width:700px){.tournament-setup{grid-template-columns:1fr}.bracket-round{width:222px}.tournament-hero{padding:16px}.bracket-edit-grid{grid-template-columns:1fr 1fr}.tournament-roster-form{grid-template-columns:1fr}.tournament-roster-form label.wide{grid-column:auto}.tournament-home-select{grid-template-columns:1fr}.tournament-roster-player{grid-template-columns:minmax(0,1fr) minmax(95px,120px) auto}}
 
 
-/* Each skill bracket gets its own desktop column; mobile uses a bracket filter. */
+/* Seven distinct skill-bracket columns on desktop; mobile switches to a bracket filter. */
+@media(min-width:681px){
+  .public-layout{display:block}
+  .public-main-column{width:100%}
+  .sponsor-sidebar{margin-top:16px}
+  .sponsor-sidebar-inner{position:static;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch}
+  .sponsor-sidebar-spacer{min-height:0}
+  .featured-brand-card{min-height:0}
+}
 #waitingList{display:block}
-.bracket-section-view{display:block;margin-top:10px;min-width:0}
+.bracket-section-view{display:block;margin-top:10px;min-width:0;width:100%}
+.bracket-columns-viewport{width:100%;max-width:100%;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;padding:2px 1px 10px}
 .match-bracket-groups,
 .tournament-bracket-groups,
 .waiting-bracket-groups{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
-  gap:12px;
+  grid-template-columns:repeat(7,minmax(142px,1fr));
+  gap:8px;
   align-items:start;
   margin-top:10px;
+  min-width:1042px;
+  width:100%;
 }
 #waitingList .waiting-category,
 .match-bracket-group,
 .tournament-bracket-group{
   display:block;
+  box-sizing:border-box;
   min-width:0;
   width:100%;
+  margin:0;
   border:1px solid var(--line);
-  border-radius:10px;
-  padding:10px;
+  border-radius:11px;
+  padding:11px 10px;
   background:#fbfcfe;
 }
-#waitingList .waiting-category{margin:0}
+.match-bracket-group-head,
+.tournament-bracket-group-head,
+.waiting-category-head{display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-start;min-height:45px;gap:4px;margin-bottom:9px}
+.match-bracket-group-head b,
+.tournament-bracket-group-head b,
+.waiting-category-name{font-size:12px;line-height:1.3;overflow-wrap:anywhere}
+.match-bracket-group-head span,
+.tournament-bracket-group-head span,
+.waiting-category-count{flex:0 0 auto;white-space:normal;font-size:10px;line-height:1.25}
+.bracket-column-empty{padding:9px 4px;color:var(--muted);font-size:11px;line-height:1.4}
+.match-bracket-group .match{padding:9px;margin:7px 0;border-radius:9px}
+.match-bracket-group .matchhead{display:flex;flex-direction:column;align-items:flex-start;gap:5px;font-size:10px}
+.match-bracket-group .matchhead b{font-size:10px;line-height:1.35;overflow-wrap:anywhere}
+.match-bracket-group .teams{grid-template-columns:minmax(0,1fr);gap:5px}
+.match-bracket-group .team{font-size:11px;line-height:1.3;overflow-wrap:anywhere}
+.match-bracket-group .vs{text-align:center;padding:0;font-size:9px}
+.match-bracket-group .row{gap:5px}
+.match-bracket-group .match > .row:not(.match-player-controls){flex-direction:column;align-items:flex-start}
+.match-bracket-group .match-duration-notice,
+.tournament-bracket-group .match-duration-notice{display:block;line-height:1.4;overflow-wrap:anywhere}
+.match-bracket-group .match-duration-notice strong,
+.tournament-bracket-group .match-duration-notice strong{display:block;white-space:normal;margin:0 0 4px}
+.tournament-bracket-group .live-game-duration{display:flex;flex-direction:column;align-items:flex-start;gap:3px}
+.tournament-bracket-group .tournament-round-tie{border-top:1px solid #e5eaf0;padding-top:8px;margin-top:8px}
+.tournament-bracket-group .tournament-round-tie:first-child{border-top:0;padding-top:0;margin-top:0}
+.tournament-round-tie-head{display:grid;gap:3px;margin-bottom:7px}
+.tournament-round-tie-head b{font-size:10px;line-height:1.35;overflow-wrap:anywhere}
+.tournament-round-tie-head span{font-size:9px;line-height:1.3;color:var(--muted)}
+.tournament-game-bracket{font-size:9px;line-height:1.3;font-weight:750;color:var(--muted);margin:-2px 0 6px;overflow-wrap:anywhere}
+.tournament-bracket-group .tournament-subgames{margin-top:0;padding-top:0;border-top:0;gap:8px}
+.tournament-bracket-group .bracket-edit-grid{grid-template-columns:minmax(0,1fr)}
+.tournament-bracket-group .bracket-edit-grid .wide{grid-column:auto}
 .bracket-mobile-filter{display:none}
 @media(max-width:700px){
+  .bracket-columns-viewport{overflow:visible;padding:0}
   .match-bracket-groups,
   .tournament-bracket-groups,
-  .waiting-bracket-groups{grid-template-columns:minmax(0,1fr)}
+  .waiting-bracket-groups{grid-template-columns:minmax(0,1fr);gap:10px;min-width:0;width:100%;}
+  .match-bracket-group-head,
+  .tournament-bracket-group-head,
+  .waiting-category-head{min-height:0}
   .bracket-mobile-filter{display:flex;align-items:center;gap:9px;margin:0 0 8px;font-size:11px;font-weight:800;color:var(--muted)}
   .bracket-mobile-filter span{flex:0 0 auto}
   .bracket-mobile-filter select{flex:1;min-width:0;width:100%;padding:8px 10px;font-size:12px}
+  .match-bracket-group .teams{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}
+  .match-bracket-group .vs{text-align:initial}
+  .tournament-bracket-group .bracket-edit-grid{grid-template-columns:1fr 1fr}
+  .tournament-bracket-group .bracket-edit-grid .wide{grid-column:1/-1}
 }
 @media(min-width:701px){
   .bracket-section-view [data-bracket-key]{display:block!important}
@@ -899,7 +951,7 @@ function removeUpcomingMatch(id){let m=state.matches.find(x=>x.id===id);if(!m||m
 function deleteMatch(id){let m=state.matches.find(x=>x.id===id);if(!m)return;if(!confirm(m.status==="playing"?"Cancel this active match and free its court?":"Delete this match?"))return;state.matches=state.matches.filter(x=>x.id!==id);save()}
 function formatDuration(totalSeconds){let n=Math.max(0,Math.floor(totalSeconds||0)),h=Math.floor(n/3600),min=Math.floor((n%3600)/60),sec=n%60;return h>0?`${h}:${String(min).padStart(2,"0")}:${String(sec).padStart(2,"0")}`:`${String(min).padStart(2,"0")}:${String(sec).padStart(2,"0")}`}
 function currentDuration(m){return m.status==="playing"?Math.max(0,Math.floor((Date.now()-(m.startedAt||m.createdAt||Date.now()))/1000)):(m.durationSeconds||0)}
-function matchBracketGroupKey(m){const levels=[...new Set(matchBrackets(m).flatMap(value=>String(value||"").split(" + ")).filter(Boolean))];levels.sort((a,b)=>BRACKETS.indexOf(a)-BRACKETS.indexOf(b));return levels.join(" + ")||"Unclassified";}
+function matchBracketGroupKey(m){const levels=[...new Set(matchBrackets(m).flatMap(value=>String(value||"").split(" + ")).filter(Boolean))];levels.sort((a,b)=>BRACKETS.indexOf(a)-BRACKETS.indexOf(b));return levels[0]||"Unclassified";}
 function bracketSectionFilterMarkup(ordered){
  if(!ordered.length)return "";
  return `<label class="bracket-mobile-filter"><span>Filter by bracket</span><select aria-label="Filter by bracket" onchange="filterBracketSection(this)"><option value="all">All brackets</option>${ordered.map(([key,items])=>`<option value="${esc(key)}">${esc(bracketLabel(key))} · ${items.length}</option>`).join("")}</select></label>`;
@@ -910,11 +962,20 @@ function filterBracketSection(select){
  view.querySelectorAll("[data-bracket-key]").forEach(group=>{group.style.display=!mobile||selected==="all"||group.dataset.bracketKey===selected?"":"none";});
 }
 window.addEventListener("resize",()=>document.querySelectorAll(".bracket-mobile-filter select").forEach(filterBracketSection),{passive:true});
+function orderedBracketColumns(groups){
+ const base=BRACKETS.map(bracket=>[bracket,groups.get(bracket)||[]]);
+ const extras=[...groups.entries()].filter(([key])=>!BRACKETS.includes(key)).sort((a,b)=>{
+  const aFirst=String(a[0]).split(" + ")[0],bFirst=String(b[0]).split(" + ")[0];
+  return (BRACKETS.indexOf(aFirst)<0?999:BRACKETS.indexOf(aFirst))-(BRACKETS.indexOf(bFirst)<0?999:BRACKETS.indexOf(bFirst))||a[0].localeCompare(b[0]);
+ });
+ return base.concat(extras);
+}
 function bracketGroupedMatchMarkup(matches,admin=false,emptyLabel="No matches."){
  if(!matches.length)return `<div class="empty">${esc(emptyLabel)}</div>`;
- const groups=new Map();matches.forEach(m=>{const key=matchBracketGroupKey(m);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(m);});
- const ordered=[...groups.entries()].sort((a,b)=>{const firstA=BRACKETS.indexOf(a[0].split(" + ")[0]),firstB=BRACKETS.indexOf(b[0].split(" + ")[0]);return (firstA<0?999:firstA)-(firstB<0?999:firstB)||a[0].localeCompare(b[0]);});
- return `<div class="bracket-section-view">${bracketSectionFilterMarkup(ordered)}<div class="match-bracket-groups">${ordered.map(([key,items])=>`<section class="match-bracket-group" data-bracket-key="${esc(key)}"><div class="match-bracket-group-head"><b>${esc(bracketLabel(key))}</b><span>${items.length} game${items.length===1?"":"s"}</span></div>${items.map(m=>matchCard(m,admin)).join("")}</section>`).join("")}</div></div>`;
+ const groups=new Map(BRACKETS.map(bracket=>[bracket,[]]));
+ matches.forEach(m=>{const key=matchBracketGroupKey(m);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(m);});
+ const ordered=orderedBracketColumns(groups);
+ return `<div class="bracket-section-view">${bracketSectionFilterMarkup(ordered)}<div class="bracket-columns-viewport"><div class="match-bracket-groups">${ordered.map(([key,items])=>`<section class="match-bracket-group" data-bracket-key="${esc(key)}"><div class="match-bracket-group-head"><b>${esc(bracketLabel(key))}</b><span>${items.length} game${items.length===1?"":"s"}</span></div>${items.length?items.map(m=>matchCard(m,admin)).join(""):'<div class="bracket-column-empty">No games in this bracket.</div>'}</section>`).join("")}</div></div></div>`;
 }
 function matchCard(m,admin=false){let names=arr=>arr.map(id=>player(id)?.name||"Removed player").join(" + ");let duoTag=arr=>arr.length===2&&isFixedDuo(player(arr[0]),player(arr[1]))?'<span class="duo-tag">FIXED DUO</span>':"";let status=m.status==="playing"?"Playing":m.status==="upcoming"?"Upcoming":"Completed";let badge=m.status==="playing"?"badge":m.status==="upcoming"?"badge blue":"badge amber";let aWon=m.status==="done"&&m.scoreA>m.scoreB,bWon=m.status==="done"&&m.scoreB>m.scoreA;
  let html=`<div class="match match-${m.status} ${m.status==="done"?"match-completed":""}"><div class="matchhead"><b>${esc(m.court?"Court "+m.court:"Unassigned court")} · ${esc(bracketLabel(m.bracket))}${m.tournament?" · Tournament":""}${m.genderMode&&m.genderMode!=="open"?" · "+esc(genderModeLabel(m.genderMode)):""}</b><span class="${badge}">${status}</span></div><div class="teams"><div class="team ${aWon?"winner":m.status==="done"?"loser":""}">${esc(names(m.teamA))}${duoTag(m.teamA)}${aWon?'<span class="winner-tag">WINNER</span>':""}</div><div class="vs">VS</div><div class="team ${bWon?"winner":m.status==="done"?"loser":""}" style="text-align:right">${esc(names(m.teamB))}${duoTag(m.teamB)}${bWon?'<span class="winner-tag">WINNER</span>':""}</div></div>`;
@@ -934,8 +995,8 @@ function matchCard(m,admin=false){let names=arr=>arr.map(id=>player(id)?.name||"
  return html+"</div>"}
 function renderPublic(){let active=state.matches.filter(m=>m.status==="playing"),up=state.matches.filter(m=>m.status==="upcoming"),done=state.matches.filter(m=>m.status==="done").slice(-4).reverse();document.getElementById("liveBadge").textContent=active.length+" live · "+up.length+" queued · "+(active.length+up.length)+"/"+(configuredCourts()+3)+" total";document.getElementById("publicCourts").innerHTML=courtBoard();let h="<h3>Currently playing</h3>"+bracketGroupedMatchMarkup(active,false,"No matches currently playing.")+"<h3 style='margin-top:16px'>Upcoming matches</h3>"+bracketGroupedMatchMarkup(up,false,"No upcoming matches yet.")+"<h3 style='margin-top:16px'>Recent results</h3>"+(done.map(m=>matchCard(m)).join("")||'<div class="empty">No completed matches yet.</div>');document.getElementById("publicMatches").innerHTML=h;
  let busy=busyIds(),waiting=state.players.filter(p=>p.available&&!busy.has(p.id));waiting.sort((a,b)=>stats(a).games-stats(b).games||idle(b)-idle(a)||a.name.localeCompare(b.name));
- const waitingGroups=BRACKETS.map(bracket=>[bracket,waiting.filter(p=>p.bracket===bracket)]).filter(([,group])=>group.length);
- document.getElementById("waitingList").innerHTML=waitingGroups.length?`<div class="bracket-section-view">${bracketSectionFilterMarkup(waitingGroups)}<div class="waiting-bracket-groups">${waitingGroups.map(([bracket,group])=>`<section class="waiting-category" data-bracket-key="${esc(bracket)}"><div class="waiting-category-head"><span class="waiting-category-name">${esc(bracketLabel(bracket))}</span><span class="waiting-category-count">${group.length} waiting</span></div>${group.map(p=>{let partner=p.partnerId?player(p.partnerId):null,partnerNote=partner?(partner.available&&!busy.has(partner.id)?"Fixed duo with "+partner.name:"Waiting for "+partner.name+" to become available"):"Available for matchmaking";return `<div class="row waiting-player-row"><div><b>${esc(p.name)}</b><div class="small">${esc(partnerNote)}</div></div><div class="small" style="text-align:right">${stats(p).games} games · idle ${idle(p)}m</div></div>`}).join("")}</section>`).join("")}</div></div>`:'<div class="empty">No available players waiting.</div>';
+ const waitingGroups=BRACKETS.map(bracket=>[bracket,waiting.filter(p=>p.bracket===bracket)]);
+ document.getElementById("waitingList").innerHTML=waiting.length?`<div class="bracket-section-view">${bracketSectionFilterMarkup(waitingGroups)}<div class="bracket-columns-viewport"><div class="waiting-bracket-groups">${waitingGroups.map(([bracket,group])=>`<section class="waiting-category" data-bracket-key="${esc(bracket)}"><div class="waiting-category-head"><span class="waiting-category-name">${esc(bracketLabel(bracket))}</span><span class="waiting-category-count">${group.length} waiting</span></div>${group.length?group.map(p=>{let partner=p.partnerId?player(p.partnerId):null,partnerNote=partner?(partner.available&&!busy.has(partner.id)?"Fixed duo with "+partner.name:"Waiting for "+partner.name+" to become available"):"Available for matchmaking";return `<div class="row waiting-player-row"><div><b>${esc(p.name)}</b><div class="small">${esc(partnerNote)}</div></div><div class="small" style="text-align:right">${stats(p).games} games · idle ${idle(p)}m</div></div>`}).join(""):'<div class="bracket-column-empty">No players waiting.</div>'}</section>`).join("")}</div></div></div>`:'<div class="empty">No available players waiting.</div>';
  let q=(document.getElementById("playerSearch")?.value||"").trim().toLowerCase(),results=document.getElementById("playerSearchResults");if(!q){results.innerHTML='<div class="small muted">Search player names across all skill brackets.</div>'}else{let found=state.players.filter(p=>(p.name||"").toLowerCase().includes(q));results.innerHTML=found.slice(0,12).map(p=>{let s=stats(p,false),ordered=ranking(state.players.filter(x=>x.bracket===p.bracket)),rank=leaderboardRank(ordered,p);return `<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>${esc(p.name)}</b><div class="small">${esc(bracketLabel(p.bracket))} · Rank #${rank} · ${s.wins}W / ${s.losses}L</div></div>`}).join("")||'<div class="empty">No matching player.</div>'}}
 function renderLeaderboard(){
  let view=document.getElementById("bracketFilter").value||"Overall",overall=view==="Overall",source=overall?state.players:state.players.filter(p=>p.bracket===view),list=ranking([...source]);
@@ -1154,8 +1215,8 @@ async function saveTournamentMatchDetails(tieId,gameId){
  const button=document.querySelector(`[data-match-editor="${CSS.escape(String(gameId))}"] .save-match-details`);if(button){button.disabled=true;button.textContent="Saving…";}const saved=await save({render:false});if(button){button.disabled=false;button.textContent=saved?"Saved":"Save match details";}if(saved){updateTournamentGameMeta(gameId,game);const status=document.querySelector(`[data-match-editor="${CSS.escape(String(gameId))}"] .match-edit-save-status`);if(status)status.textContent="Match details saved. The editor remains open.";}
 }
 async function persistTournamentAction(gameId){
- const root=document.getElementById("tournamentView"),openEditor=root?.querySelector("details.bracket-edit[open]"),openGameId=openEditor?.dataset.matchEditor||gameId||"",scroll=root?.querySelector(".tournament-bracket-scroll"),scrollLeft=scroll?.scrollLeft||0,scrollTop=scroll?.scrollTop||0,active=document.activeElement,activeAction=active?.dataset?.tournamentAction||"";
- const saved=await save({render:false});if(saved){renderTournament();const nextScroll=root?.querySelector(".tournament-bracket-scroll");if(nextScroll){nextScroll.scrollLeft=scrollLeft;nextScroll.scrollTop=scrollTop;}if(openGameId){const editor=root?.querySelector(`[data-match-editor="${CSS.escape(String(openGameId))}"]`);if(editor)editor.open=true;}if(activeAction&&openGameId){const action=root?.querySelector(`[data-match-editor="${CSS.escape(String(openGameId))}"] [data-tournament-action="${CSS.escape(activeAction)}"]`);action?.focus({preventScroll:true});}}
+ const root=document.getElementById("tournamentView"),openEditor=root?.querySelector("details.bracket-edit[open]"),openGameId=openEditor?.dataset.matchEditor||gameId||"",scroll=openEditor?.closest(".bracket-columns-viewport")||root?.querySelector(".bracket-columns-viewport"),scrollLeft=scroll?.scrollLeft||0,scrollTop=scroll?.scrollTop||0,active=document.activeElement,activeAction=active?.dataset?.tournamentAction||"";
+ const saved=await save({render:false});if(saved){renderTournament();const nextGame=openGameId?root?.querySelector(`.tournament-subgame[data-game-id="${CSS.escape(String(openGameId))}"]`):null,nextScroll=nextGame?.closest(".bracket-columns-viewport")||root?.querySelector(".bracket-columns-viewport");if(nextScroll){nextScroll.scrollLeft=scrollLeft;nextScroll.scrollTop=scrollTop;}if(openGameId){const editor=root?.querySelector(`[data-match-editor="${CSS.escape(String(openGameId))}"]`);if(editor)editor.open=true;}if(activeAction&&openGameId){const action=root?.querySelector(`[data-match-editor="${CSS.escape(String(openGameId))}"] [data-tournament-action="${CSS.escape(activeAction)}"]`);action?.focus({preventScroll:true});}}
  return saved;
 }
 async function startTournamentGame(tieId,gameId){if(!adminAuthenticated)return alert("Organizer access is required to update tournament fixtures.");const tie=tournamentFindTie(tieId),game=tournamentFindGame(tieId,gameId);if(!tie||!game||game.status!=="scheduled")return;collectTournamentGameDetails(tieId,gameId);game.status="in-progress";game.startedAt=Date.now();updateTournamentTieResult(tie);await persistTournamentAction(gameId);}
@@ -1167,20 +1228,25 @@ function tournamentGameDuration(game){return game?.status==="in-progress"?Math.m
 function renderTournamentGame(tie,game){
  const clubA=tournamentClub(tie.clubAId),clubB=tournamentClub(tie.clubBId),aNames=game.teamA.map(tournamentPlayerName),bNames=game.teamB.map(tournamentPlayerName),statusLabel=({scheduled:"UPCOMING","in-progress":"LIVE NOW",complete:"COMPLETED"})[game.status]||game.status.toUpperCase(),aWon=game.status==="complete"&&game.scoreA>game.scoreB,bWon=game.status==="complete"&&game.scoreB>game.scoreA;
  const meta=[game.fixtureType,game.scheduledAt?new Date(game.scheduledAt).toLocaleString():"",game.court?"Court "+game.court:"",game.venue,game.notes].filter(Boolean);
- let html=`<article class="tournament-subgame ${game.status==="complete"?"complete":game.status==="in-progress"?"live":""}" data-game-id="${esc(game.id)}"><div class="subgame-top"><b>Game ${game.gameNumber}</b><span class="bracket-state-chip ${game.status==="complete"?"complete":game.status==="in-progress"?"live":"scheduled"}">${statusLabel}</span></div><div class="subgame-teams"><div class="subgame-team ${aWon?"winner":""}"><span>${esc(aNames.join(" + "))}<small>${esc(clubA?.name||"Club A")}</small></span><b>${Number.isInteger(game.scoreA)?game.scoreA:"–"}</b></div><div class="subgame-team ${bWon?"winner":""}"><span>${esc(bNames.join(" + "))}<small>${esc(clubB?.name||"Club B")}</small></span><b>${Number.isInteger(game.scoreB)?game.scoreB:"–"}</b></div></div>${game.status==="in-progress"?`<div class="live-game-duration"><span>⏱ Game duration</span><b class="elapsed-game-timer" data-game-kind="tournament" data-game-id="${esc(game.id)}">${formatDuration(tournamentGameDuration(game))}</b></div><div class="match-duration-notice live-duration-warning" role="status" aria-live="polite" ${tournamentGameDuration(game)>=900?"":"hidden"}><strong>15-minute warning</strong><span>This game has reached 15 minutes. Please check the court and update the result when it finishes.</span></div>`:""}${aWon||bWon?`<div class="small" style="color:#176044;font-weight:800">${aWon?esc(clubA?.name||"Club A"):esc(clubB?.name||"Club B")} wins this game</div>`:""}${meta.length?`<div class="bracket-meta">${meta.map((v,i)=>`<div class="bracket-meta-line">${i===0?"Format: ":""}${esc(v)}</div>`).join("")}</div>`:""}`;
+ let html=`<article class="tournament-subgame ${game.status==="complete"?"complete":game.status==="in-progress"?"live":""}" data-game-id="${esc(game.id)}"><div class="subgame-top"><b>Game ${game.gameNumber}</b><span class="bracket-state-chip ${game.status==="complete"?"complete":game.status==="in-progress"?"live":"scheduled"}">${statusLabel}</span></div>${String(game.bracket||"").includes(" + ")?`<div class="tournament-game-bracket">${esc(bracketLabel(game.bracket))} pair composition</div>`:""}<div class="subgame-teams"><div class="subgame-team ${aWon?"winner":""}"><span>${esc(aNames.join(" + "))}<small>${esc(clubA?.name||"Club A")}</small></span><b>${Number.isInteger(game.scoreA)?game.scoreA:"–"}</b></div><div class="subgame-team ${bWon?"winner":""}"><span>${esc(bNames.join(" + "))}<small>${esc(clubB?.name||"Club B")}</small></span><b>${Number.isInteger(game.scoreB)?game.scoreB:"–"}</b></div></div>${game.status==="in-progress"?`<div class="live-game-duration"><span>⏱ Game duration</span><b class="elapsed-game-timer" data-game-kind="tournament" data-game-id="${esc(game.id)}">${formatDuration(tournamentGameDuration(game))}</b></div><div class="match-duration-notice live-duration-warning" role="status" aria-live="polite" ${tournamentGameDuration(game)>=900?"":"hidden"}><strong>15-minute warning</strong><span>This game has reached 15 minutes. Please check the court and update the result when it finishes.</span></div>`:""}${aWon||bWon?`<div class="small" style="color:#176044;font-weight:800">${aWon?esc(clubA?.name||"Club A"):esc(clubB?.name||"Club B")} wins this game</div>`:""}${meta.length?`<div class="bracket-meta">${meta.map((v,i)=>`<div class="bracket-meta-line">${i===0?"Format: ":""}${esc(v)}</div>`).join("")}</div>`:""}`;
  if(adminAuthenticated){html+=`<details class="bracket-edit" data-match-editor="${esc(game.id)}" oninput="markTournamentEditorDirty(this)"><summary>Edit game details & score</summary><div class="bracket-edit-grid"><label class="wide">Game type<select data-tournament-field="fixtureType">${["Women's doubles","Men's doubles","Mixed doubles","Open doubles","Other"].map(v=>`<option value="${esc(v)}" ${game.fixtureType===v?"selected":""}>${esc(v)}</option>`).join("")}</select></label><label>Scheduled date & time<input data-tournament-field="scheduledAt" type="datetime-local" value="${esc(game.scheduledAt||"")}"></label><label>Court<input data-tournament-field="court" value="${esc(game.court||"")}" placeholder="e.g. 1"></label><label class="wide">Venue<input data-tournament-field="venue" value="${esc(game.venue||"")}" placeholder="Club / venue name"></label><label class="wide">Notes<input data-tournament-field="notes" value="${esc(game.notes||"")}" placeholder="Optional game details"></label><label>Score · ${esc(clubA?.name||"Club A")}<input id="tournament-score-a-${game.id}" type="number" min="0" max="11" step="1" inputmode="numeric" value="${game.scoreA??""}" placeholder="0"></label><label>Score · ${esc(clubB?.name||"Club B")}<input id="tournament-score-b-${game.id}" type="number" min="0" max="11" step="1" inputmode="numeric" value="${game.scoreB??""}" placeholder="0"></label></div><div class="bracket-result-actions"><button onclick="saveTournamentMatchDetails('${tie.id}','${game.id}')" class="save-match-details" data-tournament-action="save-details">Save game details</button>${game.status==="scheduled"?`<button onclick="startTournamentGame('${tie.id}','${game.id}')" data-tournament-action="start">Mark in progress</button>`:""}${game.status==="in-progress"?`<button onclick="saveTournamentLiveScore('${tie.id}','${game.id}')" data-tournament-action="live-score">Save live score</button>`:""}<button class="primary" onclick="recordTournamentGameResult('${tie.id}','${game.id}')" data-tournament-action="record-result">${game.status==="complete"?"Update result":"Record game result"}</button></div><div class="small match-edit-save-status">Edits stay in this form until saved. Automatic refresh pauses while the editor is open.</div><div class="small">Maximum 11 per team, 21 combined. A completed game needs a winner.</div></details>`;}
  html+=`</article>`;return html;
 }
-function tournamentGamesGroupedByBracketMarkup(tie,games){
- if(!games.length)return "";const groups=new Map();games.forEach(game=>{const key=String(game.bracket||"Unclassified");if(!groups.has(key))groups.set(key,[]);groups.get(key).push(game);});
- const ordered=[...groups.entries()].sort((a,b)=>{const firstA=BRACKETS.indexOf(a[0].split(" + ")[0]),firstB=BRACKETS.indexOf(b[0].split(" + ")[0]);return (firstA<0?999:firstA)-(firstB<0?999:firstB)||a[0].localeCompare(b[0]);});
- return `<div class="bracket-section-view">${bracketSectionFilterMarkup(ordered)}<div class="tournament-bracket-groups">${ordered.map(([key,items])=>`<section class="tournament-bracket-group" data-bracket-key="${esc(key)}"><div class="tournament-bracket-group-head"><b>${esc(bracketLabel(key))}</b><span>${items.length} game${items.length===1?"":"s"}</span></div><div class="tournament-subgames">${items.map(game=>renderTournamentGame(tie,game)).join("")}</div></section>`).join("")}</div></div>`;
-}
-function renderTournamentMatch(tie,roundIndex){
- const a=tournamentClub(tie.clubAId),b=tournamentClub(tie.clubBId),wins=tournamentGameWins(tie),statusLabel=({scheduled:"UPCOMING","in-progress":"LIVE NOW",complete:"COMPLETED"})[tie.status]||tie.status;
- const team=(club,score)=>`<div class="bracket-team"><span class="bracket-team-name">${esc(club?.name||"TBD")}</span><span class="bracket-score">${score}</span></div>`;
- const games=tie.games||[];
- return `<article class="bracket-match ${tie.status==="complete"?"match-complete":tie.status==="in-progress"?"match-live":"match-waiting"}" data-match-id="${esc(tie.id)}"><div class="bracket-match-top"><span>Round ${roundIndex+1} · Match ${tie.matchNumber}</span><span class="bracket-state-chip ${tie.status==="in-progress"?"live":tie.status==="complete"?"complete":"scheduled"}">${esc(statusLabel)}</span></div>${team(a,wins.a)}<div class="bracket-vs">VS</div>${team(b,wins.b)}<div class="small tie-summary">${games.length} doubles game${games.length===1?"":"s"} · Completed game wins ${wins.a}–${wins.b}</div>${games.length?tournamentGamesGroupedByBracketMarkup(tie,games):'<div class="empty small">Games will be generated when both clubs are confirmed.</div>'}</article>`;
+function tournamentRoundBracketColumnsMarkup(round,roundIndex){
+ const groups=new Map(BRACKETS.map(bracket=>[bracket,[]]));
+ round.forEach(tie=>(tie.games||[]).forEach(game=>{
+  const levels=[...new Set(String(game.bracket||"").split(" + ").filter(Boolean))].sort((a,b)=>BRACKETS.indexOf(a)-BRACKETS.indexOf(b));
+  const key=levels[0]||"Unclassified";if(!groups.has(key))groups.set(key,[]);groups.get(key).push({tie,game});
+ }));
+ const ordered=orderedBracketColumns(groups);
+ return `<div class="bracket-section-view">${bracketSectionFilterMarkup(ordered)}<div class="bracket-columns-viewport"><div class="tournament-bracket-groups">${ordered.map(([key,items])=>{
+  const tieGroups=new Map();items.forEach(item=>{if(!tieGroups.has(item.tie.id))tieGroups.set(item.tie.id,{tie:item.tie,games:[]});tieGroups.get(item.tie.id).games.push(item.game);});
+  const content=[...tieGroups.values()].map(({tie,games})=>{
+   const a=tournamentClub(tie.clubAId),b=tournamentClub(tie.clubBId),wins=tournamentGameWins(tie);
+   return `<div class="tournament-round-tie"><div class="tournament-round-tie-head"><b>${esc(a?.name||"Club A")} vs ${esc(b?.name||"Club B")}</b><span>${games.length} game${games.length===1?"":"s"} · Tie wins ${wins.a}–${wins.b}</span></div><div class="tournament-subgames">${games.map(game=>renderTournamentGame(tie,game)).join("")}</div></div>`;
+  }).join("");
+  return `<section class="tournament-bracket-group" data-bracket-key="${esc(key)}"><div class="tournament-bracket-group-head"><b>${esc(bracketLabel(key))}</b><span>${items.length} game${items.length===1?"":"s"}</span></div>${content||'<div class="bracket-column-empty">No games in this bracket this round.</div>'}</section>`;
+ }).join("")}</div></div></div>`;
 }
 function tournamentClubStandings(){
  const t=ensureTournament(),clubs=t.clubs||[],rows=clubs.map(club=>({club,wins:0,losses:0,played:0,pointsFor:0,pointsAgainst:0})),byId=new Map(rows.map(row=>[String(row.club.id),row]));
@@ -1209,7 +1275,7 @@ function renderTournament(){
  </div>`:"";
  const archiveNotice=(t.archivedSingleEliminationBracket?.length||(t.formatVersion===2&&rounds.length))?`<div class="card" style="border-color:#d7dde5;background:#f5f6f8"><b>Previous single-elimination bracket archived</b><div class="small">The previous single-elimination schedule is retained for reference. Reset it to create the new single round-robin schedule.</div></div>`:"";
  const standingsPanel=t.formatVersion===3&&rounds.length?`<div class="card"><h2>Tournament standings</h2><div class="small">Ranked by total completed doubles-game wins. Clubs with the same number of wins share the same standing. The number of games can vary by roster size and compatibility, so check Games played alongside Wins.</div><div class="leaderboard-table-wrap"><table><thead><tr><th>Rank</th><th>Club</th><th>Games played</th><th>Wins</th><th>Losses</th><th>Points for</th><th>Against</th></tr></thead><tbody>${standings.map((row,i)=>{const rank=standings.findIndex(other=>other.wins===row.wins)+1;return `<tr><td><b>#${rank}</b></td><td><b>${esc(row.club.name)}</b></td><td>${row.played}</td><td><b>${row.wins}</b></td><td>${row.losses}</td><td>${row.pointsFor}</td><td>${row.pointsAgainst}</td></tr>`;}).join("")}</tbody></table></div>${allGamesComplete?`<div class="tournament-winner-banner">${leaders.length===1?`Tournament winner · ${esc(leaders[0].club.name)} (${leaders[0].wins} wins)`: `Tournament tied · ${leaders.map(row=>esc(row.club.name)).join(" and ")} (${topWins} wins each)`}</div>`:completed>0&&leaders.length?`<div class="small" style="margin-top:9px">Current leader${leaders.length>1?"s":""}: ${leaders.map(row=>esc(row.club.name)).join(", ")} · ${topWins} wins</div>`:""}</div>`:"";
- const roundsPanel=t.formatVersion===3?(rounds.length?`<div class="card"><h2 data-bracket-title>${esc(t.name||"Interclub Tournament")} · Round-robin fixtures</h2><div class="small">${clubs.length} clubs · ${rounds.length} rounds · ${ties.length} club matchups · ${games.length} doubles games</div>${rounds.map((round,i)=>`<section style="margin-top:14px"><h3>Round ${i+1}</h3><div class="grid">${round.map(tie=>`<div class="span6">${renderTournamentMatch(tie,i)}</div>`).join("")}</div></section>`).join("")}</div>`:`<div class="card"><h2>Round-robin schedule</h2><div class="empty">${adminAuthenticated?"Register at least two clubs and eligible players, then generate the round-robin schedule and doubles games.":"The organizer is registering participating clubs and players. The full round-robin schedule and standings will appear here once generated."}</div></div>`):"";
+ const roundsPanel=t.formatVersion===3?(rounds.length?`<div class="card"><h2 data-bracket-title>${esc(t.name||"Interclub Tournament")} · Round-robin fixtures</h2><div class="small">${clubs.length} clubs · ${rounds.length} rounds · ${ties.length} club matchups · ${games.length} doubles games</div>${rounds.map((round,i)=>`<section class="tournament-round-section" style="margin-top:18px"><h3>Round ${i+1}</h3>${tournamentRoundBracketColumnsMarkup(round,i)}</section>`).join("")}</div>`:`<div class="card"><h2>Round-robin schedule</h2><div class="empty">${adminAuthenticated?"Register at least two clubs and eligible players, then generate the round-robin schedule and doubles games.":"The organizer is registering participating clubs and players. The full round-robin schedule and standings will appear here once generated."}</div></div>`):"";
  const legacyPanel=t.formatVersion!==3&&rounds.length?`<div class="card"><h2>Previous single-elimination schedule</h2><div class="empty">This saved tournament uses the previous knockout format. To switch it to single round robin, choose <b>Reset schedule & results</b> above. Club registrations and player rosters will be retained.</div></div>`:"";
  const bracketPanel=standingsPanel+roundsPanel+legacyPanel;
  root.innerHTML=`<div class="tournament-hero"><div><h2 data-tournament-title>${esc(t.name||"Interclub Tournament")}</h2><div class="small">Single round robin · Every club plays every other club · Public live results</div></div><div class="tournament-stats"><div class="tournament-stat"><b>${clubs.length}</b><span>Clubs</span></div><div class="tournament-stat"><b>${games.length}</b><span>Doubles games</span></div><div class="tournament-stat"><b>${live}</b><span>Live</span></div><div class="tournament-stat"><b>${completed}</b><span>Results</span></div></div></div>${archiveNotice}${adminPanel}${bracketPanel}${!adminAuthenticated?'<div class="small muted" style="margin-top:10px">All registered tournament games and results are visible publicly. Only the organizer can edit them.</div>':""}`;
