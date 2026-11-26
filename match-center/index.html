@@ -260,12 +260,14 @@ button.primary{background:#198754;color:#fff}button.primary:hover{background:#14
 @media(max-width:700px){.tournament-setup{grid-template-columns:1fr}.bracket-round{width:222px}.tournament-hero{padding:16px}.bracket-edit-grid{grid-template-columns:1fr 1fr}.tournament-roster-form{grid-template-columns:1fr}.tournament-roster-form label.wide{grid-column:auto}.tournament-home-select{grid-template-columns:1fr}.tournament-roster-player{grid-template-columns:minmax(0,1fr) minmax(95px,120px) auto}}
 
 
-/* Bracket sections use a compact two-column card grid, never a single horizontal strip. */
-#waitingList,
+/* Each skill bracket gets its own desktop column; mobile uses a bracket filter. */
+#waitingList{display:block}
+.bracket-section-view{display:block;margin-top:10px;min-width:0}
 .match-bracket-groups,
-.tournament-bracket-groups{
+.tournament-bracket-groups,
+.waiting-bracket-groups{
   display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
+  grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
   gap:12px;
   align-items:start;
   margin-top:10px;
@@ -273,19 +275,26 @@ button.primary{background:#198754;color:#fff}button.primary:hover{background:#14
 #waitingList .waiting-category,
 .match-bracket-group,
 .tournament-bracket-group{
+  display:block;
   min-width:0;
+  width:100%;
   border:1px solid var(--line);
   border-radius:10px;
   padding:10px;
   background:#fbfcfe;
 }
 #waitingList .waiting-category{margin:0}
+.bracket-mobile-filter{display:none}
 @media(max-width:700px){
-  #waitingList,
   .match-bracket-groups,
-  .tournament-bracket-groups{
-    grid-template-columns:minmax(0,1fr);
-  }
+  .tournament-bracket-groups,
+  .waiting-bracket-groups{grid-template-columns:minmax(0,1fr)}
+  .bracket-mobile-filter{display:flex;align-items:center;gap:9px;margin:0 0 8px;font-size:11px;font-weight:800;color:var(--muted)}
+  .bracket-mobile-filter span{flex:0 0 auto}
+  .bracket-mobile-filter select{flex:1;min-width:0;width:100%;padding:8px 10px;font-size:12px}
+}
+@media(min-width:701px){
+  .bracket-section-view [data-bracket-key]{display:block!important}
 }
 </style>
 </head>
@@ -891,11 +900,21 @@ function deleteMatch(id){let m=state.matches.find(x=>x.id===id);if(!m)return;if(
 function formatDuration(totalSeconds){let n=Math.max(0,Math.floor(totalSeconds||0)),h=Math.floor(n/3600),min=Math.floor((n%3600)/60),sec=n%60;return h>0?`${h}:${String(min).padStart(2,"0")}:${String(sec).padStart(2,"0")}`:`${String(min).padStart(2,"0")}:${String(sec).padStart(2,"0")}`}
 function currentDuration(m){return m.status==="playing"?Math.max(0,Math.floor((Date.now()-(m.startedAt||m.createdAt||Date.now()))/1000)):(m.durationSeconds||0)}
 function matchBracketGroupKey(m){const levels=[...new Set(matchBrackets(m).flatMap(value=>String(value||"").split(" + ")).filter(Boolean))];levels.sort((a,b)=>BRACKETS.indexOf(a)-BRACKETS.indexOf(b));return levels.join(" + ")||"Unclassified";}
+function bracketSectionFilterMarkup(ordered){
+ if(!ordered.length)return "";
+ return `<label class="bracket-mobile-filter"><span>Filter by bracket</span><select aria-label="Filter by bracket" onchange="filterBracketSection(this)"><option value="all">All brackets</option>${ordered.map(([key,items])=>`<option value="${esc(key)}">${esc(bracketLabel(key))} · ${items.length}</option>`).join("")}</select></label>`;
+}
+function filterBracketSection(select){
+ const view=select?.closest(".bracket-section-view");if(!view)return;
+ const mobile=window.innerWidth<=700,selected=select.value||"all";
+ view.querySelectorAll("[data-bracket-key]").forEach(group=>{group.style.display=!mobile||selected==="all"||group.dataset.bracketKey===selected?"":"none";});
+}
+window.addEventListener("resize",()=>document.querySelectorAll(".bracket-mobile-filter select").forEach(filterBracketSection),{passive:true});
 function bracketGroupedMatchMarkup(matches,admin=false,emptyLabel="No matches."){
  if(!matches.length)return `<div class="empty">${esc(emptyLabel)}</div>`;
  const groups=new Map();matches.forEach(m=>{const key=matchBracketGroupKey(m);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(m);});
  const ordered=[...groups.entries()].sort((a,b)=>{const firstA=BRACKETS.indexOf(a[0].split(" + ")[0]),firstB=BRACKETS.indexOf(b[0].split(" + ")[0]);return (firstA<0?999:firstA)-(firstB<0?999:firstB)||a[0].localeCompare(b[0]);});
- return `<div class="match-bracket-groups">${ordered.map(([key,items])=>`<section class="match-bracket-group"><div class="match-bracket-group-head"><b>${esc(bracketLabel(key))}</b><span>${items.length} game${items.length===1?"":"s"}</span></div>${items.map(m=>matchCard(m,admin)).join("")}</section>`).join("")}</div>`;
+ return `<div class="bracket-section-view">${bracketSectionFilterMarkup(ordered)}<div class="match-bracket-groups">${ordered.map(([key,items])=>`<section class="match-bracket-group" data-bracket-key="${esc(key)}"><div class="match-bracket-group-head"><b>${esc(bracketLabel(key))}</b><span>${items.length} game${items.length===1?"":"s"}</span></div>${items.map(m=>matchCard(m,admin)).join("")}</section>`).join("")}</div></div>`;
 }
 function matchCard(m,admin=false){let names=arr=>arr.map(id=>player(id)?.name||"Removed player").join(" + ");let duoTag=arr=>arr.length===2&&isFixedDuo(player(arr[0]),player(arr[1]))?'<span class="duo-tag">FIXED DUO</span>':"";let status=m.status==="playing"?"Playing":m.status==="upcoming"?"Upcoming":"Completed";let badge=m.status==="playing"?"badge":m.status==="upcoming"?"badge blue":"badge amber";let aWon=m.status==="done"&&m.scoreA>m.scoreB,bWon=m.status==="done"&&m.scoreB>m.scoreA;
  let html=`<div class="match match-${m.status} ${m.status==="done"?"match-completed":""}"><div class="matchhead"><b>${esc(m.court?"Court "+m.court:"Unassigned court")} · ${esc(bracketLabel(m.bracket))}${m.tournament?" · Tournament":""}${m.genderMode&&m.genderMode!=="open"?" · "+esc(genderModeLabel(m.genderMode)):""}</b><span class="${badge}">${status}</span></div><div class="teams"><div class="team ${aWon?"winner":m.status==="done"?"loser":""}">${esc(names(m.teamA))}${duoTag(m.teamA)}${aWon?'<span class="winner-tag">WINNER</span>':""}</div><div class="vs">VS</div><div class="team ${bWon?"winner":m.status==="done"?"loser":""}" style="text-align:right">${esc(names(m.teamB))}${duoTag(m.teamB)}${bWon?'<span class="winner-tag">WINNER</span>':""}</div></div>`;
@@ -914,7 +933,9 @@ function matchCard(m,admin=false){let names=arr=>arr.map(id=>player(id)?.name||"
  if(admin&&m.status==="playing")html+=`<div class="actions"><button onclick="deleteMatch('${m.id}')">Cancel match</button></div><div class="small" style="margin:5px 0 8px">Score limit: max 11 points per team and 21 points combined per match.</div><div class="score-entry-row"><div><label>Team A score</label><input id="sa-${m.id}" type="number" min="0" max="11" step="1" inputmode="numeric" placeholder="11"></div><div><label>Team B score</label><input id="sb-${m.id}" type="number" min="0" max="11" step="1" inputmode="numeric" placeholder="8"></div><div class="fit" style="align-self:end"><button class="primary" onclick="finishMatch('${m.id}')">Record result</button></div></div>`;
  return html+"</div>"}
 function renderPublic(){let active=state.matches.filter(m=>m.status==="playing"),up=state.matches.filter(m=>m.status==="upcoming"),done=state.matches.filter(m=>m.status==="done").slice(-4).reverse();document.getElementById("liveBadge").textContent=active.length+" live · "+up.length+" queued · "+(active.length+up.length)+"/"+(configuredCourts()+3)+" total";document.getElementById("publicCourts").innerHTML=courtBoard();let h="<h3>Currently playing</h3>"+bracketGroupedMatchMarkup(active,false,"No matches currently playing.")+"<h3 style='margin-top:16px'>Upcoming matches</h3>"+bracketGroupedMatchMarkup(up,false,"No upcoming matches yet.")+"<h3 style='margin-top:16px'>Recent results</h3>"+(done.map(m=>matchCard(m)).join("")||'<div class="empty">No completed matches yet.</div>');document.getElementById("publicMatches").innerHTML=h;
- let busy=busyIds(),waiting=state.players.filter(p=>p.available&&!busy.has(p.id));waiting.sort((a,b)=>stats(a).games-stats(b).games||idle(b)-idle(a)||a.name.localeCompare(b.name));document.getElementById("waitingList").innerHTML=waiting.length?BRACKETS.map(bracket=>{let group=waiting.filter(p=>p.bracket===bracket);if(!group.length)return "";return `<div class="waiting-category"><div class="waiting-category-head"><span class="waiting-category-name">${esc(bracketLabel(bracket))}</span><span class="waiting-category-count">${group.length} waiting</span></div>${group.map(p=>{let partner=p.partnerId?player(p.partnerId):null,partnerNote=partner?(partner.available&&!busy.has(partner.id)?"Fixed duo with "+partner.name:"Waiting for "+partner.name+" to become available"):"Available for matchmaking";return `<div class="row waiting-player-row"><div><b>${esc(p.name)}</b><div class="small">${esc(partnerNote)}</div></div><div class="small" style="text-align:right">${stats(p).games} games · idle ${idle(p)}m</div></div>`}).join("")}</div>`}).join(""):'<div class="empty">No available players waiting.</div>';
+ let busy=busyIds(),waiting=state.players.filter(p=>p.available&&!busy.has(p.id));waiting.sort((a,b)=>stats(a).games-stats(b).games||idle(b)-idle(a)||a.name.localeCompare(b.name));
+ const waitingGroups=BRACKETS.map(bracket=>[bracket,waiting.filter(p=>p.bracket===bracket)]).filter(([,group])=>group.length);
+ document.getElementById("waitingList").innerHTML=waitingGroups.length?`<div class="bracket-section-view">${bracketSectionFilterMarkup(waitingGroups)}<div class="waiting-bracket-groups">${waitingGroups.map(([bracket,group])=>`<section class="waiting-category" data-bracket-key="${esc(bracket)}"><div class="waiting-category-head"><span class="waiting-category-name">${esc(bracketLabel(bracket))}</span><span class="waiting-category-count">${group.length} waiting</span></div>${group.map(p=>{let partner=p.partnerId?player(p.partnerId):null,partnerNote=partner?(partner.available&&!busy.has(partner.id)?"Fixed duo with "+partner.name:"Waiting for "+partner.name+" to become available"):"Available for matchmaking";return `<div class="row waiting-player-row"><div><b>${esc(p.name)}</b><div class="small">${esc(partnerNote)}</div></div><div class="small" style="text-align:right">${stats(p).games} games · idle ${idle(p)}m</div></div>`}).join("")}</section>`).join("")}</div></div>`:'<div class="empty">No available players waiting.</div>';
  let q=(document.getElementById("playerSearch")?.value||"").trim().toLowerCase(),results=document.getElementById("playerSearchResults");if(!q){results.innerHTML='<div class="small muted">Search player names across all skill brackets.</div>'}else{let found=state.players.filter(p=>(p.name||"").toLowerCase().includes(q));results.innerHTML=found.slice(0,12).map(p=>{let s=stats(p,false),ordered=ranking(state.players.filter(x=>x.bracket===p.bracket)),rank=leaderboardRank(ordered,p);return `<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>${esc(p.name)}</b><div class="small">${esc(bracketLabel(p.bracket))} · Rank #${rank} · ${s.wins}W / ${s.losses}L</div></div>`}).join("")||'<div class="empty">No matching player.</div>'}}
 function renderLeaderboard(){
  let view=document.getElementById("bracketFilter").value||"Overall",overall=view==="Overall",source=overall?state.players:state.players.filter(p=>p.bracket===view),list=ranking([...source]);
@@ -1153,7 +1174,7 @@ function renderTournamentGame(tie,game){
 function tournamentGamesGroupedByBracketMarkup(tie,games){
  if(!games.length)return "";const groups=new Map();games.forEach(game=>{const key=String(game.bracket||"Unclassified");if(!groups.has(key))groups.set(key,[]);groups.get(key).push(game);});
  const ordered=[...groups.entries()].sort((a,b)=>{const firstA=BRACKETS.indexOf(a[0].split(" + ")[0]),firstB=BRACKETS.indexOf(b[0].split(" + ")[0]);return (firstA<0?999:firstA)-(firstB<0?999:firstB)||a[0].localeCompare(b[0]);});
- return `<div class="tournament-bracket-groups">${ordered.map(([key,items])=>`<section class="tournament-bracket-group"><div class="tournament-bracket-group-head"><b>${esc(bracketLabel(key))}</b><span>${items.length} game${items.length===1?"":"s"}</span></div><div class="tournament-subgames">${items.map(game=>renderTournamentGame(tie,game)).join("")}</div></section>`).join("")}</div>`;
+ return `<div class="bracket-section-view">${bracketSectionFilterMarkup(ordered)}<div class="tournament-bracket-groups">${ordered.map(([key,items])=>`<section class="tournament-bracket-group" data-bracket-key="${esc(key)}"><div class="tournament-bracket-group-head"><b>${esc(bracketLabel(key))}</b><span>${items.length} game${items.length===1?"":"s"}</span></div><div class="tournament-subgames">${items.map(game=>renderTournamentGame(tie,game)).join("")}</div></section>`).join("")}</div></div>`;
 }
 function renderTournamentMatch(tie,roundIndex){
  const a=tournamentClub(tie.clubAId),b=tournamentClub(tie.clubBId),wins=tournamentGameWins(tie),statusLabel=({scheduled:"UPCOMING","in-progress":"LIVE NOW",complete:"COMPLETED"})[tie.status]||tie.status;
