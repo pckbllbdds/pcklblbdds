@@ -1575,6 +1575,43 @@ function tournamentPlayerName(id){return tournamentRosterPlayer(id)?.name||"Play
 function tournamentFindTie(tieId){return ensureTournament().rounds.flat().find(m=>m.id===tieId)||null;}
 function tournamentFindGame(tieId,gameId){const tie=tournamentFindTie(tieId);return tie?.games?.find(g=>g.id===gameId)||null;}
 function tournamentGameWins(tie){let a=0,b=0;(tie.games||[]).filter(g=>g.status==="complete"&&!g.isTiebreaker).forEach(g=>{if(g.scoreA>g.scoreB)a++;else if(g.scoreB>g.scoreA)b++;});return {a,b};}
+function tournamentPartnerGameStats(){
+ const t=ensureTournament(),rows=new Map();
+ const getPair=(clubId,ids)=>{
+  const pairIds=(Array.isArray(ids)?ids:[]).map(String).filter(Boolean);
+  if(pairIds.length!==2||pairIds[0]===pairIds[1])return null;
+  const sorted=pairIds.slice().sort((a,b)=>a.localeCompare(b)),key=JSON.stringify([String(clubId),sorted]);
+  if(!rows.has(key)){
+   const club=tournamentClub(clubId);
+   rows.set(key,{key,clubId:String(clubId),clubName:club?.name||"Unknown club",playerIds:sorted,players:sorted.map(tournamentPlayerName).sort((a,b)=>a.localeCompare(b)),played:0,completed:0,live:0,upcoming:0,wins:0,losses:0});
+  }
+  return rows.get(key);
+ };
+ // Prepopulate every registered eligible duo so pairs with no appearances remain visible at zero.
+ (t.clubs||[]).forEach(club=>tournamentDuosForClub(club.id,t.genderMode||"open").forEach(pair=>getPair(club.id,pair.map(person=>person.id))));
+ // Count each actual fixture once for each partner pair. Scheduled fixtures are kept separate from games already started.
+ (t.rounds||[]).forEach(round=>(round||[]).forEach(tie=>(tie.games||[]).forEach(game=>{
+  if(game.isTiebreaker)return;
+  const pairA=getPair(tie.clubAId,game.teamA),pairB=getPair(tie.clubBId,game.teamB);
+  if(!pairA||!pairB)return;
+  [pairA,pairB].forEach((pair,index)=>{
+   if(game.status==="scheduled")pair.upcoming++;
+   else if(game.status==="in-progress"){pair.live++;pair.played++;}
+   else if(game.status==="complete"){
+    pair.completed++;pair.played++;
+    const scoreFor=index===0?game.scoreA:game.scoreB,scoreAgainst=index===0?game.scoreB:game.scoreA;
+    if(Number.isFinite(Number(scoreFor))&&Number.isFinite(Number(scoreAgainst))&&scoreFor!==null&&scoreAgainst!==null){if(Number(scoreFor)>Number(scoreAgainst))pair.wins++;else if(Number(scoreAgainst)>Number(scoreFor))pair.losses++;}
+   }
+  });
+ })));
+ return Array.from(rows.values()).sort((a,b)=>a.played-b.played||a.completed-b.completed||a.clubName.localeCompare(b.clubName)||a.players.join(" + ").localeCompare(b.players.join(" + ")));
+}
+function tournamentPartnerGameTrackerMarkup(){
+ const stats=tournamentPartnerGameStats();
+ if(!stats.length)return `<div class="card"><h2>Partner game tracker</h2><div class="empty">No eligible doubles pairs are registered for this tournament.</div></div>`;
+ const startedPairs=stats.filter(row=>row.played>0).length,totalPlayed=stats.reduce((sum,row)=>sum+row.played,0);
+ return `<div class="card tournament-partner-tracker"><h2>Partner game tracker</h2><div class="small">Games are counted for each doubles pair across the tournament. Played includes live games and completed games; upcoming fixtures are shown separately. Pairs with the fewest games appear first.</div><div class="statrow" style="margin:10px 0"><div class="stat"><b>${stats.length}</b><span class="small">Partner pairs</span></div><div class="stat"><b>${startedPairs}</b><span class="small">Pairs with a turn</span></div><div class="stat"><b>${totalPlayed}</b><span class="small">Pair-game appearances</span></div></div><div class="leaderboard-table-wrap"><table><thead><tr><th>Partners</th><th>Club</th><th>Games played</th><th>Completed</th><th>Live</th><th>Upcoming</th><th>W–L</th></tr></thead><tbody>${stats.map(row=>`<tr><td><b>${esc(row.players.join(" + "))}</b></td><td>${esc(row.clubName)}</td><td><b>${row.played}</b></td><td>${row.completed}</td><td>${row.live}</td><td>${row.upcoming}</td><td>${row.wins}–${row.losses}</td></tr>`).join("")}</tbody></table></div></div>`;
+}
 function updateTournamentTieResult(tie){
  const regular=(tie.games||[]).filter(g=>!g.isTiebreaker);
  const wins=tournamentGameWins(tie);tie.gamesWonA=wins.a;tie.gamesWonB=wins.b;
@@ -1705,9 +1742,10 @@ function renderTournament(){
  </div>`:"";
  const archiveNotice=(t.archivedSingleEliminationBracket?.length||(t.formatVersion===2&&rounds.length))?`<div class="card" style="border-color:#d7dde5;background:#f5f6f8"><b>Previous single-elimination bracket archived</b><div class="small">The previous single-elimination schedule is retained for reference. Reset it to create the new single round-robin schedule.</div></div>`:"";
  const standingsPanel=t.formatVersion===3&&rounds.length?`<div class="card"><h2>Tournament standings</h2><div class="small">Ranked by total completed doubles-game wins. Clubs with the same number of wins share the same standing. The number of games can vary by roster size and compatibility, so check Games played alongside Wins.</div><div class="leaderboard-table-wrap"><table><thead><tr><th>Rank</th><th>Club</th><th>Games played</th><th>Wins</th><th>Losses</th><th>Points for</th><th>Against</th></tr></thead><tbody>${standings.map((row,i)=>{const rank=standings.findIndex(other=>other.wins===row.wins)+1;return `<tr><td><b>#${rank}</b></td><td><b>${esc(row.club.name)}</b></td><td>${row.played}</td><td><b>${row.wins}</b></td><td>${row.losses}</td><td>${row.pointsFor}</td><td>${row.pointsAgainst}</td></tr>`;}).join("")}</tbody></table></div>${allGamesComplete?`<div class="tournament-winner-banner">${leaders.length===1?`Tournament winner · ${esc(leaders[0].club.name)} (${leaders[0].wins} wins)`: `Tournament tied · ${leaders.map(row=>esc(row.club.name)).join(" and ")} (${topWins} wins each)`}</div>`:completed>0&&leaders.length?`<div class="small" style="margin-top:9px">Current leader${leaders.length>1?"s":""}: ${leaders.map(row=>esc(row.club.name)).join(", ")} · ${topWins} wins</div>`:""}</div>`:"";
+ const partnerTrackerPanel=t.formatVersion===3&&rounds.length?tournamentPartnerGameTrackerMarkup():"";
  const roundsPanel=t.formatVersion===3?(rounds.length?`<div class="card"><h2 data-bracket-title>${esc(t.name||"Interclub Tournament")} · Round-robin fixtures</h2><div class="small">${clubs.length} clubs · ${rounds.length} rounds · ${ties.length} club matchups · ${games.length} doubles games</div>${rounds.map((round,i)=>`<section class="tournament-round-section" style="margin-top:18px"><h3>Round ${i+1}</h3>${tournamentRoundBracketColumnsMarkup(round,i)}</section>`).join("")}</div>`:`<div class="card"><h2>Round-robin schedule</h2><div class="empty">${adminAuthenticated?"Register at least two clubs and eligible players, then generate the round-robin schedule and doubles games.":"The organizer is registering participating clubs and players. The full round-robin schedule and standings will appear here once generated."}</div></div>`):"";
  const legacyPanel=t.formatVersion!==3&&rounds.length?`<div class="card"><h2>Previous single-elimination schedule</h2><div class="empty">This saved tournament uses the previous knockout format. To switch it to single round robin, choose <b>Reset schedule & results</b> above. Club registrations and player rosters will be retained.</div></div>`:"";
- const bracketPanel=standingsPanel+roundsPanel+legacyPanel;
+ const bracketPanel=standingsPanel+partnerTrackerPanel+roundsPanel+legacyPanel;
  root.innerHTML=`<div class="tournament-hero"><div><h2 data-tournament-title>${esc(t.name||"Interclub Tournament")}</h2><div class="small">Single round robin · Every club plays every other club · Public live results</div></div>${adminAuthenticated&&rounds.length?`<button class="primary" onclick="openTournamentDeployment()">Deploy tournament games to courts</button>`:""}<div class="tournament-stats"><div class="tournament-stat"><b>${clubs.length}</b><span>Clubs</span></div><div class="tournament-stat"><b>${games.length}</b><span>Doubles games</span></div><div class="tournament-stat"><b>${live}</b><span>Live</span></div><div class="tournament-stat"><b>${completed}</b><span>Results</span></div></div></div>${archiveNotice}${adminPanel}${bracketPanel}${!adminAuthenticated?'<div class="small muted" style="margin-top:10px">All registered tournament games and results are visible publicly. Only the organizer can edit them.</div>':""}`;
 
  root.querySelectorAll(".bracket-section-view").forEach(applyBracketSectionVisibility);
