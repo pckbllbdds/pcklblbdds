@@ -1001,19 +1001,35 @@ function deploymentLastPlayedGame(){
  played.sort((a,b)=>Number(b.game.startedAt||b.game.completedAt||b.game.createdAt||0)-Number(a.game.startedAt||a.game.completedAt||a.game.createdAt||0));return played[0]||null;
 }
 function deploymentPreviousGame(){const drafts=deploymentOrderedDraftEntries();return drafts.length?drafts[drafts.length-1].item:deploymentLastPlayedGame();}
-function deploymentFindCandidate(queue,assignedRefs,busy,previousPairs,counts){
+function deploymentTournamentAppearanceCounts(){
+ const counts=new Map();
+ tournamentGamesFlat().forEach(item=>{
+  if(!["in-progress","complete"].includes(item.game?.status))return;
+  deploymentPlayerKeys(item).forEach(key=>counts.set(key,(counts.get(key)||0)+1));
+ });
+ return counts;
+}
+function deploymentFindCandidate(queue,assignedRefs,busy,previousPairs,counts,playerCounts=new Map()){
  let skippedBusy=0,skippedPartner=0;const eligible=[];
- for(const item of queue){if(assignedRefs.has(item.ref))continue;const keys=deploymentPlayerKeys(item);if(keys.some(key=>busy.has(key))){skippedBusy++;continue;}const pairs=deploymentPartnershipKeys(item);if(pairs.some(pair=>previousPairs.has(pair))){skippedPartner++;continue;}eligible.push({item,validation:validateDeploymentItem(item),bracketCount:counts.get(deploymentBracketKey(item))||0});}
- eligible.sort((a,b)=>a.bracketCount-b.bracketCount||a.item.position-b.item.position);
+ for(const item of queue){
+  if(assignedRefs.has(item.ref))continue;
+  const keys=deploymentPlayerKeys(item);if(keys.some(key=>busy.has(key))){skippedBusy++;continue;}
+  const pairs=deploymentPartnershipKeys(item);if(pairs.some(pair=>previousPairs.has(pair))){skippedPartner++;continue;}
+  const appearances=item.kind==="tournament"?keys.map(key=>playerCounts.get(key)||0):[];
+  eligible.push({item,validation:validateDeploymentItem(item),bracketCount:counts.get(deploymentBracketKey(item))||0,playerNew:appearances.filter(value=>value===0).length,playerMax:appearances.length?Math.max(...appearances):0,playerTotal:appearances.reduce((sum,value)=>sum+value,0)});
+ }
+ // Tournament mode maximizes first-turn opportunities, then minimizes repeat
+ // appearances before applying bracket rotation.
+ eligible.sort((a,b)=>(a.item.kind==="tournament"?b.playerNew-a.playerNew||a.playerMax-b.playerMax||a.playerTotal-b.playerTotal:0)||(a.bracketCount-b.bracketCount)||(a.item.position-b.item.position));
  return {chosen:eligible[0]||null,skippedBusy,skippedPartner,skipped:skippedBusy+skippedPartner};
 }
 function deploymentNextCandidate(){
  pruneDeploymentDraft();const free=freeCourtNumbers().filter(court=>!deploymentDraft[court]);if(!free.length)return {item:null,reason:"All courts are occupied or already assigned in this deployment."};
  const queue=deploymentQueueItems(),drafts=deploymentOrderedDraftEntries(),assignedRefs=new Set(drafts.map(entry=>entry.ref)),busy=deploymentLivePlayerKeys();drafts.forEach(entry=>deploymentPlayerKeys(entry.item).forEach(key=>busy.add(key)));
- const previous=deploymentPreviousGame(),previousPairs=new Set(previous?deploymentPartnershipKeys(previous):[]),counts=new Map();
+ const previous=deploymentPreviousGame(),previousPairs=new Set(previous?deploymentPartnershipKeys(previous):[]),counts=new Map(),playerCounts=deploymentTournamentAppearanceCounts();
  activeCourtItems().forEach(item=>{const key=deploymentBracketKey(item);counts.set(key,(counts.get(key)||0)+1);});
- drafts.forEach(entry=>{const key=deploymentBracketKey(entry.item);counts.set(key,(counts.get(key)||0)+1);});
- const result=deploymentFindCandidate(queue,assignedRefs,busy,previousPairs,counts),{chosen,skippedBusy,skippedPartner,skipped}=result;
+ drafts.forEach(entry=>{const key=deploymentBracketKey(entry.item);counts.set(key,(counts.get(key)||0)+1);if(entry.item.kind==="tournament")deploymentPlayerKeys(entry.item).forEach(playerKey=>playerCounts.set(playerKey,(playerCounts.get(playerKey)||0)+1));});
+ const result=deploymentFindCandidate(queue,assignedRefs,busy,previousPairs,counts,playerCounts),{chosen,skippedBusy,skippedPartner,skipped}=result;
  if(chosen)return {item:chosen.item,validation:chosen.validation,skipped,skippedBusy,skippedPartner,queueLength:queue.length};
  if(deploymentMode==="tournament"){
   const rounds=state.interclubTournament?.rounds||[],current=rounds.find(round=>(round||[]).some(tie=>(tie.games||[]).some(game=>game.status!=="complete"))),liveInRound=(current||[]).flatMap(tie=>tie.games||[]).some(game=>game.status==="in-progress");
@@ -1041,7 +1057,7 @@ function renderCourtDeployment(){
  if(mode&&mode.value==="tournament"&&!state.interclubTournament?.rounds?.length)html+=`<div class="deployment-alert">Generate the Interclub round-robin schedule first. Its fixtures will then appear here in round order.</div>`;
  html+=`<div class="deployment-workspace"><div class="deployment-queue-panel"><div class="deployment-panel-heading"><h3>Next in queue</h3><span class="deployment-chip">${mode?.value==="tournament"?"Interclub":"Open Play"}</span></div>`;
  if(candidate.item){html+=deploymentGameMarkup(candidate.item,!candidate.validation.ok,candidate.validation.message,available);if(candidate.skipped)html+=`<div class="deployment-queue-note">${candidate.skipped} earlier queued fixture${candidate.skipped===1?" was":"s were"} skipped for now${candidate.skippedBusy?` (${candidate.skippedBusy} conflict${candidate.skippedBusy===1?"":"s"} with players already on court or selected)`:""}${candidate.skippedPartner?` (${candidate.skippedPartner} repeat-partnership match${candidate.skippedPartner===1?"":"es"})`:""}. Their queue positions are retained.</div>`;}else html+=`<div class="empty">${esc(candidate.reason||"No eligible game is ready to deploy.")}</div>`;
- html+=`<div class="deployment-queue-note">Court allocation rotates toward the least-represented skill bracket among active and selected games. If a queued game repeats either teammate pair from the most recently deployed game, it is skipped until another duo gets a turn. Player conflicts are also skipped without changing queue order.</div></div><div class="deployment-courts-panel"><div class="deployment-panel-heading"><h3>Courts</h3><div class="deployment-court-controls"><span class="deployment-chip">${available.length} available</span><button onclick="adjustDeploymentCourtCount(1)" ${configuredCourts()>=30?"disabled":""}>+ Add court</button><button onclick="adjustDeploymentCourtCount(-1)" ${configuredCourts()<=1||active.some(item=>item.courtNo===configuredCourts())||Boolean(deploymentDraft[configuredCourts()])?"disabled":""}>− Remove last</button></div></div><div class="deployment-courts">${Array.from({length:configuredCourts()},(_,i)=>i+1).map(court=>deploymentCourtCardMarkup(court,activeByCourt.get(court),draftByCourt.get(court))).join("")}</div></div></div>`;
+ html+=`<div class="deployment-queue-note">${mode?.value==="tournament"?"Tournament Mode prioritizes players with the fewest games played in the event, giving everyone a first turn before repeat appearances whenever compatible fixtures allow. Skill, gender, player-conflict, and consecutive-partner rules still apply.":"Court allocation rotates toward the least-represented skill bracket among active and selected games. If a queued game repeats either teammate pair from the most recently deployed game, it is skipped until another duo gets a turn. Player conflicts are also skipped without changing queue order."}</div></div><div class="deployment-courts-panel"><div class="deployment-panel-heading"><h3>Courts</h3><div class="deployment-court-controls"><span class="deployment-chip">${available.length} available</span><button onclick="adjustDeploymentCourtCount(1)" ${configuredCourts()>=30?"disabled":""}>+ Add court</button><button onclick="adjustDeploymentCourtCount(-1)" ${configuredCourts()<=1||active.some(item=>item.courtNo===configuredCourts())||Boolean(deploymentDraft[configuredCourts()])?"disabled":""}>− Remove last</button></div></div><div class="deployment-courts">${Array.from({length:configuredCourts()},(_,i)=>i+1).map(court=>deploymentCourtCardMarkup(court,activeByCourt.get(court),draftByCourt.get(court))).join("")}</div></div></div>`;
  html+=`<div class="deployment-footer"><div class="small">${assignedCount?`${assignedCount} game${assignedCount===1?"":"s"} assigned. Deploying starts every selected game and its 15-minute yellow / 20-minute red status timer together.`:"Assign one or more queued games to available courts. No game starts until you press Deploy."}</div><div class="row" style="flex:0 0 auto;flex-wrap:wrap"><button onclick="autoFillDeploymentCourts()" ${available.length&&candidate.item&&candidate.validation?.ok?"":"disabled"}>Auto-fill open courts</button><button onclick="clearDeploymentAssignments()" ${assignedCount?"":"disabled"}>Clear assignments</button><button class="primary deployment-deploy-button" onclick="deployCourtAssignments()" ${assignedCount?"":"disabled"}>Deploy ${assignedCount?assignedCount+" game"+(assignedCount===1?"":"s"):"selected games"} & start</button></div></div>`;
  target.innerHTML=html;
 }
@@ -1067,14 +1083,14 @@ async function deployCourtAssignments(){
  const active=activeCourtItems(),occupiedCourts=new Set(active.map(item=>item.courtNo).filter(Boolean)),busy=deploymentLivePlayerKeys(),queue=deploymentQueueItems(),byRef=new Map(queue.map(item=>[item.ref,item]));
  if(entries.some(entry=>!entry.item||!byRef.has(entry.ref)))return alert("The queue changed after these assignments were made. Refresh the board and assign the current next game again.");
  const courtSet=new Set();for(const entry of entries){if(entry.court>configuredCourts()||occupiedCourts.has(entry.court)||courtSet.has(entry.court))return alert("A selected court is no longer available. Refresh the board and assign the games again.");courtSet.add(entry.court);}
- const toDeploy=[],assignedRefs=new Set(),previous=deploymentLastPlayedGame(),counts=new Map();let previousPairs=new Set(previous?deploymentPartnershipKeys(previous):[]);
+ const toDeploy=[],assignedRefs=new Set(),previous=deploymentLastPlayedGame(),counts=new Map(),playerCounts=deploymentTournamentAppearanceCounts();let previousPairs=new Set(previous?deploymentPartnershipKeys(previous):[]);
  active.forEach(item=>{const key=deploymentBracketKey(item);counts.set(key,(counts.get(key)||0)+1);});
  for(const entry of entries){
-  const candidate=deploymentFindCandidate(queue,assignedRefs,busy,previousPairs,counts).chosen;
+  const candidate=deploymentFindCandidate(queue,assignedRefs,busy,previousPairs,counts,playerCounts).chosen;
   if(!candidate)return alert("The selected games no longer match the fair queue. Clear the assignments and use Next in queue or Auto-fill to rebuild them.");
   if(candidate.item.ref!==entry.ref)return alert("Bracket rotation or the no-consecutive-partner rule changed the eligible order. Clear the assignments and use Next in queue or Auto-fill to rebuild them.");
   if(!candidate.validation.ok)return alert(candidate.validation.message);
-  const keys=deploymentPlayerKeys(candidate.item);toDeploy.push({item:candidate.item,court:entry.court});keys.forEach(key=>busy.add(key));assignedRefs.add(candidate.item.ref);
+  const keys=deploymentPlayerKeys(candidate.item);toDeploy.push({item:candidate.item,court:entry.court});keys.forEach(key=>{busy.add(key);if(candidate.item.kind==="tournament")playerCounts.set(key,(playerCounts.get(key)||0)+1);});assignedRefs.add(candidate.item.ref);
   const bracket=deploymentBracketKey(candidate.item);counts.set(bracket,(counts.get(bracket)||0)+1);previousPairs=new Set(deploymentPartnershipKeys(candidate.item));
  }
  if(toDeploy.length!==entries.length)return alert("One or more assigned games are no longer eligible. Review the deployment board and try again.");
@@ -1525,18 +1541,35 @@ function tournamentGameGenderAllowed(duoA,duoB,mode){
 function tournamentDuoBracketKey(duo){
  return duo.map(p=>p.bracket).sort((a,b)=>BRACKETS.indexOf(a)-BRACKETS.indexOf(b)).join(" + ");
 }
+function orderTournamentGamesForFirstTurns(games,tieId){
+ // Greedy fair ordering: give the most previously-unplayed players a first turn,
+ // then minimize the most-played participant and the four-player total.
+ const remaining=games.slice(),ordered=[],appearances=new Map();
+ while(remaining.length){
+  let bestIndex=0,bestNew=-1,bestMax=Infinity,bestTotal=Infinity;
+  remaining.forEach((game,index)=>{
+   const values=game.teamA.concat(game.teamB).map(id=>appearances.get(String(id))||0);
+   const max=values.length?Math.max(...values):0,total=values.reduce((sum,value)=>sum+value,0),fresh=values.filter(value=>value===0).length;
+   if(fresh>bestNew||(fresh===bestNew&&(max<bestMax||(max===bestMax&&total<bestTotal)))){bestIndex=index;bestNew=fresh;bestMax=max;bestTotal=total;}
+  });
+  const game=remaining.splice(bestIndex,1)[0];ordered.push(game);
+  game.teamA.concat(game.teamB).forEach(id=>{const key=String(id);appearances.set(key,(appearances.get(key)||0)+1);});
+ }
+ return ordered.map((game,index)=>({...game,id:`${tieId}-g${index+1}`,gameNumber:index+1}));
+}
 function tournamentGamesForClubs(clubAId,clubBId,tieId,mode=ensureTournament().genderMode||"open"){
  const duosA=tournamentDuosForClub(clubAId,mode),duosB=tournamentDuosForClub(clubBId,mode),now=Date.now(),games=[];
  // Each skill-bracket pairing is its own full cross-club round robin:
  // every eligible duo faces every duo from the opposing club with the same bracket composition.
+ // The final order prioritizes each player's first appearance before repeat appearances.
  duosA.forEach(a=>{
   duosB.forEach(b=>{
    if(tournamentDuoBracketKey(a)!==tournamentDuoBracketKey(b))return;
    if(!skillCompatibleGroup(a.concat(b))||!tournamentGameGenderAllowed(a,b,mode))return;
-   games.push({id:`${tieId}-g${games.length+1}`,gameNumber:games.length+1,teamA:a.map(p=>p.id),teamB:b.map(p=>p.id),bracket:[...new Set(a.concat(b).map(p=>p.bracket))].sort((x,y)=>BRACKETS.indexOf(x)-BRACKETS.indexOf(y)).join(" + "),genderMode:mode,status:"scheduled",scoreA:null,scoreB:null,scheduledAt:"",court:"",venue:"",fixtureType:"Doubles",notes:"",createdAt:now});
+   games.push({teamA:a.map(p=>p.id),teamB:b.map(p=>p.id),bracket:[...new Set(a.concat(b).map(p=>p.bracket))].sort((x,y)=>BRACKETS.indexOf(x)-BRACKETS.indexOf(y)).join(" + "),genderMode:mode,status:"scheduled",scoreA:null,scoreB:null,scheduledAt:"",court:"",venue:"",fixtureType:"Doubles",notes:"",createdAt:now});
   });
  });
- return games;
+ return orderTournamentGamesForFirstTurns(games,tieId);
 }
 function tournamentPlayerName(id){return tournamentRosterPlayer(id)?.name||"Player";}
 function tournamentFindTie(tieId){return ensureTournament().rounds.flat().find(m=>m.id===tieId)||null;}
@@ -1668,7 +1701,7 @@ function renderTournament(){
   <h3>Opponent clubs</h3><div class="tournament-club-list">${clubs.filter(c=>!c.isHome).map(c=>`<div class="tournament-club-row" data-tournament-club="${esc(c.id)}"><span class="tournament-club-name">${esc(c.name)}</span>${!rounds.length?`<button class="danger" onclick="removeTournamentClub('${c.id}')">Remove</button>`:""}</div>`).join("")}</div>${!rounds.length?`<div class="row"><input id="newTournamentClub" placeholder="Opponent club name" maxlength="60"><button class="primary fit" onclick="addTournamentClub()">Add club</button></div>`:""}
   <h3>Register opponent club players</h3>${!rounds.length?`<div class="tournament-roster-form"><label class="wide">Club<select id="tournamentRosterClub" onchange="refreshTournamentRosterPartnerChoices(this.value)">${clubs.filter(c=>!c.isHome).map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("")}</select></label><label class="wide">Player name<input id="tournamentRosterName" placeholder="Full name" maxlength="80"></label><label>Skill bracket<select id="tournamentRosterBracket">${BRACKETS.map(b=>`<option value="${esc(b)}">${esc(bracketLabel(b))}</option>`).join("")}</select></label><label>Gender<select id="tournamentRosterGender"><option value="unspecified">Not set</option><option value="female">Female</option><option value="male">Male</option></select></label><label class="wide">Fixed partner (optional)<select id="tournamentRosterPartner"><option value="">No fixed partner · pair automatically</option>${roster.filter(p=>p.clubId===clubs.find(c=>!c.isHome)?.id&&!p.partnerId&&!p.sourcePlayerId).map(p=>`<option value="${esc(p.id)}">${esc(p.name)} · ${esc(bracketLabel(p.bracket))}</option>`).join("")}</select></label></div><button class="primary" onclick="addTournamentRosterPlayer()" ${clubs.filter(c=>!c.isHome).length?"":"disabled"}>Add opponent player</button>`:`<div class="small">Roster is locked while the bracket is active. Reset the bracket to make changes.</div>`}
   ${!rounds.length?`<button class="primary" onclick="buildTournamentBracket()">Generate round-robin schedule & games</button>`:`<div class="small">Club registration and duos are locked while the round-robin schedule is active.</div><button class="danger" onclick="resetTournamentBracket()">Reset schedule & results</button>`}
-  </div><div class="tournament-side-column"><div class="card"><h3>How Tournament Mode works</h3><p class="small">Single round robin: every club faces every other club exactly once. The registered players are split into doubles teams within their own club. Within each matching skill-bracket composition, every eligible duo faces every opposing duo, so each pair can play multiple games in the same club matchup. Fixed partner duos stay together. Every completed doubles game adds one win to the winning club. The club with the most completed game wins across the full tournament finishes first. There is no elimination or advancing to another round. With an odd number of clubs, one club has a bye each round.</p><div class="statrow"><div class="stat"><b>${clubs.length}</b><span class="small">Clubs</span></div><div class="stat"><b>${games.length}</b><span class="small">Doubles games</span></div><div class="stat"><b>${completed}</b><span class="small">Completed</span></div><div class="stat"><b>${live}</b><span class="small">Live now</span></div></div></div>${registeredRosterPanel}</div>
+  </div><div class="tournament-side-column"><div class="card"><h3>How Tournament Mode works</h3><p class="small">Single round robin: every club faces every other club exactly once. The registered players are split into doubles teams within their own club. Within each matching skill-bracket composition, every eligible duo faces every opposing duo, so each pair can play multiple games in the same club matchup. Fixtures are ordered to give players their first game before repeat appearances whenever compatible matchups allow. Fixed partner duos stay together. Every completed doubles game adds one win to the winning club. The club with the most completed game wins across the full tournament finishes first. There is no elimination or advancing to another round. With an odd number of clubs, one club has a bye each round.</p><div class="statrow"><div class="stat"><b>${clubs.length}</b><span class="small">Clubs</span></div><div class="stat"><b>${games.length}</b><span class="small">Doubles games</span></div><div class="stat"><b>${completed}</b><span class="small">Completed</span></div><div class="stat"><b>${live}</b><span class="small">Live now</span></div></div></div>${registeredRosterPanel}</div>
  </div>`:"";
  const archiveNotice=(t.archivedSingleEliminationBracket?.length||(t.formatVersion===2&&rounds.length))?`<div class="card" style="border-color:#d7dde5;background:#f5f6f8"><b>Previous single-elimination bracket archived</b><div class="small">The previous single-elimination schedule is retained for reference. Reset it to create the new single round-robin schedule.</div></div>`:"";
  const standingsPanel=t.formatVersion===3&&rounds.length?`<div class="card"><h2>Tournament standings</h2><div class="small">Ranked by total completed doubles-game wins. Clubs with the same number of wins share the same standing. The number of games can vary by roster size and compatibility, so check Games played alongside Wins.</div><div class="leaderboard-table-wrap"><table><thead><tr><th>Rank</th><th>Club</th><th>Games played</th><th>Wins</th><th>Losses</th><th>Points for</th><th>Against</th></tr></thead><tbody>${standings.map((row,i)=>{const rank=standings.findIndex(other=>other.wins===row.wins)+1;return `<tr><td><b>#${rank}</b></td><td><b>${esc(row.club.name)}</b></td><td>${row.played}</td><td><b>${row.wins}</b></td><td>${row.losses}</td><td>${row.pointsFor}</td><td>${row.pointsAgainst}</td></tr>`;}).join("")}</tbody></table></div>${allGamesComplete?`<div class="tournament-winner-banner">${leaders.length===1?`Tournament winner · ${esc(leaders[0].club.name)} (${leaders[0].wins} wins)`: `Tournament tied · ${leaders.map(row=>esc(row.club.name)).join(" and ")} (${topWins} wins each)`}</div>`:completed>0&&leaders.length?`<div class="small" style="margin-top:9px">Current leader${leaders.length>1?"s":""}: ${leaders.map(row=>esc(row.club.name)).join(", ")} · ${topWins} wins</div>`:""}</div>`:"";
